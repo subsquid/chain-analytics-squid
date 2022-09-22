@@ -1,17 +1,60 @@
-type Account @entity {
-  "Account address"
+type Totals @entity {
   id: ID!
-  transfersTo: [Transfer!] @derivedFrom(field: "to")
-  transfersFrom: [Transfer!] @derivedFrom(field: "from")
+  finalizedBlocks: BigInt!
+  totalIssuance: BigInt!
+  signedExtrinsics: BigInt!
+  transfers: BigInt!
+  holders: BigInt!
+  validatorsIdealCount: Int!
+  validatorsCount: Int!
+  stakedValueTotal: BigInt!
+  stakedValueValidator: BigInt! @index
+  stakedValueNominator: BigInt! @index
+  inflationRate: BigInt!
 }
 
-type Transfer @entity {
+type HistoricalDataMeta @entity {
   id: ID!
-  blockNumber: Int! @index
-  timestamp: DateTime! @index
-  extrinsicHash: String @index
-  from: Account!
-  to: Account!
+  holdersLatestBlockNumber: BigInt @index
+  holdersLatestTime: DateTime @index
+
+  issuanceLatestBlockNumber: BigInt @index
+  issuanceLatestTime: DateTime @index
+
+  validatorLatestBlockNumber: BigInt @index
+  validatorLatestTime: DateTime @index
+
+  stakingLatestBlockNumber: BigInt @index
+  stakingLatestTime: DateTime @index
+}
+
+type Holders @entity {
+  "Block number"
+  id: ID!
   amount: BigInt! @index
-  fee: BigInt! # fee is calculated at the best effort and may be zero for some old extrinsics
+  timestamp: DateTime! @index
+}
+
+type Issuance @entity {
+  "Block number"
+  id: ID!
+  amount: BigInt! @index
+  timestamp: DateTime! @index
+}
+
+type Validator @entity {
+  "Block number"
+  id: ID!
+  timestamp: DateTime! @index
+  idealCount: Int! @index
+  count: Int! @index
+}
+
+type StakedValue @entity {
+  "Block number"
+  id: ID!
+  timestamp: DateTime! @index
+  totalStake: BigInt! @index
+  validatorStake: BigInt! @index
+  nominatorStake: BigInt! @index
 }
