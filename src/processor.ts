@@ -80,11 +80,11 @@ export type Block = BatchBlock<Item>;
 processor.run(new TypeormDatabase(), async (ctx) => {
   // let transfersData = getTransfers(ctx)
   SquidCache.init(ctx, [
-    Totals,
-    HistoricalDataMeta,
     Holders,
     Issuance,
-    Validator
+    Validator,
+    HistoricalDataMeta,
+    Totals
   ]);
   const parsedEvents = getParsedEventsData(ctx);
   SquidCache.deferredLoad(Totals, '1');

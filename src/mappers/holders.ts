@@ -50,7 +50,6 @@ export async function handleChainHolders(ctx: Ctx, block: Block) {
   const totals = getOrCreateTotals();
 
   totals.holders = totalHolders;
-  console.log('totals - ', totals);
 
   SquidCache.upsert(totals);
 }

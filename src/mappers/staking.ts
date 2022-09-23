@@ -10,22 +10,22 @@ import {
 } from '../types/generated/storage';
 
 export async function handleStakeAmount(ctx: Ctx, block: Block) {
-  const histDataMeta = getOrHistoricalDataMeta();
-  const blockHeightBigInt = BigInt(block.header.height);
+  // const histDataMeta = getOrHistoricalDataMeta();
+  // const blockHeightBigInt = BigInt(block.header.height);
+  //
+  // if (
+  //   blockHeightBigInt - (histDataMeta.stakingLatestBlockNumber || 0n) <
+  //   BigInt(TOTAL_ISSUANCE_CHECK_STEP)
+  // ) {
+  //   return;
+  // }
 
-  if (
-    blockHeightBigInt - (histDataMeta.stakingLatestBlockNumber || 0n) <
-    BigInt(TOTAL_ISSUANCE_CHECK_STEP)
-  ) {
-    return;
-  }
-
-  const storageNominators = new StakingNominatorsStorage(ctx, block.header);
-  if (!storageNominators.isExists) return;
-
-  const nominators = await storageNominators.getAllAsV1020();
-
-  console.log('nominators - ', nominators);
+  // const storageNominators = new StakingNominatorsStorage(ctx, block.header);
+  // if (!storageNominators.isExists) return;
+  //
+  // const nominators = await storageNominators.getAllAsV1020();
+  //
+  // console.log('nominators - ', nominators);
 
 
   // const newIssuanceStat = new Issuance({
