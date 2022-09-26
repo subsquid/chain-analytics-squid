@@ -3,29 +3,32 @@ type Totals @entity {
   finalizedBlocks: BigInt!
   totalIssuance: BigInt!
   signedExtrinsics: BigInt!
-  transfers: BigInt!
+  transfersCount: BigInt!
   holders: BigInt!
   validatorsIdealCount: Int!
   validatorsCount: Int!
   stakedValueTotal: BigInt!
-  stakedValueValidator: BigInt! @index
-  stakedValueNominator: BigInt! @index
+  stakedValueValidator: BigInt @index
+  stakedValueNominator: BigInt @index
   inflationRate: BigInt!
 }
 
 type HistoricalDataMeta @entity {
   id: ID!
-  holdersLatestBlockNumber: BigInt @index
+  holdersLatestBlockNumber: BigInt! @index
   holdersLatestTime: DateTime @index
 
-  issuanceLatestBlockNumber: BigInt @index
+  issuanceLatestBlockNumber: BigInt! @index
   issuanceLatestTime: DateTime @index
 
-  validatorLatestBlockNumber: BigInt @index
+  validatorLatestBlockNumber: BigInt! @index
   validatorLatestTime: DateTime @index
 
-  stakingLatestBlockNumber: BigInt @index
+  stakingLatestBlockNumber: BigInt! @index
   stakingLatestTime: DateTime @index
+
+  transferLatestBlockNumber: BigInt! @index
+  transferLatestTime: DateTime @index
 }
 
 type Holders @entity {
@@ -33,6 +36,7 @@ type Holders @entity {
   id: ID!
   amount: BigInt! @index
   timestamp: DateTime! @index
+  blockHash: String! @index
 }
 
 type Issuance @entity {
@@ -40,6 +44,7 @@ type Issuance @entity {
   id: ID!
   amount: BigInt! @index
   timestamp: DateTime! @index
+  blockHash: String! @index
 }
 
 type Validator @entity {
@@ -48,6 +53,7 @@ type Validator @entity {
   timestamp: DateTime! @index
   idealCount: Int! @index
   count: Int! @index
+  blockHash: String! @index
 }
 
 type StakedValue @entity {
@@ -57,4 +63,14 @@ type StakedValue @entity {
   totalStake: BigInt! @index
   validatorStake: BigInt! @index
   nominatorStake: BigInt! @index
+  blockHash: String! @index
+}
+
+type Transfers @entity {
+  "Block number"
+  id: ID!
+  timestamp: DateTime! @index
+  blockHash: String! @index
+  totalAmount: BigInt! @index
+  totalCount: BigInt! @index
 }

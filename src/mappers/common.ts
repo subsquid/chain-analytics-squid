@@ -1,12 +1,11 @@
-import { Ctx } from "../processor";
-import { BalancesTransferEvent } from "../types/generated/events";
+import { Ctx } from '../processor';
+import { BalancesTransferEvent } from '../types/generated/events';
 // import { Account, AccountBalance, Currency } from "../model";
-import { BlockEventName, BalancesTransferEventData } from "../utils/types";
+import { BlockEventName, BalancesTransferEventData } from '../utils/types';
 
-import { ParsedEventsDataScope } from "../utils/common";
+import { ParsedEventsDataScope } from '../utils/common';
 
-import { ProcessorCache as SquidCache } from "@subsquid/processor-tools";
-
+import { ProcessorCache as SquidCache } from '@subsquid/processor-tools';
 
 export function getParsedEventsData(ctx: Ctx): ParsedEventsDataScope {
   const parsedData = new ParsedEventsDataScope();
@@ -14,14 +13,15 @@ export function getParsedEventsData(ctx: Ctx): ParsedEventsDataScope {
   for (let block of ctx.blocks) {
     for (let item of block.items) {
       switch (item.name) {
-        case "Balances.Transfer": {
+        case 'Balances.Transfer': {
           const event = new BalancesTransferEvent(ctx, item.event);
 
           let data: BalancesTransferEventData = {
             id: item.event.id,
             amount: 0n,
             blockNumber: BigInt(block.header.height),
-            timestamp: new Date(block.header.timestamp),
+            blockHash: block.header.hash,
+            timestamp: new Date(block.header.timestamp)
           };
 
           if (event.isV1020) {
@@ -36,11 +36,6 @@ export function getParsedEventsData(ctx: Ctx): ParsedEventsDataScope {
           }
 
           parsedData.set(BlockEventName.BALANCES_TRANSFER, data);
-
-          // SquidCache.deferredLoad(Account, [
-          //   tokenTransfer.from,
-          //   tokenTransfer.to,
-          // ]);
 
           break;
         }

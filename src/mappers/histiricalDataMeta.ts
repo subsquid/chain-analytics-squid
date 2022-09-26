@@ -1,7 +1,7 @@
 import { ProcessorCache as SquidCache } from '@subsquid/processor-tools';
 import { HistoricalDataMeta } from '../model';
 
-export function getOrHistoricalDataMeta() {
+export function getOrCreateHistoricalDataMeta() {
   let histMetaEntity = SquidCache.get(HistoricalDataMeta, '1');
 
   if (histMetaEntity) return histMetaEntity;
@@ -15,7 +15,13 @@ export function getOrHistoricalDataMeta() {
     issuanceLatestTime: null,
 
     validatorLatestBlockNumber: 0n,
-    validatorLatestTime: null
+    validatorLatestTime: null,
+
+    stakingLatestBlockNumber: 0n,
+    stakingLatestTime: null,
+
+    transferLatestBlockNumber: 0n,
+    transferLatestTime: null
   });
 
   return histMetaEntity;

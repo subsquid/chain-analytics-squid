@@ -20,7 +20,7 @@ export class Totals {
   signedExtrinsics!: bigint
 
   @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-  transfers!: bigint
+  transfersCount!: bigint
 
   @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
   holders!: bigint
@@ -35,12 +35,12 @@ export class Totals {
   stakedValueTotal!: bigint
 
   @Index_()
-  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-  stakedValueValidator!: bigint
+  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})
+  stakedValueValidator!: bigint | undefined | null
 
   @Index_()
-  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-  stakedValueNominator!: bigint
+  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})
+  stakedValueNominator!: bigint | undefined | null
 
   @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
   inflationRate!: bigint

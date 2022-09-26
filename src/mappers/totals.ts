@@ -11,7 +11,7 @@ export function getOrCreateTotals() {
     finalizedBlocks: 0n,
     totalIssuance: 0n,
     signedExtrinsics: 0n,
-    transfers: 0n,
+    transfersCount: 0n,
     holders: 0n,
     validatorsIdealCount: 0,
     validatorsCount: 0,

@@ -1,7 +1,7 @@
 import { Ctx, Block } from '../processor';
 import { ProcessorCache as SquidCache } from '@subsquid/processor-tools';
 import { HistoricalDataMeta, Holders } from '../model';
-import { getOrHistoricalDataMeta } from './histiricalDataMeta';
+import { getOrCreateHistoricalDataMeta } from './histiricalDataMeta';
 import { TOTAL_HOLDERS_CHECK_STEP } from '../config';
 import { getOrCreateTotals } from './totals';
 import {
@@ -11,12 +11,14 @@ import {
 import { getStorageHash } from '../utils/common';
 
 export async function handleChainHolders(ctx: Ctx, block: Block) {
-  const histDataMeta = getOrHistoricalDataMeta();
-  const blockHeightBigInt = BigInt(block.header.height);
+  const histDataMeta = getOrCreateHistoricalDataMeta();
 
   if (
-    blockHeightBigInt - (histDataMeta.holdersLatestBlockNumber || 0n) <
-    BigInt(TOTAL_HOLDERS_CHECK_STEP)
+    block.header.timestamp -
+      (histDataMeta.holdersLatestTime
+        ? histDataMeta.holdersLatestTime.getTime()
+        : 0) <
+    TOTAL_HOLDERS_CHECK_STEP
   ) {
     return;
   }
@@ -35,14 +37,15 @@ export async function handleChainHolders(ctx: Ctx, block: Block) {
   const totalHolders = BigInt([...keys].length);
 
   const newHoldersStat = new Holders({
-    id: blockHeightBigInt.toString(),
+    id: block.header.height.toString(),
     amount: totalHolders,
-    timestamp: new Date(block.header.timestamp)
+    timestamp: new Date(block.header.timestamp),
+    blockHash: block.header.hash
   });
 
   SquidCache.upsert(newHoldersStat);
 
-  histDataMeta.holdersLatestBlockNumber = blockHeightBigInt;
+  histDataMeta.holdersLatestBlockNumber = BigInt(block.header.height);
   histDataMeta.holdersLatestTime = new Date(block.header.timestamp);
 
   SquidCache.upsert(histDataMeta);

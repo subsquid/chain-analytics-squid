@@ -5,6 +5,7 @@ export enum BlockEventName {
 export interface BalancesTransferEventData {
   id: string;
   blockNumber: bigint;
+  blockHash: string;
   timestamp: Date;
   amount: bigint;
 }

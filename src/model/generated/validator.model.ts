@@ -23,4 +23,8 @@ export class Validator {
   @Index_()
   @Column_("int4", {nullable: false})
   count!: number
+
+  @Index_()
+  @Column_("text", {nullable: false})
+  blockHash!: string
 }

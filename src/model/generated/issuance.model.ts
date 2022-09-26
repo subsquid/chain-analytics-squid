@@ -20,4 +20,8 @@ export class Issuance {
   @Index_()
   @Column_("timestamp with time zone", {nullable: false})
   timestamp!: Date
+
+  @Index_()
+  @Column_("text", {nullable: false})
+  blockHash!: string
 }

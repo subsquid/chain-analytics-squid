@@ -11,34 +11,42 @@ export class HistoricalDataMeta {
   id!: string
 
   @Index_()
-  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})
-  holdersLatestBlockNumber!: bigint | undefined | null
+  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
+  holdersLatestBlockNumber!: bigint
 
   @Index_()
   @Column_("timestamp with time zone", {nullable: true})
   holdersLatestTime!: Date | undefined | null
 
   @Index_()
-  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})
-  issuanceLatestBlockNumber!: bigint | undefined | null
+  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
+  issuanceLatestBlockNumber!: bigint
 
   @Index_()
   @Column_("timestamp with time zone", {nullable: true})
   issuanceLatestTime!: Date | undefined | null
 
   @Index_()
-  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})
-  validatorLatestBlockNumber!: bigint | undefined | null
+  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
+  validatorLatestBlockNumber!: bigint
 
   @Index_()
   @Column_("timestamp with time zone", {nullable: true})
   validatorLatestTime!: Date | undefined | null
 
   @Index_()
-  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})
-  stakingLatestBlockNumber!: bigint | undefined | null
+  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
+  stakingLatestBlockNumber!: bigint
 
   @Index_()
   @Column_("timestamp with time zone", {nullable: true})
   stakingLatestTime!: Date | undefined | null
+
+  @Index_()
+  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
+  transferLatestBlockNumber!: bigint
+
+  @Index_()
+  @Column_("timestamp with time zone", {nullable: true})
+  transferLatestTime!: Date | undefined | null
 }
