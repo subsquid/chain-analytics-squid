@@ -5,7 +5,6 @@ import { BlockEventName, BalancesTransferEventData } from '../utils/types';
 
 import { ParsedEventsDataScope } from '../utils/common';
 
-import { ProcessorCache as SquidCache } from '@subsquid/processor-tools';
 
 export function getParsedEventsData(ctx: Ctx): ParsedEventsDataScope {
   const parsedData = new ParsedEventsDataScope();

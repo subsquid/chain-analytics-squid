@@ -5,7 +5,7 @@ import {
   BatchProcessorItem,
   SubstrateBatchProcessor
 } from '@subsquid/substrate-processor';
-import { Store, TypeormDatabase } from '@subsquid/typeorm-store';
+import { Store, TypeormDatabase } from '@subsquid/processor-tools';
 import {
   Totals,
   Holders,
@@ -16,7 +16,6 @@ import {
 } from './model';
 
 import { getParsedEventsData } from './mappers/common';
-import { ProcessorCache as SquidCache } from '@subsquid/processor-tools';
 import { handleChainHolders } from './mappers/holders';
 import { BatchBlock } from '@subsquid/substrate-processor/src/processor/batchProcessor';
 import { handleTotalIssuance } from './mappers/issuance';
@@ -83,25 +82,17 @@ export type Block = BatchBlock<Item>;
 
 processor.run(new TypeormDatabase(), async (ctx) => {
   // let transfersData = getTransfers(ctx)
-  SquidCache.init(ctx, [
-    Holders,
-    Issuance,
-    Validator,
-    HistoricalDataMeta,
-    Transfers,
-    Totals
-  ]);
   const parsedEvents = getParsedEventsData(ctx);
-  SquidCache.deferredLoad(Totals, '1');
-  SquidCache.deferredLoad(HistoricalDataMeta, '1');
-  await SquidCache.load();
+  ctx.store.deferredLoad(Totals, '1')
+  ctx.store.deferredLoad(HistoricalDataMeta, '1')
+  await ctx.store.load();
 
-  const histDataMeta = getOrCreateHistoricalDataMeta();
-  SquidCache.deferredLoad(
+  const histDataMeta = await getOrCreateHistoricalDataMeta(ctx);
+  ctx.store.deferredLoad(
     Transfers,
     histDataMeta.transferLatestBlockNumber.toString()
   );
-  await SquidCache.load();
+  await ctx.store.load();
 
   for (let block of ctx.blocks) {
     await handleFinalizedBlock(ctx, block);
@@ -116,7 +107,4 @@ processor.run(new TypeormDatabase(), async (ctx) => {
       )
     );
   }
-
-  await SquidCache.flush();
-  SquidCache.purge();
 });

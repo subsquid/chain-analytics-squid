@@ -48,6 +48,7 @@ import * as v9220 from './v9220'
 import * as v9230 from './v9230'
 import * as v9250 from './v9250'
 import * as v9271 from './v9271'
+import * as v9291 from './v9291'
 
 export class AttestationsMoreAttestationsCall {
   private readonly _chain: Chain
@@ -3917,6 +3918,21 @@ export class ConfigurationSetUmpMaxIndividualWeightCall {
     assert(this.isV9100)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Sets the maximum amount of weight any individual upward message may consume.
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Configuration.set_ump_max_individual_weight') === 'ceb02ac7f45638dcb446470f1d43ad1d0dd56ac82f1a2cd9432b8e99555f672c'
+  }
+
+  /**
+   * Sets the maximum amount of weight any individual upward message may consume.
+   */
+  get asV9291(): {new: v9291.Weight} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class ConfigurationSetUmpServiceTotalWeightCall {
@@ -3944,6 +3960,21 @@ export class ConfigurationSetUmpServiceTotalWeightCall {
    */
   get asV9090(): {new: bigint} {
     assert(this.isV9090)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Sets the soft limit for the phase of dispatching dispatchable upward messages.
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Configuration.set_ump_service_total_weight') === 'ceb02ac7f45638dcb446470f1d43ad1d0dd56ac82f1a2cd9432b8e99555f672c'
+  }
+
+  /**
+   * Sets the soft limit for the phase of dispatching dispatchable upward messages.
+   */
+  get asV9291(): {new: v9291.Weight} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -4180,6 +4211,83 @@ export class CouncilCloseCall {
    */
   get asV2005(): {proposalHash: Uint8Array, index: number, proposalWeightBound: bigint, lengthBound: number} {
     assert(this.isV2005)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Close a vote that is either approved, disapproved or whose voting period has ended.
+   * 
+   * May be called by any signed account in order to finish voting and close the proposal.
+   * 
+   * If called before the end of the voting period it will only close the vote if it is
+   * has enough votes to be approved or disapproved.
+   * 
+   * If called after the end of the voting period abstentions are counted as rejections
+   * unless there is a prime member set and the prime member cast an approval.
+   * 
+   * If the close operation completes successfully with disapproval, the transaction fee will
+   * be waived. Otherwise execution of the approved operation will be charged to the caller.
+   * 
+   * + `proposal_weight_bound`: The maximum amount of weight consumed by executing the closed
+   * proposal.
+   * + `length_bound`: The upper bound for the length of the proposal in storage. Checked via
+   * `storage::read` so it is `size_of::<u32>() == 4` larger than the pure length.
+   * 
+   * # <weight>
+   * ## Weight
+   * - `O(B + M + P1 + P2)` where:
+   *   - `B` is `proposal` size in bytes (length-fee-bounded)
+   *   - `M` is members-count (code- and governance-bounded)
+   *   - `P1` is the complexity of `proposal` preimage.
+   *   - `P2` is proposal-count (code-bounded)
+   * - DB:
+   *  - 2 storage reads (`Members`: codec `O(M)`, `Prime`: codec `O(1)`)
+   *  - 3 mutations (`Voting`: codec `O(M)`, `ProposalOf`: codec `O(B)`, `Proposals`: codec
+   *    `O(P2)`)
+   *  - any mutations done while executing `proposal` (`P1`)
+   * - up to 3 events
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Council.close') === '683905378cce329de8c5e9460bd36984188fb48a39207d985ea43cb10bd1eb81'
+  }
+
+  /**
+   * Close a vote that is either approved, disapproved or whose voting period has ended.
+   * 
+   * May be called by any signed account in order to finish voting and close the proposal.
+   * 
+   * If called before the end of the voting period it will only close the vote if it is
+   * has enough votes to be approved or disapproved.
+   * 
+   * If called after the end of the voting period abstentions are counted as rejections
+   * unless there is a prime member set and the prime member cast an approval.
+   * 
+   * If the close operation completes successfully with disapproval, the transaction fee will
+   * be waived. Otherwise execution of the approved operation will be charged to the caller.
+   * 
+   * + `proposal_weight_bound`: The maximum amount of weight consumed by executing the closed
+   * proposal.
+   * + `length_bound`: The upper bound for the length of the proposal in storage. Checked via
+   * `storage::read` so it is `size_of::<u32>() == 4` larger than the pure length.
+   * 
+   * # <weight>
+   * ## Weight
+   * - `O(B + M + P1 + P2)` where:
+   *   - `B` is `proposal` size in bytes (length-fee-bounded)
+   *   - `M` is members-count (code- and governance-bounded)
+   *   - `P1` is the complexity of `proposal` preimage.
+   *   - `P2` is proposal-count (code-bounded)
+   * - DB:
+   *  - 2 storage reads (`Members`: codec `O(M)`, `Prime`: codec `O(1)`)
+   *  - 3 mutations (`Voting`: codec `O(M)`, `ProposalOf`: codec `O(B)`, `Proposals`: codec
+   *    `O(P2)`)
+   *  - any mutations done while executing `proposal` (`P1`)
+   * - up to 3 events
+   * # </weight>
+   */
+  get asV9291(): {proposalHash: Uint8Array, index: number, proposalWeightBound: bigint, lengthBound: number} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -5617,6 +5725,41 @@ export class CouncilExecuteCall {
    */
   get asV9271(): {proposal: v9271.Call, lengthBound: number} {
     assert(this.isV9271)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Dispatch a proposal from a member using the `Member` origin.
+   * 
+   * Origin must be a member of the collective.
+   * 
+   * # <weight>
+   * ## Weight
+   * - `O(M + P)` where `M` members-count (code-bounded) and `P` complexity of dispatching
+   *   `proposal`
+   * - DB: 1 read (codec `O(M)`) + DB access of `proposal`
+   * - 1 event
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Council.execute') === '2ae4824124910cb5d89e5f617ca87a763c5dfc3e44fef23506d7c5e5b171707e'
+  }
+
+  /**
+   * Dispatch a proposal from a member using the `Member` origin.
+   * 
+   * Origin must be a member of the collective.
+   * 
+   * # <weight>
+   * ## Weight
+   * - `O(M + P)` where `M` members-count (code-bounded) and `P` complexity of dispatching
+   *   `proposal`
+   * - DB: 1 read (codec `O(M)`) + DB access of `proposal`
+   * - 1 event
+   * # </weight>
+   */
+  get asV9291(): {proposal: v9291.Call, lengthBound: number} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -8067,6 +8210,73 @@ export class CouncilProposeCall {
     assert(this.isV9271)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Add a new proposal to either be voted on or executed directly.
+   * 
+   * Requires the sender to be member.
+   * 
+   * `threshold` determines whether `proposal` is executed directly (`threshold < 2`)
+   * or put up for voting.
+   * 
+   * # <weight>
+   * ## Weight
+   * - `O(B + M + P1)` or `O(B + M + P2)` where:
+   *   - `B` is `proposal` size in bytes (length-fee-bounded)
+   *   - `M` is members-count (code- and governance-bounded)
+   *   - branching is influenced by `threshold` where:
+   *     - `P1` is proposal execution complexity (`threshold < 2`)
+   *     - `P2` is proposals-count (code-bounded) (`threshold >= 2`)
+   * - DB:
+   *   - 1 storage read `is_member` (codec `O(M)`)
+   *   - 1 storage read `ProposalOf::contains_key` (codec `O(1)`)
+   *   - DB accesses influenced by `threshold`:
+   *     - EITHER storage accesses done by `proposal` (`threshold < 2`)
+   *     - OR proposal insertion (`threshold <= 2`)
+   *       - 1 storage mutation `Proposals` (codec `O(P2)`)
+   *       - 1 storage mutation `ProposalCount` (codec `O(1)`)
+   *       - 1 storage write `ProposalOf` (codec `O(B)`)
+   *       - 1 storage write `Voting` (codec `O(M)`)
+   *   - 1 event
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Council.propose') === 'ad0813495d84c471e4f14492855dad7c377b8687ed5be0c9d1071d9b6c91860d'
+  }
+
+  /**
+   * Add a new proposal to either be voted on or executed directly.
+   * 
+   * Requires the sender to be member.
+   * 
+   * `threshold` determines whether `proposal` is executed directly (`threshold < 2`)
+   * or put up for voting.
+   * 
+   * # <weight>
+   * ## Weight
+   * - `O(B + M + P1)` or `O(B + M + P2)` where:
+   *   - `B` is `proposal` size in bytes (length-fee-bounded)
+   *   - `M` is members-count (code- and governance-bounded)
+   *   - branching is influenced by `threshold` where:
+   *     - `P1` is proposal execution complexity (`threshold < 2`)
+   *     - `P2` is proposals-count (code-bounded) (`threshold >= 2`)
+   * - DB:
+   *   - 1 storage read `is_member` (codec `O(M)`)
+   *   - 1 storage read `ProposalOf::contains_key` (codec `O(1)`)
+   *   - DB accesses influenced by `threshold`:
+   *     - EITHER storage accesses done by `proposal` (`threshold < 2`)
+   *     - OR proposal insertion (`threshold <= 2`)
+   *       - 1 storage mutation `Proposals` (codec `O(P2)`)
+   *       - 1 storage mutation `ProposalCount` (codec `O(1)`)
+   *       - 1 storage write `ProposalOf` (codec `O(B)`)
+   *       - 1 storage write `Voting` (codec `O(M)`)
+   *   - 1 event
+   * # </weight>
+   */
+  get asV9291(): {threshold: number, proposal: v9291.Call, lengthBound: number} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class CouncilSetMembersCall {
@@ -8981,6 +9191,59 @@ export class DemocracyDelegateCall {
    */
   get asV1055(): {to: Uint8Array, conviction: v1055.Conviction, balance: bigint} {
     assert(this.isV1055)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Delegate the voting power (with some given conviction) of the sending account.
+   * 
+   * The balance delegated is locked for as long as it's delegated, and thereafter for the
+   * time appropriate for the conviction's lock period.
+   * 
+   * The dispatch origin of this call must be _Signed_, and the signing account must either:
+   *   - be delegating already; or
+   *   - have no voting activity (if there is, then it will need to be removed/consolidated
+   *     through `reap_vote` or `unvote`).
+   * 
+   * - `to`: The account whose voting the `target` account's voting power will follow.
+   * - `conviction`: The conviction that will be attached to the delegated votes. When the
+   *   account is undelegated, the funds will be locked for the corresponding period.
+   * - `balance`: The amount of the account's balance to be used in delegating. This must not
+   *   be more than the account's current balance.
+   * 
+   * Emits `Delegated`.
+   * 
+   * Weight: `O(R)` where R is the number of referendums the voter delegating to has
+   *   voted on. Weight is charged as if maximum votes.
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Democracy.delegate') === '789db36a1c43e1ffdad52288f8573a492f529890632f51821e7bd1d74ba6cffc'
+  }
+
+  /**
+   * Delegate the voting power (with some given conviction) of the sending account.
+   * 
+   * The balance delegated is locked for as long as it's delegated, and thereafter for the
+   * time appropriate for the conviction's lock period.
+   * 
+   * The dispatch origin of this call must be _Signed_, and the signing account must either:
+   *   - be delegating already; or
+   *   - have no voting activity (if there is, then it will need to be removed/consolidated
+   *     through `reap_vote` or `unvote`).
+   * 
+   * - `to`: The account whose voting the `target` account's voting power will follow.
+   * - `conviction`: The conviction that will be attached to the delegated votes. When the
+   *   account is undelegated, the funds will be locked for the corresponding period.
+   * - `balance`: The amount of the account's balance to be used in delegating. This must not
+   *   be more than the account's current balance.
+   * 
+   * Emits `Delegated`.
+   * 
+   * Weight: `O(R)` where R is the number of referendums the voter delegating to has
+   *   voted on. Weight is charged as if maximum votes.
+   */
+  get asV9291(): {to: v9291.MultiAddress, conviction: v9291.Conviction, balance: bigint} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -9908,6 +10171,49 @@ export class DemocracyRemoveOtherVoteCall {
     assert(this.isV1055)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Remove a vote for a referendum.
+   * 
+   * If the `target` is equal to the signer, then this function is exactly equivalent to
+   * `remove_vote`. If not equal to the signer, then the vote must have expired,
+   * either because the referendum was cancelled, because the voter lost the referendum or
+   * because the conviction period is over.
+   * 
+   * The dispatch origin of this call must be _Signed_.
+   * 
+   * - `target`: The account of the vote to be removed; this account must have voted for
+   *   referendum `index`.
+   * - `index`: The index of referendum of the vote to be removed.
+   * 
+   * Weight: `O(R + log R)` where R is the number of referenda that `target` has voted on.
+   *   Weight is calculated for the maximum number of vote.
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Democracy.remove_other_vote') === '43d317508cc3ba04dcadb411eb6499f25532d64ab5a169b27410116c72f40a26'
+  }
+
+  /**
+   * Remove a vote for a referendum.
+   * 
+   * If the `target` is equal to the signer, then this function is exactly equivalent to
+   * `remove_vote`. If not equal to the signer, then the vote must have expired,
+   * either because the referendum was cancelled, because the voter lost the referendum or
+   * because the conviction period is over.
+   * 
+   * The dispatch origin of this call must be _Signed_.
+   * 
+   * - `target`: The account of the vote to be removed; this account must have voted for
+   *   referendum `index`.
+   * - `index`: The index of referendum of the vote to be removed.
+   * 
+   * Weight: `O(R + log R)` where R is the number of referenda that `target` has voted on.
+   *   Weight is calculated for the maximum number of vote.
+   */
+  get asV9291(): {target: v9291.MultiAddress, index: number} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class DemocracyRemoveProxyCall {
@@ -10270,6 +10576,33 @@ export class DemocracyUnlockCall {
    */
   get asV1050(): {target: Uint8Array} {
     assert(this.isV1050)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Unlock tokens that have an expired lock.
+   * 
+   * The dispatch origin of this call must be _Signed_.
+   * 
+   * - `target`: The account to remove the lock on.
+   * 
+   * Weight: `O(R)` with R number of vote of target.
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Democracy.unlock') === '8142da248a3023c20f65ce8f6287f9eaf75336ab8815cb15537149abcdd0c20c'
+  }
+
+  /**
+   * Unlock tokens that have an expired lock.
+   * 
+   * The dispatch origin of this call must be _Signed_.
+   * 
+   * - `target`: The account to remove the lock on.
+   * 
+   * Weight: `O(R)` with R number of vote of target.
+   */
+  get asV9291(): {target: v9291.MultiAddress} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -12511,6 +12844,45 @@ export class IdentityAddRegistrarCall {
     assert(this.isV1030)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Add a registrar to the system.
+   * 
+   * The dispatch origin for this call must be `T::RegistrarOrigin`.
+   * 
+   * - `account`: the account of the registrar.
+   * 
+   * Emits `RegistrarAdded` if successful.
+   * 
+   * # <weight>
+   * - `O(R)` where `R` registrar-count (governance-bounded and code-bounded).
+   * - One storage mutation (codec `O(R)`).
+   * - One event.
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Identity.add_registrar') === '2842be90a4599435dbefe83c28be9576bf64e6ff14aa9fa87c5fdb6255ef27b2'
+  }
+
+  /**
+   * Add a registrar to the system.
+   * 
+   * The dispatch origin for this call must be `T::RegistrarOrigin`.
+   * 
+   * - `account`: the account of the registrar.
+   * 
+   * Emits `RegistrarAdded` if successful.
+   * 
+   * # <weight>
+   * - `O(R)` where `R` registrar-count (governance-bounded and code-bounded).
+   * - One storage mutation (codec `O(R)`).
+   * - One event.
+   * # </weight>
+   */
+  get asV9291(): {account: v9291.MultiAddress} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class IdentityAddSubCall {
@@ -13503,6 +13875,45 @@ export class IdentitySetAccountIdCall {
     assert(this.isV1031)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Change the account associated with a registrar.
+   * 
+   * The dispatch origin for this call must be _Signed_ and the sender must be the account
+   * of the registrar whose index is `index`.
+   * 
+   * - `index`: the index of the registrar whose fee is to be set.
+   * - `new`: the new account ID.
+   * 
+   * # <weight>
+   * - `O(R)`.
+   * - One storage mutation `O(R)`.
+   * - Benchmark: 8.823 + R * 0.32 µs (min squares analysis)
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Identity.set_account_id') === '7c569a09ae3438c742df387f66c9e012ebdf2af1dfe1befa9aba3df316cee1aa'
+  }
+
+  /**
+   * Change the account associated with a registrar.
+   * 
+   * The dispatch origin for this call must be _Signed_ and the sender must be the account
+   * of the registrar whose index is `index`.
+   * 
+   * - `index`: the index of the registrar whose fee is to be set.
+   * - `new`: the new account ID.
+   * 
+   * # <weight>
+   * - `O(R)`.
+   * - One storage mutation `O(R)`.
+   * - Benchmark: 8.823 + R * 0.32 µs (min squares analysis)
+   * # </weight>
+   */
+  get asV9291(): {index: number, new: v9291.MultiAddress} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class IdentitySetFeeCall {
@@ -14111,6 +14522,61 @@ export class IndicesForceTransferCall {
     assert(this.isV2007)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Force an index to an account. This doesn't require a deposit. If the index is already
+   * held, then any deposit is reimbursed to its current owner.
+   * 
+   * The dispatch origin for this call must be _Root_.
+   * 
+   * - `index`: the index to be (re-)assigned.
+   * - `new`: the new owner of the index. This function is a no-op if it is equal to sender.
+   * - `freeze`: if set to `true`, will freeze the index so it cannot be transferred.
+   * 
+   * Emits `IndexAssigned` if successful.
+   * 
+   * # <weight>
+   * - `O(1)`.
+   * - One storage mutation (codec `O(1)`).
+   * - Up to one reserve operation.
+   * - One event.
+   * -------------------
+   * - DB Weight:
+   *    - Reads: Indices Accounts, System Account (original owner)
+   *    - Writes: Indices Accounts, System Account (original owner)
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Indices.force_transfer') === 'e61051df8d4f14c6b048e5350fce76049ca6bdcd7144bea9248526afc7efad04'
+  }
+
+  /**
+   * Force an index to an account. This doesn't require a deposit. If the index is already
+   * held, then any deposit is reimbursed to its current owner.
+   * 
+   * The dispatch origin for this call must be _Root_.
+   * 
+   * - `index`: the index to be (re-)assigned.
+   * - `new`: the new owner of the index. This function is a no-op if it is equal to sender.
+   * - `freeze`: if set to `true`, will freeze the index so it cannot be transferred.
+   * 
+   * Emits `IndexAssigned` if successful.
+   * 
+   * # <weight>
+   * - `O(1)`.
+   * - One storage mutation (codec `O(1)`).
+   * - Up to one reserve operation.
+   * - One event.
+   * -------------------
+   * - DB Weight:
+   *    - Reads: Indices Accounts, System Account (original owner)
+   *    - Writes: Indices Accounts, System Account (original owner)
+   * # </weight>
+   */
+  get asV9291(): {new: v9291.MultiAddress, index: number, freeze: boolean} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class IndicesFreeCall {
@@ -14290,6 +14756,59 @@ export class IndicesTransferCall {
    */
   get asV1050(): {new: Uint8Array, index: number} {
     assert(this.isV1050)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Assign an index already owned by the sender to another account. The balance reservation
+   * is effectively transferred to the new account.
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * - `index`: the index to be re-assigned. This must be owned by the sender.
+   * - `new`: the new owner of the index. This function is a no-op if it is equal to sender.
+   * 
+   * Emits `IndexAssigned` if successful.
+   * 
+   * # <weight>
+   * - `O(1)`.
+   * - One storage mutation (codec `O(1)`).
+   * - One transfer operation.
+   * - One event.
+   * -------------------
+   * - DB Weight:
+   *    - Reads: Indices Accounts, System Account (recipient)
+   *    - Writes: Indices Accounts, System Account (recipient)
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Indices.transfer') === 'c77fd2a50503781496b2edd730058264c58263dc5c6bcc3ed1bbc824532517e4'
+  }
+
+  /**
+   * Assign an index already owned by the sender to another account. The balance reservation
+   * is effectively transferred to the new account.
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * - `index`: the index to be re-assigned. This must be owned by the sender.
+   * - `new`: the new owner of the index. This function is a no-op if it is equal to sender.
+   * 
+   * Emits `IndexAssigned` if successful.
+   * 
+   * # <weight>
+   * - `O(1)`.
+   * - One storage mutation (codec `O(1)`).
+   * - One transfer operation.
+   * - One event.
+   * -------------------
+   * - DB Weight:
+   *    - Reads: Indices Accounts, System Account (recipient)
+   *    - Writes: Indices Accounts, System Account (recipient)
+   * # </weight>
+   */
+  get asV9291(): {new: v9291.MultiAddress, index: number} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -14519,6 +15038,89 @@ export class MultisigApproveAsMultiCall {
    */
   get asV2011(): {threshold: number, otherSignatories: Uint8Array[], maybeTimepoint: (v2011.Timepoint | undefined), callHash: Uint8Array, maxWeight: bigint} {
     assert(this.isV2011)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Register approval for a dispatch to be made from a deterministic composite account if
+   * approved by a total of `threshold - 1` of `other_signatories`.
+   * 
+   * Payment: `DepositBase` will be reserved if this is the first approval, plus
+   * `threshold` times `DepositFactor`. It is returned once this dispatch happens or
+   * is cancelled.
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * - `threshold`: The total number of approvals for this dispatch before it is executed.
+   * - `other_signatories`: The accounts (other than the sender) who can approve this
+   * dispatch. May not be empty.
+   * - `maybe_timepoint`: If this is the first approval, then this must be `None`. If it is
+   * not the first approval, then it must be `Some`, with the timepoint (block number and
+   * transaction index) of the first approval transaction.
+   * - `call_hash`: The hash of the call to be executed.
+   * 
+   * NOTE: If this is the final approval, you will want to use `as_multi` instead.
+   * 
+   * # <weight>
+   * - `O(S)`.
+   * - Up to one balance-reserve or unreserve operation.
+   * - One passthrough operation, one insert, both `O(S)` where `S` is the number of
+   *   signatories. `S` is capped by `MaxSignatories`, with weight being proportional.
+   * - One encode & hash, both of complexity `O(S)`.
+   * - Up to one binary search and insert (`O(logS + S)`).
+   * - I/O: 1 read `O(S)`, up to 1 mutate `O(S)`. Up to one remove.
+   * - One event.
+   * - Storage: inserts one item, value size bounded by `MaxSignatories`, with a deposit
+   *   taken for its lifetime of `DepositBase + threshold * DepositFactor`.
+   * ----------------------------------
+   * - DB Weight:
+   *     - Read: Multisig Storage, [Caller Account]
+   *     - Write: Multisig Storage, [Caller Account]
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Multisig.approve_as_multi') === 'af4617697c04ce56b4748943a851b51ff5b80d64991c7ecf495a4651ff57debb'
+  }
+
+  /**
+   * Register approval for a dispatch to be made from a deterministic composite account if
+   * approved by a total of `threshold - 1` of `other_signatories`.
+   * 
+   * Payment: `DepositBase` will be reserved if this is the first approval, plus
+   * `threshold` times `DepositFactor`. It is returned once this dispatch happens or
+   * is cancelled.
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * - `threshold`: The total number of approvals for this dispatch before it is executed.
+   * - `other_signatories`: The accounts (other than the sender) who can approve this
+   * dispatch. May not be empty.
+   * - `maybe_timepoint`: If this is the first approval, then this must be `None`. If it is
+   * not the first approval, then it must be `Some`, with the timepoint (block number and
+   * transaction index) of the first approval transaction.
+   * - `call_hash`: The hash of the call to be executed.
+   * 
+   * NOTE: If this is the final approval, you will want to use `as_multi` instead.
+   * 
+   * # <weight>
+   * - `O(S)`.
+   * - Up to one balance-reserve or unreserve operation.
+   * - One passthrough operation, one insert, both `O(S)` where `S` is the number of
+   *   signatories. `S` is capped by `MaxSignatories`, with weight being proportional.
+   * - One encode & hash, both of complexity `O(S)`.
+   * - Up to one binary search and insert (`O(logS + S)`).
+   * - I/O: 1 read `O(S)`, up to 1 mutate `O(S)`. Up to one remove.
+   * - One event.
+   * - Storage: inserts one item, value size bounded by `MaxSignatories`, with a deposit
+   *   taken for its lifetime of `DepositBase + threshold * DepositFactor`.
+   * ----------------------------------
+   * - DB Weight:
+   *     - Read: Multisig Storage, [Caller Account]
+   *     - Write: Multisig Storage, [Caller Account]
+   * # </weight>
+   */
+  get asV9291(): {threshold: number, otherSignatories: Uint8Array[], maybeTimepoint: (v9291.Timepoint | undefined), callHash: Uint8Array, maxWeight: v9291.Weight} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -14878,6 +15480,109 @@ export class MultisigAsMultiCall {
    */
   get asV2011(): {threshold: number, otherSignatories: Uint8Array[], maybeTimepoint: (v2011.Timepoint | undefined), call: Uint8Array, storeCall: boolean, maxWeight: bigint} {
     assert(this.isV2011)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Register approval for a dispatch to be made from a deterministic composite account if
+   * approved by a total of `threshold - 1` of `other_signatories`.
+   * 
+   * If there are enough, then dispatch the call.
+   * 
+   * Payment: `DepositBase` will be reserved if this is the first approval, plus
+   * `threshold` times `DepositFactor`. It is returned once this dispatch happens or
+   * is cancelled.
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * - `threshold`: The total number of approvals for this dispatch before it is executed.
+   * - `other_signatories`: The accounts (other than the sender) who can approve this
+   * dispatch. May not be empty.
+   * - `maybe_timepoint`: If this is the first approval, then this must be `None`. If it is
+   * not the first approval, then it must be `Some`, with the timepoint (block number and
+   * transaction index) of the first approval transaction.
+   * - `call`: The call to be executed.
+   * 
+   * NOTE: Unless this is the final approval, you will generally want to use
+   * `approve_as_multi` instead, since it only requires a hash of the call.
+   * 
+   * Result is equivalent to the dispatched result if `threshold` is exactly `1`. Otherwise
+   * on success, result is `Ok` and the result from the interior call, if it was executed,
+   * may be found in the deposited `MultisigExecuted` event.
+   * 
+   * # <weight>
+   * - `O(S + Z + Call)`.
+   * - Up to one balance-reserve or unreserve operation.
+   * - One passthrough operation, one insert, both `O(S)` where `S` is the number of
+   *   signatories. `S` is capped by `MaxSignatories`, with weight being proportional.
+   * - One call encode & hash, both of complexity `O(Z)` where `Z` is tx-len.
+   * - One encode & hash, both of complexity `O(S)`.
+   * - Up to one binary search and insert (`O(logS + S)`).
+   * - I/O: 1 read `O(S)`, up to 1 mutate `O(S)`. Up to one remove.
+   * - One event.
+   * - The weight of the `call`.
+   * - Storage: inserts one item, value size bounded by `MaxSignatories`, with a deposit
+   *   taken for its lifetime of `DepositBase + threshold * DepositFactor`.
+   * -------------------------------
+   * - DB Weight:
+   *     - Reads: Multisig Storage, [Caller Account], Calls (if `store_call`)
+   *     - Writes: Multisig Storage, [Caller Account], Calls (if `store_call`)
+   * - Plus Call Weight
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Multisig.as_multi') === 'f62d383b8db5d9025f2e3e98181c8439346292d755afd9729e7168a703e7be01'
+  }
+
+  /**
+   * Register approval for a dispatch to be made from a deterministic composite account if
+   * approved by a total of `threshold - 1` of `other_signatories`.
+   * 
+   * If there are enough, then dispatch the call.
+   * 
+   * Payment: `DepositBase` will be reserved if this is the first approval, plus
+   * `threshold` times `DepositFactor`. It is returned once this dispatch happens or
+   * is cancelled.
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * - `threshold`: The total number of approvals for this dispatch before it is executed.
+   * - `other_signatories`: The accounts (other than the sender) who can approve this
+   * dispatch. May not be empty.
+   * - `maybe_timepoint`: If this is the first approval, then this must be `None`. If it is
+   * not the first approval, then it must be `Some`, with the timepoint (block number and
+   * transaction index) of the first approval transaction.
+   * - `call`: The call to be executed.
+   * 
+   * NOTE: Unless this is the final approval, you will generally want to use
+   * `approve_as_multi` instead, since it only requires a hash of the call.
+   * 
+   * Result is equivalent to the dispatched result if `threshold` is exactly `1`. Otherwise
+   * on success, result is `Ok` and the result from the interior call, if it was executed,
+   * may be found in the deposited `MultisigExecuted` event.
+   * 
+   * # <weight>
+   * - `O(S + Z + Call)`.
+   * - Up to one balance-reserve or unreserve operation.
+   * - One passthrough operation, one insert, both `O(S)` where `S` is the number of
+   *   signatories. `S` is capped by `MaxSignatories`, with weight being proportional.
+   * - One call encode & hash, both of complexity `O(Z)` where `Z` is tx-len.
+   * - One encode & hash, both of complexity `O(S)`.
+   * - Up to one binary search and insert (`O(logS + S)`).
+   * - I/O: 1 read `O(S)`, up to 1 mutate `O(S)`. Up to one remove.
+   * - One event.
+   * - The weight of the `call`.
+   * - Storage: inserts one item, value size bounded by `MaxSignatories`, with a deposit
+   *   taken for its lifetime of `DepositBase + threshold * DepositFactor`.
+   * -------------------------------
+   * - DB Weight:
+   *     - Reads: Multisig Storage, [Caller Account], Calls (if `store_call`)
+   *     - Writes: Multisig Storage, [Caller Account], Calls (if `store_call`)
+   * - Plus Call Weight
+   * # </weight>
+   */
+  get asV9291(): {threshold: number, otherSignatories: Uint8Array[], maybeTimepoint: (v9291.Timepoint | undefined), call: Uint8Array, storeCall: boolean, maxWeight: v9291.Weight} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -16211,6 +16916,51 @@ export class MultisigAsMultiThreshold1Call {
     assert(this.isV9271)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Immediately dispatch a multi-signature call using a single approval from the caller.
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * - `other_signatories`: The accounts (other than the sender) who are part of the
+   * multi-signature, but do not participate in the approval process.
+   * - `call`: The call to be executed.
+   * 
+   * Result is equivalent to the dispatched result.
+   * 
+   * # <weight>
+   * O(Z + C) where Z is the length of the call and C its execution weight.
+   * -------------------------------
+   * - DB Weight: None
+   * - Plus Call Weight
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Multisig.as_multi_threshold_1') === '10efc022504508e6a68e7bdbab3fb16b02cadcf4f47a65df7e12dbd0e2ab9250'
+  }
+
+  /**
+   * Immediately dispatch a multi-signature call using a single approval from the caller.
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * - `other_signatories`: The accounts (other than the sender) who are part of the
+   * multi-signature, but do not participate in the approval process.
+   * - `call`: The call to be executed.
+   * 
+   * Result is equivalent to the dispatched result.
+   * 
+   * # <weight>
+   * O(Z + C) where Z is the length of the call and C its execution weight.
+   * -------------------------------
+   * - DB Weight: None
+   * - Plus Call Weight
+   * # </weight>
+   */
+  get asV9291(): {otherSignatories: Uint8Array[], call: v9291.Call} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class MultisigCancelAsMultiCall {
@@ -16678,6 +17428,53 @@ export class NominationPoolsCreateCall {
     assert(this.isV9220)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Create a new delegation pool.
+   * 
+   * # Arguments
+   * 
+   * * `amount` - The amount of funds to delegate to the pool. This also acts of a sort of
+   *   deposit since the pools creator cannot fully unbond funds until the pool is being
+   *   destroyed.
+   * * `index` - A disambiguation index for creating the account. Likely only useful when
+   *   creating multiple pools in the same extrinsic.
+   * * `root` - The account to set as [`PoolRoles::root`].
+   * * `nominator` - The account to set as the [`PoolRoles::nominator`].
+   * * `state_toggler` - The account to set as the [`PoolRoles::state_toggler`].
+   * 
+   * # Note
+   * 
+   * In addition to `amount`, the caller will transfer the existential deposit; so the caller
+   * needs at have at least `amount + existential_deposit` transferrable.
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('NominationPools.create') === '7ae05fded37735d5e310868c744bd330fdc58661eabd48fb4518ad22fc21bba3'
+  }
+
+  /**
+   * Create a new delegation pool.
+   * 
+   * # Arguments
+   * 
+   * * `amount` - The amount of funds to delegate to the pool. This also acts of a sort of
+   *   deposit since the pools creator cannot fully unbond funds until the pool is being
+   *   destroyed.
+   * * `index` - A disambiguation index for creating the account. Likely only useful when
+   *   creating multiple pools in the same extrinsic.
+   * * `root` - The account to set as [`PoolRoles::root`].
+   * * `nominator` - The account to set as the [`PoolRoles::nominator`].
+   * * `state_toggler` - The account to set as the [`PoolRoles::state_toggler`].
+   * 
+   * # Note
+   * 
+   * In addition to `amount`, the caller will transfer the existential deposit; so the caller
+   * needs at have at least `amount + existential_deposit` transferrable.
+   */
+  get asV9291(): {amount: bigint, root: v9291.MultiAddress, nominator: v9291.MultiAddress, stateToggler: v9291.MultiAddress} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class NominationPoolsJoinCall {
@@ -16963,6 +17760,75 @@ export class NominationPoolsUnbondCall {
     assert(this.isV9220)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Unbond up to `unbonding_points` of the `member_account`'s funds from the pool. It
+   * implicitly collects the rewards one last time, since not doing so would mean some
+   * rewards would be forfeited.
+   * 
+   * Under certain conditions, this call can be dispatched permissionlessly (i.e. by any
+   * account).
+   * 
+   * # Conditions for a permissionless dispatch.
+   * 
+   * * The pool is blocked and the caller is either the root or state-toggler. This is
+   *   refereed to as a kick.
+   * * The pool is destroying and the member is not the depositor.
+   * * The pool is destroying, the member is the depositor and no other members are in the
+   *   pool.
+   * 
+   * ## Conditions for permissioned dispatch (i.e. the caller is also the
+   * `member_account`):
+   * 
+   * * The caller is not the depositor.
+   * * The caller is the depositor, the pool is destroying and no other members are in the
+   *   pool.
+   * 
+   * # Note
+   * 
+   * If there are too many unlocking chunks to unbond with the pool account,
+   * [`Call::pool_withdraw_unbonded`] can be called to try and minimize unlocking chunks. If
+   * there are too many unlocking chunks, the result of this call will likely be the
+   * `NoMoreChunks` error from the staking system.
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('NominationPools.unbond') === '64450cc91b317addf9e9ebaf23d031c6cc889c6e14ecf696013d737cfe185ec8'
+  }
+
+  /**
+   * Unbond up to `unbonding_points` of the `member_account`'s funds from the pool. It
+   * implicitly collects the rewards one last time, since not doing so would mean some
+   * rewards would be forfeited.
+   * 
+   * Under certain conditions, this call can be dispatched permissionlessly (i.e. by any
+   * account).
+   * 
+   * # Conditions for a permissionless dispatch.
+   * 
+   * * The pool is blocked and the caller is either the root or state-toggler. This is
+   *   refereed to as a kick.
+   * * The pool is destroying and the member is not the depositor.
+   * * The pool is destroying, the member is the depositor and no other members are in the
+   *   pool.
+   * 
+   * ## Conditions for permissioned dispatch (i.e. the caller is also the
+   * `member_account`):
+   * 
+   * * The caller is not the depositor.
+   * * The caller is the depositor, the pool is destroying and no other members are in the
+   *   pool.
+   * 
+   * # Note
+   * 
+   * If there are too many unlocking chunks to unbond with the pool account,
+   * [`Call::pool_withdraw_unbonded`] can be called to try and minimize unlocking chunks. If
+   * there are too many unlocking chunks, the result of this call will likely be the
+   * `NoMoreChunks` error from the staking system.
+   */
+  get asV9291(): {memberAccount: v9291.MultiAddress, unbondingPoints: bigint} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class NominationPoolsUpdateRolesCall {
@@ -17094,6 +17960,57 @@ export class NominationPoolsWithdrawUnbondedCall {
    */
   get asV9220(): {memberAccount: Uint8Array, numSlashingSpans: number} {
     assert(this.isV9220)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Withdraw unbonded funds from `member_account`. If no bonded funds can be unbonded, an
+   * error is returned.
+   * 
+   * Under certain conditions, this call can be dispatched permissionlessly (i.e. by any
+   * account).
+   * 
+   * # Conditions for a permissionless dispatch
+   * 
+   * * The pool is in destroy mode and the target is not the depositor.
+   * * The target is the depositor and they are the only member in the sub pools.
+   * * The pool is blocked and the caller is either the root or state-toggler.
+   * 
+   * # Conditions for permissioned dispatch
+   * 
+   * * The caller is the target and they are not the depositor.
+   * 
+   * # Note
+   * 
+   * If the target is the depositor, the pool will be destroyed.
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('NominationPools.withdraw_unbonded') === '52fb3ae57a795478589c557de25b0d870d311ba397654773c80592329c8a086e'
+  }
+
+  /**
+   * Withdraw unbonded funds from `member_account`. If no bonded funds can be unbonded, an
+   * error is returned.
+   * 
+   * Under certain conditions, this call can be dispatched permissionlessly (i.e. by any
+   * account).
+   * 
+   * # Conditions for a permissionless dispatch
+   * 
+   * * The pool is in destroy mode and the target is not the depositor.
+   * * The target is the depositor and they are the only member in the sub pools.
+   * * The pool is blocked and the caller is either the root or state-toggler.
+   * 
+   * # Conditions for permissioned dispatch
+   * 
+   * * The caller is the target and they are not the depositor.
+   * 
+   * # Note
+   * 
+   * If the target is the depositor, the pool will be destroyed.
+   */
+  get asV9291(): {memberAccount: v9291.MultiAddress, numSlashingSpans: number} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -19794,6 +20711,45 @@ export class ProxyAddProxyCall {
     assert(this.isV9180)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Register a proxy account for the sender that is able to make calls on its behalf.
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * Parameters:
+   * - `proxy`: The account that the `caller` would like to make a proxy.
+   * - `proxy_type`: The permissions allowed for this proxy account.
+   * - `delay`: The announcement period required of the initial proxy. Will generally be
+   * zero.
+   * 
+   * # <weight>
+   * Weight is a function of the number of proxies the user has (P).
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Proxy.add_proxy') === '736bb60d85e1f8c45a10e962b2f5aefc0ffe45e083a582e3b984d6ab315c0794'
+  }
+
+  /**
+   * Register a proxy account for the sender that is able to make calls on its behalf.
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * Parameters:
+   * - `proxy`: The account that the `caller` would like to make a proxy.
+   * - `proxy_type`: The permissions allowed for this proxy account.
+   * - `delay`: The announcement period required of the initial proxy. Will generally be
+   * zero.
+   * 
+   * # <weight>
+   * Weight is a function of the number of proxies the user has (P).
+   * # </weight>
+   */
+  get asV9291(): {delegate: v9291.MultiAddress, proxyType: v9291.ProxyType, delay: number} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class ProxyAnnounceCall {
@@ -19861,6 +20817,61 @@ export class ProxyAnnounceCall {
    */
   get asV2023(): {real: Uint8Array, callHash: Uint8Array} {
     assert(this.isV2023)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Publish the hash of a proxy-call that will be made in the future.
+   * 
+   * This must be called some number of blocks before the corresponding `proxy` is attempted
+   * if the delay associated with the proxy relationship is greater than zero.
+   * 
+   * No more than `MaxPending` announcements may be made at any one time.
+   * 
+   * This will take a deposit of `AnnouncementDepositFactor` as well as
+   * `AnnouncementDepositBase` if there are no other pending announcements.
+   * 
+   * The dispatch origin for this call must be _Signed_ and a proxy of `real`.
+   * 
+   * Parameters:
+   * - `real`: The account that the proxy will make a call on behalf of.
+   * - `call_hash`: The hash of the call to be made by the `real` account.
+   * 
+   * # <weight>
+   * Weight is a function of:
+   * - A: the number of announcements made.
+   * - P: the number of proxies the user has.
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Proxy.announce') === '1e2ba1b130bab29ab148202fefa1b526f6d362ed3f3d2aaf35cc706821c5cd49'
+  }
+
+  /**
+   * Publish the hash of a proxy-call that will be made in the future.
+   * 
+   * This must be called some number of blocks before the corresponding `proxy` is attempted
+   * if the delay associated with the proxy relationship is greater than zero.
+   * 
+   * No more than `MaxPending` announcements may be made at any one time.
+   * 
+   * This will take a deposit of `AnnouncementDepositFactor` as well as
+   * `AnnouncementDepositBase` if there are no other pending announcements.
+   * 
+   * The dispatch origin for this call must be _Signed_ and a proxy of `real`.
+   * 
+   * Parameters:
+   * - `real`: The account that the proxy will make a call on behalf of.
+   * - `call_hash`: The hash of the call to be made by the `real` account.
+   * 
+   * # <weight>
+   * Weight is a function of:
+   * - A: the number of announcements made.
+   * - P: the number of proxies the user has.
+   * # </weight>
+   */
+  get asV9291(): {real: v9291.MultiAddress, callHash: Uint8Array} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -20174,6 +21185,59 @@ export class ProxyKillAnonymousCall {
    */
   get asV9180(): {spawner: Uint8Array, proxyType: v9180.ProxyType, index: number, height: number, extIndex: number} {
     assert(this.isV9180)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Removes a previously spawned anonymous proxy.
+   * 
+   * WARNING: **All access to this account will be lost.** Any funds held in it will be
+   * inaccessible.
+   * 
+   * Requires a `Signed` origin, and the sender account must have been created by a call to
+   * `anonymous` with corresponding parameters.
+   * 
+   * - `spawner`: The account that originally called `anonymous` to create this account.
+   * - `index`: The disambiguation index originally passed to `anonymous`. Probably `0`.
+   * - `proxy_type`: The proxy type originally passed to `anonymous`.
+   * - `height`: The height of the chain when the call to `anonymous` was processed.
+   * - `ext_index`: The extrinsic index in which the call to `anonymous` was processed.
+   * 
+   * Fails with `NoPermission` in case the caller is not a previously created anonymous
+   * account whose `anonymous` call has corresponding parameters.
+   * 
+   * # <weight>
+   * Weight is a function of the number of proxies the user has (P).
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Proxy.kill_anonymous') === 'f9b25ab9a1db47807bc07c907a249982635532bd858ef287fed07bf4c0833c49'
+  }
+
+  /**
+   * Removes a previously spawned anonymous proxy.
+   * 
+   * WARNING: **All access to this account will be lost.** Any funds held in it will be
+   * inaccessible.
+   * 
+   * Requires a `Signed` origin, and the sender account must have been created by a call to
+   * `anonymous` with corresponding parameters.
+   * 
+   * - `spawner`: The account that originally called `anonymous` to create this account.
+   * - `index`: The disambiguation index originally passed to `anonymous`. Probably `0`.
+   * - `proxy_type`: The proxy type originally passed to `anonymous`.
+   * - `height`: The height of the chain when the call to `anonymous` was processed.
+   * - `ext_index`: The extrinsic index in which the call to `anonymous` was processed.
+   * 
+   * Fails with `NoPermission` in case the caller is not a previously created anonymous
+   * account whose `anonymous` call has corresponding parameters.
+   * 
+   * # <weight>
+   * Weight is a function of the number of proxies the user has (P).
+   * # </weight>
+   */
+  get asV9291(): {spawner: v9291.MultiAddress, proxyType: v9291.ProxyType, index: number, height: number, extIndex: number} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -21535,6 +22599,49 @@ export class ProxyProxyCall {
     assert(this.isV9271)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Dispatch the given `call` from an account that the sender is authorised for through
+   * `add_proxy`.
+   * 
+   * Removes any corresponding announcement(s).
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * Parameters:
+   * - `real`: The account that the proxy will make a call on behalf of.
+   * - `force_proxy_type`: Specify the exact proxy type to be used and checked for this call.
+   * - `call`: The call to be made by the `real` account.
+   * 
+   * # <weight>
+   * Weight is a function of the number of proxies the user has (P).
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Proxy.proxy') === 'de50858b61768c9bf64a0da4d17e503d771671a7cb39fd9d829856f3cfee07ea'
+  }
+
+  /**
+   * Dispatch the given `call` from an account that the sender is authorised for through
+   * `add_proxy`.
+   * 
+   * Removes any corresponding announcement(s).
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * Parameters:
+   * - `real`: The account that the proxy will make a call on behalf of.
+   * - `force_proxy_type`: Specify the exact proxy type to be used and checked for this call.
+   * - `call`: The call to be made by the `real` account.
+   * 
+   * # <weight>
+   * Weight is a function of the number of proxies the user has (P).
+   * # </weight>
+   */
+  get asV9291(): {real: v9291.MultiAddress, forceProxyType: (v9291.ProxyType | undefined), call: v9291.Call} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class ProxyProxyAnnouncedCall {
@@ -22724,6 +23831,53 @@ export class ProxyProxyAnnouncedCall {
     assert(this.isV9271)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Dispatch the given `call` from an account that the sender is authorized for through
+   * `add_proxy`.
+   * 
+   * Removes any corresponding announcement(s).
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * Parameters:
+   * - `real`: The account that the proxy will make a call on behalf of.
+   * - `force_proxy_type`: Specify the exact proxy type to be used and checked for this call.
+   * - `call`: The call to be made by the `real` account.
+   * 
+   * # <weight>
+   * Weight is a function of:
+   * - A: the number of announcements made.
+   * - P: the number of proxies the user has.
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Proxy.proxy_announced') === '9e07db3e06d85e0b0bf30aa73c76dfe7611b7026d8b04c154a71af9713f9149b'
+  }
+
+  /**
+   * Dispatch the given `call` from an account that the sender is authorized for through
+   * `add_proxy`.
+   * 
+   * Removes any corresponding announcement(s).
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * Parameters:
+   * - `real`: The account that the proxy will make a call on behalf of.
+   * - `force_proxy_type`: Specify the exact proxy type to be used and checked for this call.
+   * - `call`: The call to be made by the `real` account.
+   * 
+   * # <weight>
+   * Weight is a function of:
+   * - A: the number of announcements made.
+   * - P: the number of proxies the user has.
+   * # </weight>
+   */
+  get asV9291(): {delegate: v9291.MultiAddress, real: v9291.MultiAddress, forceProxyType: (v9291.ProxyType | undefined), call: v9291.Call} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class ProxyRejectAnnouncementCall {
@@ -22783,6 +23937,51 @@ export class ProxyRejectAnnouncementCall {
     assert(this.isV2023)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Remove the given announcement of a delegate.
+   * 
+   * May be called by a target (proxied) account to remove a call that one of their delegates
+   * (`delegate`) has announced they want to execute. The deposit is returned.
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * Parameters:
+   * - `delegate`: The account that previously announced the call.
+   * - `call_hash`: The hash of the call to be made.
+   * 
+   * # <weight>
+   * Weight is a function of:
+   * - A: the number of announcements made.
+   * - P: the number of proxies the user has.
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Proxy.reject_announcement') === 'a1d7c3959dec3e3a68a4ea7b541568e066bd95b7007b052c43ff4736abe9b06b'
+  }
+
+  /**
+   * Remove the given announcement of a delegate.
+   * 
+   * May be called by a target (proxied) account to remove a call that one of their delegates
+   * (`delegate`) has announced they want to execute. The deposit is returned.
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * Parameters:
+   * - `delegate`: The account that previously announced the call.
+   * - `call_hash`: The hash of the call to be made.
+   * 
+   * # <weight>
+   * Weight is a function of:
+   * - A: the number of announcements made.
+   * - P: the number of proxies the user has.
+   * # </weight>
+   */
+  get asV9291(): {delegate: v9291.MultiAddress, callHash: Uint8Array} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class ProxyRemoveAnnouncementCall {
@@ -22840,6 +24039,51 @@ export class ProxyRemoveAnnouncementCall {
    */
   get asV2023(): {real: Uint8Array, callHash: Uint8Array} {
     assert(this.isV2023)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Remove a given announcement.
+   * 
+   * May be called by a proxy account to remove a call they previously announced and return
+   * the deposit.
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * Parameters:
+   * - `real`: The account that the proxy will make a call on behalf of.
+   * - `call_hash`: The hash of the call to be made by the `real` account.
+   * 
+   * # <weight>
+   * Weight is a function of:
+   * - A: the number of announcements made.
+   * - P: the number of proxies the user has.
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Proxy.remove_announcement') === '1e2ba1b130bab29ab148202fefa1b526f6d362ed3f3d2aaf35cc706821c5cd49'
+  }
+
+  /**
+   * Remove a given announcement.
+   * 
+   * May be called by a proxy account to remove a call they previously announced and return
+   * the deposit.
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * Parameters:
+   * - `real`: The account that the proxy will make a call on behalf of.
+   * - `call_hash`: The hash of the call to be made by the `real` account.
+   * 
+   * # <weight>
+   * Weight is a function of:
+   * - A: the number of announcements made.
+   * - P: the number of proxies the user has.
+   * # </weight>
+   */
+  get asV9291(): {real: v9291.MultiAddress, callHash: Uint8Array} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -23014,6 +24258,41 @@ export class ProxyRemoveProxyCall {
    */
   get asV9180(): {delegate: Uint8Array, proxyType: v9180.ProxyType, delay: number} {
     assert(this.isV9180)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Unregister a proxy account for the sender.
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * Parameters:
+   * - `proxy`: The account that the `caller` would like to remove as a proxy.
+   * - `proxy_type`: The permissions currently enabled for the removed proxy account.
+   * 
+   * # <weight>
+   * Weight is a function of the number of proxies the user has (P).
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Proxy.remove_proxy') === '736bb60d85e1f8c45a10e962b2f5aefc0ffe45e083a582e3b984d6ab315c0794'
+  }
+
+  /**
+   * Unregister a proxy account for the sender.
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * Parameters:
+   * - `proxy`: The account that the `caller` would like to remove as a proxy.
+   * - `proxy_type`: The permissions currently enabled for the removed proxy account.
+   * 
+   * # <weight>
+   * Weight is a function of the number of proxies the user has (P).
+   * # </weight>
+   */
+  get asV9291(): {delegate: v9291.MultiAddress, proxyType: v9291.ProxyType, delay: number} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -24472,6 +25751,35 @@ export class RecoveryAsRecoveredCall {
     assert(this.isV9271)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Send a call through a recovered account.
+   * 
+   * The dispatch origin for this call must be _Signed_ and registered to
+   * be able to make calls on behalf of the recovered account.
+   * 
+   * Parameters:
+   * - `account`: The recovered account you want to make a call on-behalf-of.
+   * - `call`: The call you want to make with the recovered account.
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Recovery.as_recovered') === '7b2fae2ae28553b0695b8605a1a9e4366405d2665ad36e9f503bd186489ebc84'
+  }
+
+  /**
+   * Send a call through a recovered account.
+   * 
+   * The dispatch origin for this call must be _Signed_ and registered to
+   * be able to make calls on behalf of the recovered account.
+   * 
+   * Parameters:
+   * - `account`: The recovered account you want to make a call on-behalf-of.
+   * - `call`: The call you want to make with the recovered account.
+   */
+  get asV9291(): {account: v9291.MultiAddress, call: v9291.Call} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class RecoveryCancelRecoveredCall {
@@ -24519,6 +25827,33 @@ export class RecoveryCancelRecoveredCall {
    */
   get asV1050(): {account: Uint8Array} {
     assert(this.isV1050)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Cancel the ability to use `as_recovered` for `account`.
+   * 
+   * The dispatch origin for this call must be _Signed_ and registered to
+   * be able to make calls on behalf of the recovered account.
+   * 
+   * Parameters:
+   * - `account`: The recovered account you are able to call on-behalf-of.
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Recovery.cancel_recovered') === '2842be90a4599435dbefe83c28be9576bf64e6ff14aa9fa87c5fdb6255ef27b2'
+  }
+
+  /**
+   * Cancel the ability to use `as_recovered` for `account`.
+   * 
+   * The dispatch origin for this call must be _Signed_ and registered to
+   * be able to make calls on behalf of the recovered account.
+   * 
+   * Parameters:
+   * - `account`: The recovered account you are able to call on-behalf-of.
+   */
+  get asV9291(): {account: v9291.MultiAddress} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -24588,6 +25923,37 @@ export class RecoveryClaimRecoveryCall {
     assert(this.isV1040)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Allow a successful rescuer to claim their recovered account.
+   * 
+   * The dispatch origin for this call must be _Signed_ and must be a "rescuer"
+   * who has successfully completed the account recovery process: collected
+   * `threshold` or more vouches, waited `delay_period` blocks since initiation.
+   * 
+   * Parameters:
+   * - `account`: The lost account that you want to claim has been successfully recovered by
+   *   you.
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Recovery.claim_recovery') === '2842be90a4599435dbefe83c28be9576bf64e6ff14aa9fa87c5fdb6255ef27b2'
+  }
+
+  /**
+   * Allow a successful rescuer to claim their recovered account.
+   * 
+   * The dispatch origin for this call must be _Signed_ and must be a "rescuer"
+   * who has successfully completed the account recovery process: collected
+   * `threshold` or more vouches, waited `delay_period` blocks since initiation.
+   * 
+   * Parameters:
+   * - `account`: The lost account that you want to claim has been successfully recovered by
+   *   you.
+   */
+  get asV9291(): {account: v9291.MultiAddress} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class RecoveryCloseRecoveryCall {
@@ -24653,6 +26019,41 @@ export class RecoveryCloseRecoveryCall {
    */
   get asV1040(): {rescuer: Uint8Array} {
     assert(this.isV1040)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * As the controller of a recoverable account, close an active recovery
+   * process for your account.
+   * 
+   * Payment: By calling this function, the recoverable account will receive
+   * the recovery deposit `RecoveryDeposit` placed by the rescuer.
+   * 
+   * The dispatch origin for this call must be _Signed_ and must be a
+   * recoverable account with an active recovery process for it.
+   * 
+   * Parameters:
+   * - `rescuer`: The account trying to rescue this recoverable account.
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Recovery.close_recovery') === '35641276d420e314bee73916596f9c923b0832cf84b0886fff164a0c199992c3'
+  }
+
+  /**
+   * As the controller of a recoverable account, close an active recovery
+   * process for your account.
+   * 
+   * Payment: By calling this function, the recoverable account will receive
+   * the recovery deposit `RecoveryDeposit` placed by the rescuer.
+   * 
+   * The dispatch origin for this call must be _Signed_ and must be a
+   * recoverable account with an active recovery process for it.
+   * 
+   * Parameters:
+   * - `rescuer`: The account trying to rescue this recoverable account.
+   */
+  get asV9291(): {rescuer: v9291.MultiAddress} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -24807,6 +26208,41 @@ export class RecoveryInitiateRecoveryCall {
     assert(this.isV1040)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Initiate the process for recovering a recoverable account.
+   * 
+   * Payment: `RecoveryDeposit` balance will be reserved for initiating the
+   * recovery process. This deposit will always be repatriated to the account
+   * trying to be recovered. See `close_recovery`.
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * Parameters:
+   * - `account`: The lost account that you want to recover. This account needs to be
+   *   recoverable (i.e. have a recovery configuration).
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Recovery.initiate_recovery') === '2842be90a4599435dbefe83c28be9576bf64e6ff14aa9fa87c5fdb6255ef27b2'
+  }
+
+  /**
+   * Initiate the process for recovering a recoverable account.
+   * 
+   * Payment: `RecoveryDeposit` balance will be reserved for initiating the
+   * recovery process. This deposit will always be repatriated to the account
+   * trying to be recovered. See `close_recovery`.
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * Parameters:
+   * - `account`: The lost account that you want to recover. This account needs to be
+   *   recoverable (i.e. have a recovery configuration).
+   */
+  get asV9291(): {account: v9291.MultiAddress} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class RecoveryRemoveRecoveryCall {
@@ -24929,6 +26365,35 @@ export class RecoverySetRecoveredCall {
     assert(this.isV1040)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Allow ROOT to bypass the recovery process and set an a rescuer account
+   * for a lost account directly.
+   * 
+   * The dispatch origin for this call must be _ROOT_.
+   * 
+   * Parameters:
+   * - `lost`: The "lost account" to be recovered.
+   * - `rescuer`: The "rescuer account" which can call as the lost account.
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Recovery.set_recovered') === '12dcb73249a3bef1953d8d44b54c11a2420fd3d13f55159e3173b5d3dee3de90'
+  }
+
+  /**
+   * Allow ROOT to bypass the recovery process and set an a rescuer account
+   * for a lost account directly.
+   * 
+   * The dispatch origin for this call must be _ROOT_.
+   * 
+   * Parameters:
+   * - `lost`: The "lost account" to be recovered.
+   * - `rescuer`: The "rescuer account" which can call as the lost account.
+   */
+  get asV9291(): {lost: v9291.MultiAddress, rescuer: v9291.MultiAddress} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class RecoveryVouchRecoveryCall {
@@ -25004,6 +26469,43 @@ export class RecoveryVouchRecoveryCall {
    */
   get asV1040(): {lost: Uint8Array, rescuer: Uint8Array} {
     assert(this.isV1040)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Allow a "friend" of a recoverable account to vouch for an active recovery
+   * process for that account.
+   * 
+   * The dispatch origin for this call must be _Signed_ and must be a "friend"
+   * for the recoverable account.
+   * 
+   * Parameters:
+   * - `lost`: The lost account that you want to recover.
+   * - `rescuer`: The account trying to rescue the lost account that you want to vouch for.
+   * 
+   * The combination of these two parameters must point to an active recovery
+   * process.
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Recovery.vouch_recovery') === '12dcb73249a3bef1953d8d44b54c11a2420fd3d13f55159e3173b5d3dee3de90'
+  }
+
+  /**
+   * Allow a "friend" of a recoverable account to vouch for an active recovery
+   * process for that account.
+   * 
+   * The dispatch origin for this call must be _Signed_ and must be a "friend"
+   * for the recoverable account.
+   * 
+   * Parameters:
+   * - `lost`: The lost account that you want to recover.
+   * - `rescuer`: The account trying to rescue the lost account that you want to vouch for.
+   * 
+   * The combination of these two parameters must point to an active recovery
+   * process.
+   */
+  get asV9291(): {lost: v9291.MultiAddress, rescuer: v9291.MultiAddress} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -26480,6 +27982,21 @@ export class SchedulerScheduleCall {
     assert(this.isV9271)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Anonymously schedule a task.
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Scheduler.schedule') === '4e8a1b807ac59bcbbe25872ed93b3ce2cd7fffca391c6dce3e7087376d4445bf'
+  }
+
+  /**
+   * Anonymously schedule a task.
+   */
+  get asV9291(): {when: number, maybePeriodic: ([number, number] | undefined), priority: number, call: v9291.MaybeHashed} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class SchedulerScheduleAfterCall {
@@ -27113,6 +28630,29 @@ export class SchedulerScheduleAfterCall {
    */
   get asV9271(): {after: number, maybePeriodic: ([number, number] | undefined), priority: number, call: v9271.MaybeHashed} {
     assert(this.isV9271)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Anonymously schedule a task after a delay.
+   * 
+   * # <weight>
+   * Same as [`schedule`].
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Scheduler.schedule_after') === 'c76b8a9f39b83c878614a6d987051020f1a59c2b36f274a5e14640f16e761a5e'
+  }
+
+  /**
+   * Anonymously schedule a task after a delay.
+   * 
+   * # <weight>
+   * Same as [`schedule`].
+   * # </weight>
+   */
+  get asV9291(): {after: number, maybePeriodic: ([number, number] | undefined), priority: number, call: v9291.MaybeHashed} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -27990,6 +29530,21 @@ export class SchedulerScheduleNamedCall {
     assert(this.isV9271)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Schedule a named task.
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Scheduler.schedule_named') === '8da1a75b75acd57f58f0d6b80012d76e0b14777c82b4dc8a7d67693234c3a899'
+  }
+
+  /**
+   * Schedule a named task.
+   */
+  get asV9291(): {id: Uint8Array, when: number, maybePeriodic: ([number, number] | undefined), priority: number, call: v9291.MaybeHashed} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class SchedulerScheduleNamedAfterCall {
@@ -28623,6 +30178,29 @@ export class SchedulerScheduleNamedAfterCall {
    */
   get asV9271(): {id: Uint8Array, after: number, maybePeriodic: ([number, number] | undefined), priority: number, call: v9271.MaybeHashed} {
     assert(this.isV9271)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Schedule a named task after a delay.
+   * 
+   * # <weight>
+   * Same as [`schedule_named`](Self::schedule_named).
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Scheduler.schedule_named_after') === '0c0b0cad65a434b858acfac022cdc3f18f1b610813b92a9b20b732d8498681c6'
+  }
+
+  /**
+   * Schedule a named task after a delay.
+   * 
+   * # <weight>
+   * Same as [`schedule_named`](Self::schedule_named).
+   * # </weight>
+   */
+  get asV9291(): {id: Uint8Array, after: number, maybePeriodic: ([number, number] | undefined), priority: number, call: v9291.MaybeHashed} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -29506,6 +31084,57 @@ export class SocietyFoundCall {
     assert(this.isV1042)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Found the society.
+   * 
+   * This is done as a discrete action in order to allow for the
+   * pallet to be included into a running chain and can only be done once.
+   * 
+   * The dispatch origin for this call must be from the _FounderSetOrigin_.
+   * 
+   * Parameters:
+   * - `founder` - The first member and head of the newly founded society.
+   * - `max_members` - The initial max number of members for the society.
+   * - `rules` - The rules of this society concerning membership.
+   * 
+   * # <weight>
+   * - Two storage mutates to set `Head` and `Founder`. O(1)
+   * - One storage write to add the first member to society. O(1)
+   * - One event.
+   * 
+   * Total Complexity: O(1)
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Society.found') === '292c78d910045fb09690369dc1ecf194fb284e4213dfabcc72d1e00246902c10'
+  }
+
+  /**
+   * Found the society.
+   * 
+   * This is done as a discrete action in order to allow for the
+   * pallet to be included into a running chain and can only be done once.
+   * 
+   * The dispatch origin for this call must be from the _FounderSetOrigin_.
+   * 
+   * Parameters:
+   * - `founder` - The first member and head of the newly founded society.
+   * - `max_members` - The initial max number of members for the society.
+   * - `rules` - The rules of this society concerning membership.
+   * 
+   * # <weight>
+   * - Two storage mutates to set `Head` and `Founder`. O(1)
+   * - One storage write to add the first member to society. O(1)
+   * - One event.
+   * 
+   * Total Complexity: O(1)
+   * # </weight>
+   */
+  get asV9291(): {founder: v9291.MultiAddress, maxMembers: number, rules: Uint8Array} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class SocietyJudgeSuspendedCandidateCall {
@@ -29613,6 +31242,99 @@ export class SocietyJudgeSuspendedCandidateCall {
     assert(this.isV1040)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Allow suspended judgement origin to make judgement on a suspended candidate.
+   * 
+   * If the judgement is `Approve`, we add them to society as a member with the appropriate
+   * payment for joining society.
+   * 
+   * If the judgement is `Reject`, we either slash the deposit of the bid, giving it back
+   * to the society treasury, or we ban the voucher from vouching again.
+   * 
+   * If the judgement is `Rebid`, we put the candidate back in the bid pool and let them go
+   * through the induction process again.
+   * 
+   * The dispatch origin for this call must be from the _SuspensionJudgementOrigin_.
+   * 
+   * Parameters:
+   * - `who` - The suspended candidate to be judged.
+   * - `judgement` - `Approve`, `Reject`, or `Rebid`.
+   * 
+   * # <weight>
+   * Key: B (len of bids), M (len of members), X (balance action)
+   * - One storage read to check `who` is a suspended candidate.
+   * - One storage removal of the suspended candidate.
+   * - Approve Logic
+   * 	- One storage read to get the available pot to pay users with. O(1)
+   * 	- One storage write to update the available pot. O(1)
+   * 	- One storage read to get the current block number. O(1)
+   * 	- One storage read to get all members. O(M)
+   * 	- Up to one unreserve currency action.
+   * 	- Up to two new storage writes to payouts.
+   * 	- Up to one storage write with O(log M) binary search to add a member to society.
+   * - Reject Logic
+   * 	- Up to one repatriate reserved currency action. O(X)
+   * 	- Up to one storage write to ban the vouching member from vouching again.
+   * - Rebid Logic
+   * 	- Storage mutate with O(log B) binary search to place the user back into bids.
+   * - Up to one additional event if unvouch takes place.
+   * - One storage removal.
+   * - One event for the judgement.
+   * 
+   * Total Complexity: O(M + logM + B + X)
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Society.judge_suspended_candidate') === 'a696052a8479d0eb388fb51fef46be81d7ac813689e702cd5f4c6e0730e96108'
+  }
+
+  /**
+   * Allow suspended judgement origin to make judgement on a suspended candidate.
+   * 
+   * If the judgement is `Approve`, we add them to society as a member with the appropriate
+   * payment for joining society.
+   * 
+   * If the judgement is `Reject`, we either slash the deposit of the bid, giving it back
+   * to the society treasury, or we ban the voucher from vouching again.
+   * 
+   * If the judgement is `Rebid`, we put the candidate back in the bid pool and let them go
+   * through the induction process again.
+   * 
+   * The dispatch origin for this call must be from the _SuspensionJudgementOrigin_.
+   * 
+   * Parameters:
+   * - `who` - The suspended candidate to be judged.
+   * - `judgement` - `Approve`, `Reject`, or `Rebid`.
+   * 
+   * # <weight>
+   * Key: B (len of bids), M (len of members), X (balance action)
+   * - One storage read to check `who` is a suspended candidate.
+   * - One storage removal of the suspended candidate.
+   * - Approve Logic
+   * 	- One storage read to get the available pot to pay users with. O(1)
+   * 	- One storage write to update the available pot. O(1)
+   * 	- One storage read to get the current block number. O(1)
+   * 	- One storage read to get all members. O(M)
+   * 	- Up to one unreserve currency action.
+   * 	- Up to two new storage writes to payouts.
+   * 	- Up to one storage write with O(log M) binary search to add a member to society.
+   * - Reject Logic
+   * 	- Up to one repatriate reserved currency action. O(X)
+   * 	- Up to one storage write to ban the vouching member from vouching again.
+   * - Rebid Logic
+   * 	- Storage mutate with O(log B) binary search to place the user back into bids.
+   * - Up to one additional event if unvouch takes place.
+   * - One storage removal.
+   * - One event for the judgement.
+   * 
+   * Total Complexity: O(M + logM + B + X)
+   * # </weight>
+   */
+  get asV9291(): {who: v9291.MultiAddress, judgement: v9291.Type_386} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class SocietyJudgeSuspendedMemberCall {
@@ -29692,6 +31414,75 @@ export class SocietyJudgeSuspendedMemberCall {
    */
   get asV1040(): {who: Uint8Array, forgive: boolean} {
     assert(this.isV1040)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Allow suspension judgement origin to make judgement on a suspended member.
+   * 
+   * If a suspended member is forgiven, we simply add them back as a member, not affecting
+   * any of the existing storage items for that member.
+   * 
+   * If a suspended member is rejected, remove all associated storage items, including
+   * their payouts, and remove any vouched bids they currently have.
+   * 
+   * The dispatch origin for this call must be from the _SuspensionJudgementOrigin_.
+   * 
+   * Parameters:
+   * - `who` - The suspended member to be judged.
+   * - `forgive` - A boolean representing whether the suspension judgement origin forgives
+   *   (`true`) or rejects (`false`) a suspended member.
+   * 
+   * # <weight>
+   * Key: B (len of bids), M (len of members)
+   * - One storage read to check `who` is a suspended member. O(1)
+   * - Up to one storage write O(M) with O(log M) binary search to add a member back to
+   *   society.
+   * - Up to 3 storage removals O(1) to clean up a removed member.
+   * - Up to one storage write O(B) with O(B) search to remove vouched bid from bids.
+   * - Up to one additional event if unvouch takes place.
+   * - One storage removal. O(1)
+   * - One event for the judgement.
+   * 
+   * Total Complexity: O(M + logM + B)
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Society.judge_suspended_member') === 'd456db496c82da99b467b8a225c2a3c32cf059dc152d040afe4065d7ffda2094'
+  }
+
+  /**
+   * Allow suspension judgement origin to make judgement on a suspended member.
+   * 
+   * If a suspended member is forgiven, we simply add them back as a member, not affecting
+   * any of the existing storage items for that member.
+   * 
+   * If a suspended member is rejected, remove all associated storage items, including
+   * their payouts, and remove any vouched bids they currently have.
+   * 
+   * The dispatch origin for this call must be from the _SuspensionJudgementOrigin_.
+   * 
+   * Parameters:
+   * - `who` - The suspended member to be judged.
+   * - `forgive` - A boolean representing whether the suspension judgement origin forgives
+   *   (`true`) or rejects (`false`) a suspended member.
+   * 
+   * # <weight>
+   * Key: B (len of bids), M (len of members)
+   * - One storage read to check `who` is a suspended member. O(1)
+   * - Up to one storage write O(M) with O(log M) binary search to add a member back to
+   *   society.
+   * - Up to 3 storage removals O(1) to clean up a removed member.
+   * - Up to one storage write O(B) with O(B) search to remove vouched bid from bids.
+   * - Up to one additional event if unvouch takes place.
+   * - One storage removal. O(1)
+   * - One event for the judgement.
+   * 
+   * Total Complexity: O(M + logM + B)
+   * # </weight>
+   */
+  get asV9291(): {who: v9291.MultiAddress, forgive: boolean} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -30326,6 +32117,109 @@ export class SocietyVouchCall {
    */
   get asV1040(): {who: Uint8Array, value: bigint, tip: bigint} {
     assert(this.isV1040)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * As a member, vouch for someone to join society by placing a bid on their behalf.
+   * 
+   * There is no deposit required to vouch for a new bid, but a member can only vouch for
+   * one bid at a time. If the bid becomes a suspended candidate and ultimately rejected by
+   * the suspension judgement origin, the member will be banned from vouching again.
+   * 
+   * As a vouching member, you can claim a tip if the candidate is accepted. This tip will
+   * be paid as a portion of the reward the member will receive for joining the society.
+   * 
+   * The dispatch origin for this call must be _Signed_ and a member.
+   * 
+   * Parameters:
+   * - `who`: The user who you would like to vouch for.
+   * - `value`: The total reward to be paid between you and the candidate if they become
+   * a member in the society.
+   * - `tip`: Your cut of the total `value` payout when the candidate is inducted into
+   * the society. Tips larger than `value` will be saturated upon payout.
+   * 
+   * # <weight>
+   * Key: B (len of bids), C (len of candidates), M (len of members)
+   * - Storage Reads:
+   * 	- One storage read to retrieve all members. O(M)
+   * 	- One storage read to check member is not already vouching. O(1)
+   * 	- One storage read to check for suspended candidate. O(1)
+   * 	- One storage read to check for suspended member. O(1)
+   * 	- One storage read to retrieve all current bids. O(B)
+   * 	- One storage read to retrieve all current candidates. O(C)
+   * - Storage Writes:
+   * 	- One storage write to insert vouching status to the member. O(1)
+   * 	- One storage mutate to add a new bid to the vector O(B) (TODO: possible optimization
+   *    w/ read)
+   * 	- Up to one storage removal if bid.len() > MAX_BID_COUNT. O(1)
+   * - Notable Computation:
+   * 	- O(log M) search to check sender is a member.
+   * 	- O(B + C + log M) search to check user is not already a part of society.
+   * 	- O(log B) search to insert the new bid sorted.
+   * - External Pallet Operations:
+   * 	- One balance reserve operation. O(X)
+   * 	- Up to one balance unreserve operation if bids.len() > MAX_BID_COUNT.
+   * - Events:
+   * 	- One event for vouch.
+   * 	- Up to one event for AutoUnbid if bid.len() > MAX_BID_COUNT.
+   * 
+   * Total Complexity: O(M + B + C + logM + logB + X)
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Society.vouch') === '6e4614d88956c320da6839813343aafce0760712678ec170a6086e958d21e5e6'
+  }
+
+  /**
+   * As a member, vouch for someone to join society by placing a bid on their behalf.
+   * 
+   * There is no deposit required to vouch for a new bid, but a member can only vouch for
+   * one bid at a time. If the bid becomes a suspended candidate and ultimately rejected by
+   * the suspension judgement origin, the member will be banned from vouching again.
+   * 
+   * As a vouching member, you can claim a tip if the candidate is accepted. This tip will
+   * be paid as a portion of the reward the member will receive for joining the society.
+   * 
+   * The dispatch origin for this call must be _Signed_ and a member.
+   * 
+   * Parameters:
+   * - `who`: The user who you would like to vouch for.
+   * - `value`: The total reward to be paid between you and the candidate if they become
+   * a member in the society.
+   * - `tip`: Your cut of the total `value` payout when the candidate is inducted into
+   * the society. Tips larger than `value` will be saturated upon payout.
+   * 
+   * # <weight>
+   * Key: B (len of bids), C (len of candidates), M (len of members)
+   * - Storage Reads:
+   * 	- One storage read to retrieve all members. O(M)
+   * 	- One storage read to check member is not already vouching. O(1)
+   * 	- One storage read to check for suspended candidate. O(1)
+   * 	- One storage read to check for suspended member. O(1)
+   * 	- One storage read to retrieve all current bids. O(B)
+   * 	- One storage read to retrieve all current candidates. O(C)
+   * - Storage Writes:
+   * 	- One storage write to insert vouching status to the member. O(1)
+   * 	- One storage mutate to add a new bid to the vector O(B) (TODO: possible optimization
+   *    w/ read)
+   * 	- Up to one storage removal if bid.len() > MAX_BID_COUNT. O(1)
+   * - Notable Computation:
+   * 	- O(log M) search to check sender is a member.
+   * 	- O(B + C + log M) search to check user is not already a part of society.
+   * 	- O(log B) search to insert the new bid sorted.
+   * - External Pallet Operations:
+   * 	- One balance reserve operation. O(X)
+   * 	- Up to one balance unreserve operation if bids.len() > MAX_BID_COUNT.
+   * - Events:
+   * 	- One event for vouch.
+   * 	- Up to one event for AutoUnbid if bid.len() > MAX_BID_COUNT.
+   * 
+   * Total Complexity: O(M + B + C + logM + logB + X)
+   * # </weight>
+   */
+  get asV9291(): {who: v9291.MultiAddress, value: bigint, tip: bigint} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -33858,6 +35752,83 @@ export class TechnicalCommitteeCloseCall {
     assert(this.isV2005)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Close a vote that is either approved, disapproved or whose voting period has ended.
+   * 
+   * May be called by any signed account in order to finish voting and close the proposal.
+   * 
+   * If called before the end of the voting period it will only close the vote if it is
+   * has enough votes to be approved or disapproved.
+   * 
+   * If called after the end of the voting period abstentions are counted as rejections
+   * unless there is a prime member set and the prime member cast an approval.
+   * 
+   * If the close operation completes successfully with disapproval, the transaction fee will
+   * be waived. Otherwise execution of the approved operation will be charged to the caller.
+   * 
+   * + `proposal_weight_bound`: The maximum amount of weight consumed by executing the closed
+   * proposal.
+   * + `length_bound`: The upper bound for the length of the proposal in storage. Checked via
+   * `storage::read` so it is `size_of::<u32>() == 4` larger than the pure length.
+   * 
+   * # <weight>
+   * ## Weight
+   * - `O(B + M + P1 + P2)` where:
+   *   - `B` is `proposal` size in bytes (length-fee-bounded)
+   *   - `M` is members-count (code- and governance-bounded)
+   *   - `P1` is the complexity of `proposal` preimage.
+   *   - `P2` is proposal-count (code-bounded)
+   * - DB:
+   *  - 2 storage reads (`Members`: codec `O(M)`, `Prime`: codec `O(1)`)
+   *  - 3 mutations (`Voting`: codec `O(M)`, `ProposalOf`: codec `O(B)`, `Proposals`: codec
+   *    `O(P2)`)
+   *  - any mutations done while executing `proposal` (`P1`)
+   * - up to 3 events
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('TechnicalCommittee.close') === '683905378cce329de8c5e9460bd36984188fb48a39207d985ea43cb10bd1eb81'
+  }
+
+  /**
+   * Close a vote that is either approved, disapproved or whose voting period has ended.
+   * 
+   * May be called by any signed account in order to finish voting and close the proposal.
+   * 
+   * If called before the end of the voting period it will only close the vote if it is
+   * has enough votes to be approved or disapproved.
+   * 
+   * If called after the end of the voting period abstentions are counted as rejections
+   * unless there is a prime member set and the prime member cast an approval.
+   * 
+   * If the close operation completes successfully with disapproval, the transaction fee will
+   * be waived. Otherwise execution of the approved operation will be charged to the caller.
+   * 
+   * + `proposal_weight_bound`: The maximum amount of weight consumed by executing the closed
+   * proposal.
+   * + `length_bound`: The upper bound for the length of the proposal in storage. Checked via
+   * `storage::read` so it is `size_of::<u32>() == 4` larger than the pure length.
+   * 
+   * # <weight>
+   * ## Weight
+   * - `O(B + M + P1 + P2)` where:
+   *   - `B` is `proposal` size in bytes (length-fee-bounded)
+   *   - `M` is members-count (code- and governance-bounded)
+   *   - `P1` is the complexity of `proposal` preimage.
+   *   - `P2` is proposal-count (code-bounded)
+   * - DB:
+   *  - 2 storage reads (`Members`: codec `O(M)`, `Prime`: codec `O(1)`)
+   *  - 3 mutations (`Voting`: codec `O(M)`, `ProposalOf`: codec `O(B)`, `Proposals`: codec
+   *    `O(P2)`)
+   *  - any mutations done while executing `proposal` (`P1`)
+   * - up to 3 events
+   * # </weight>
+   */
+  get asV9291(): {proposalHash: Uint8Array, index: number, proposalWeightBound: bigint, lengthBound: number} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class TechnicalCommitteeDisapproveProposalCall {
@@ -35293,6 +37264,41 @@ export class TechnicalCommitteeExecuteCall {
    */
   get asV9271(): {proposal: v9271.Call, lengthBound: number} {
     assert(this.isV9271)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Dispatch a proposal from a member using the `Member` origin.
+   * 
+   * Origin must be a member of the collective.
+   * 
+   * # <weight>
+   * ## Weight
+   * - `O(M + P)` where `M` members-count (code-bounded) and `P` complexity of dispatching
+   *   `proposal`
+   * - DB: 1 read (codec `O(M)`) + DB access of `proposal`
+   * - 1 event
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('TechnicalCommittee.execute') === '2ae4824124910cb5d89e5f617ca87a763c5dfc3e44fef23506d7c5e5b171707e'
+  }
+
+  /**
+   * Dispatch a proposal from a member using the `Member` origin.
+   * 
+   * Origin must be a member of the collective.
+   * 
+   * # <weight>
+   * ## Weight
+   * - `O(M + P)` where `M` members-count (code-bounded) and `P` complexity of dispatching
+   *   `proposal`
+   * - DB: 1 read (codec `O(M)`) + DB access of `proposal`
+   * - 1 event
+   * # </weight>
+   */
+  get asV9291(): {proposal: v9291.Call, lengthBound: number} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -37743,6 +39749,73 @@ export class TechnicalCommitteeProposeCall {
     assert(this.isV9271)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Add a new proposal to either be voted on or executed directly.
+   * 
+   * Requires the sender to be member.
+   * 
+   * `threshold` determines whether `proposal` is executed directly (`threshold < 2`)
+   * or put up for voting.
+   * 
+   * # <weight>
+   * ## Weight
+   * - `O(B + M + P1)` or `O(B + M + P2)` where:
+   *   - `B` is `proposal` size in bytes (length-fee-bounded)
+   *   - `M` is members-count (code- and governance-bounded)
+   *   - branching is influenced by `threshold` where:
+   *     - `P1` is proposal execution complexity (`threshold < 2`)
+   *     - `P2` is proposals-count (code-bounded) (`threshold >= 2`)
+   * - DB:
+   *   - 1 storage read `is_member` (codec `O(M)`)
+   *   - 1 storage read `ProposalOf::contains_key` (codec `O(1)`)
+   *   - DB accesses influenced by `threshold`:
+   *     - EITHER storage accesses done by `proposal` (`threshold < 2`)
+   *     - OR proposal insertion (`threshold <= 2`)
+   *       - 1 storage mutation `Proposals` (codec `O(P2)`)
+   *       - 1 storage mutation `ProposalCount` (codec `O(1)`)
+   *       - 1 storage write `ProposalOf` (codec `O(B)`)
+   *       - 1 storage write `Voting` (codec `O(M)`)
+   *   - 1 event
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('TechnicalCommittee.propose') === 'ad0813495d84c471e4f14492855dad7c377b8687ed5be0c9d1071d9b6c91860d'
+  }
+
+  /**
+   * Add a new proposal to either be voted on or executed directly.
+   * 
+   * Requires the sender to be member.
+   * 
+   * `threshold` determines whether `proposal` is executed directly (`threshold < 2`)
+   * or put up for voting.
+   * 
+   * # <weight>
+   * ## Weight
+   * - `O(B + M + P1)` or `O(B + M + P2)` where:
+   *   - `B` is `proposal` size in bytes (length-fee-bounded)
+   *   - `M` is members-count (code- and governance-bounded)
+   *   - branching is influenced by `threshold` where:
+   *     - `P1` is proposal execution complexity (`threshold < 2`)
+   *     - `P2` is proposals-count (code-bounded) (`threshold >= 2`)
+   * - DB:
+   *   - 1 storage read `is_member` (codec `O(M)`)
+   *   - 1 storage read `ProposalOf::contains_key` (codec `O(1)`)
+   *   - DB accesses influenced by `threshold`:
+   *     - EITHER storage accesses done by `proposal` (`threshold < 2`)
+   *     - OR proposal insertion (`threshold <= 2`)
+   *       - 1 storage mutation `Proposals` (codec `O(P2)`)
+   *       - 1 storage mutation `ProposalCount` (codec `O(1)`)
+   *       - 1 storage write `ProposalOf` (codec `O(B)`)
+   *       - 1 storage write `Voting` (codec `O(M)`)
+   *   - 1 event
+   * # </weight>
+   */
+  get asV9291(): {threshold: number, proposal: v9291.Call, lengthBound: number} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class TechnicalCommitteeSetMembersCall {
@@ -37932,6 +40005,25 @@ export class TechnicalMembershipAddMemberCall {
     assert(this.isV1020)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Add a member `who` to the set.
+   * 
+   * May only be called from `T::AddOrigin`.
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('TechnicalMembership.add_member') === '1642934df325db16ad3ad3f83bb2200cdde93b508c653dc7b78049e7e8d67223'
+  }
+
+  /**
+   * Add a member `who` to the set.
+   * 
+   * May only be called from `T::AddOrigin`.
+   */
+  get asV9291(): {who: v9291.MultiAddress} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class TechnicalMembershipChangeKeyCall {
@@ -37963,6 +40055,29 @@ export class TechnicalMembershipChangeKeyCall {
    */
   get asV1029(): {new: Uint8Array} {
     assert(this.isV1029)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Swap out the sending member for some other key `new`.
+   * 
+   * May only be called from `Signed` origin of a current member.
+   * 
+   * Prime membership is passed from the origin account to `new`, if extant.
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('TechnicalMembership.change_key') === 'e634aac3331d47a56ff572c52ad90a648769dfbf2c00d7bd44498b4ee41f6ac7'
+  }
+
+  /**
+   * Swap out the sending member for some other key `new`.
+   * 
+   * May only be called from `Signed` origin of a current member.
+   * 
+   * Prime membership is passed from the origin account to `new`, if extant.
+   */
+  get asV9291(): {new: v9291.MultiAddress} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -38025,6 +40140,25 @@ export class TechnicalMembershipRemoveMemberCall {
    */
   get asV1020(): {who: Uint8Array} {
     assert(this.isV1020)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Remove a member `who` from the set.
+   * 
+   * May only be called from `T::RemoveOrigin`.
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('TechnicalMembership.remove_member') === '1642934df325db16ad3ad3f83bb2200cdde93b508c653dc7b78049e7e8d67223'
+  }
+
+  /**
+   * Remove a member `who` from the set.
+   * 
+   * May only be called from `T::RemoveOrigin`.
+   */
+  get asV9291(): {who: v9291.MultiAddress} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -38091,6 +40225,25 @@ export class TechnicalMembershipSetPrimeCall {
     assert(this.isV1050)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Set the prime member. Must be a current member.
+   * 
+   * May only be called from `T::PrimeOrigin`.
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('TechnicalMembership.set_prime') === '1642934df325db16ad3ad3f83bb2200cdde93b508c653dc7b78049e7e8d67223'
+  }
+
+  /**
+   * Set the prime member. Must be a current member.
+   * 
+   * May only be called from `T::PrimeOrigin`.
+   */
+  get asV9291(): {who: v9291.MultiAddress} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class TechnicalMembershipSwapMemberCall {
@@ -38122,6 +40275,29 @@ export class TechnicalMembershipSwapMemberCall {
    */
   get asV1020(): {remove: Uint8Array, add: Uint8Array} {
     assert(this.isV1020)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Swap out one member `remove` for another `add`.
+   * 
+   * May only be called from `T::SwapOrigin`.
+   * 
+   * Prime membership is *not* passed from `remove` to `add`, if extant.
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('TechnicalMembership.swap_member') === '5efd724fae29eef6393e039bf2dbfd2d5a3081770cc9cc8a80a1475fd6b40cf4'
+  }
+
+  /**
+   * Swap out one member `remove` for another `add`.
+   * 
+   * May only be called from `T::SwapOrigin`.
+   * 
+   * Prime membership is *not* passed from `remove` to `add`, if extant.
+   */
+  get asV9291(): {remove: v9291.MultiAddress, add: v9291.MultiAddress} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -38293,6 +40469,57 @@ export class TipsReportAwesomeCall {
    */
   get asV2028(): {reason: Uint8Array, who: Uint8Array} {
     assert(this.isV2028)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Report something `reason` that deserves a tip and claim any eventual the finder's fee.
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * Payment: `TipReportDepositBase` will be reserved from the origin account, as well as
+   * `DataDepositPerByte` for each byte in `reason`.
+   * 
+   * - `reason`: The reason for, or the thing that deserves, the tip; generally this will be
+   *   a UTF-8-encoded URL.
+   * - `who`: The account which should be credited for the tip.
+   * 
+   * Emits `NewTip` if successful.
+   * 
+   * # <weight>
+   * - Complexity: `O(R)` where `R` length of `reason`.
+   *   - encoding and hashing of 'reason'
+   * - DbReads: `Reasons`, `Tips`
+   * - DbWrites: `Reasons`, `Tips`
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Tips.report_awesome') === '14964738e276e95e94f6efa5fe953428f7537f27815f688365f6275f4cea67df'
+  }
+
+  /**
+   * Report something `reason` that deserves a tip and claim any eventual the finder's fee.
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * Payment: `TipReportDepositBase` will be reserved from the origin account, as well as
+   * `DataDepositPerByte` for each byte in `reason`.
+   * 
+   * - `reason`: The reason for, or the thing that deserves, the tip; generally this will be
+   *   a UTF-8-encoded URL.
+   * - `who`: The account which should be credited for the tip.
+   * 
+   * Emits `NewTip` if successful.
+   * 
+   * # <weight>
+   * - Complexity: `O(R)` where `R` length of `reason`.
+   *   - encoding and hashing of 'reason'
+   * - DbReads: `Reasons`, `Tips`
+   * - DbWrites: `Reasons`, `Tips`
+   * # </weight>
+   */
+  get asV9291(): {reason: Uint8Array, who: v9291.MultiAddress} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -38557,6 +40784,63 @@ export class TipsTipNewCall {
    */
   get asV2028(): {reason: Uint8Array, who: Uint8Array, tipValue: bigint} {
     assert(this.isV2028)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Give a tip for something new; no finder's fee will be taken.
+   * 
+   * The dispatch origin for this call must be _Signed_ and the signing account must be a
+   * member of the `Tippers` set.
+   * 
+   * - `reason`: The reason for, or the thing that deserves, the tip; generally this will be
+   *   a UTF-8-encoded URL.
+   * - `who`: The account which should be credited for the tip.
+   * - `tip_value`: The amount of tip that the sender would like to give. The median tip
+   *   value of active tippers will be given to the `who`.
+   * 
+   * Emits `NewTip` if successful.
+   * 
+   * # <weight>
+   * - Complexity: `O(R + T)` where `R` length of `reason`, `T` is the number of tippers.
+   *   - `O(T)`: decoding `Tipper` vec of length `T`. `T` is charged as upper bound given by
+   *     `ContainsLengthBound`. The actual cost depends on the implementation of
+   *     `T::Tippers`.
+   *   - `O(R)`: hashing and encoding of reason of length `R`
+   * - DbReads: `Tippers`, `Reasons`
+   * - DbWrites: `Reasons`, `Tips`
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Tips.tip_new') === '340063926daebcdd5ba139252081f24472426696cfbff5aeda54953ca2048d2e'
+  }
+
+  /**
+   * Give a tip for something new; no finder's fee will be taken.
+   * 
+   * The dispatch origin for this call must be _Signed_ and the signing account must be a
+   * member of the `Tippers` set.
+   * 
+   * - `reason`: The reason for, or the thing that deserves, the tip; generally this will be
+   *   a UTF-8-encoded URL.
+   * - `who`: The account which should be credited for the tip.
+   * - `tip_value`: The amount of tip that the sender would like to give. The median tip
+   *   value of active tippers will be given to the `who`.
+   * 
+   * Emits `NewTip` if successful.
+   * 
+   * # <weight>
+   * - Complexity: `O(R + T)` where `R` length of `reason`, `T` is the number of tippers.
+   *   - `O(T)`: decoding `Tipper` vec of length `T`. `T` is charged as upper bound given by
+   *     `ContainsLengthBound`. The actual cost depends on the implementation of
+   *     `T::Tippers`.
+   *   - `O(R)`: hashing and encoding of reason of length `R`
+   * - DbReads: `Tippers`, `Reasons`
+   * - DbWrites: `Reasons`, `Tips`
+   * # </weight>
+   */
+  get asV9291(): {reason: Uint8Array, who: v9291.MultiAddress, tipValue: bigint} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -39776,6 +42060,43 @@ export class UmpServiceOverweightCall {
    */
   get asV9100(): {index: bigint, weightLimit: bigint} {
     assert(this.isV9100)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Service a single overweight upward message.
+   * 
+   * - `origin`: Must pass `ExecuteOverweightOrigin`.
+   * - `index`: The index of the overweight message to service.
+   * - `weight_limit`: The amount of weight that message execution may take.
+   * 
+   * Errors:
+   * - `UnknownMessageIndex`: Message of `index` is unknown.
+   * - `WeightOverLimit`: Message execution may use greater than `weight_limit`.
+   * 
+   * Events:
+   * - `OverweightServiced`: On success.
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Ump.service_overweight') === '3e0d440993be1d69328adae3a1b30f3261ca945f8f307c396f4de7f51796a0c6'
+  }
+
+  /**
+   * Service a single overweight upward message.
+   * 
+   * - `origin`: Must pass `ExecuteOverweightOrigin`.
+   * - `index`: The index of the overweight message to service.
+   * - `weight_limit`: The amount of weight that message execution may take.
+   * 
+   * Errors:
+   * - `UnknownMessageIndex`: Message of `index` is unknown.
+   * - `WeightOverLimit`: Message execution may use greater than `weight_limit`.
+   * 
+   * Events:
+   * - `OverweightServiced`: On success.
+   */
+  get asV9291(): {index: bigint, weightLimit: v9291.Weight} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -41003,6 +43324,45 @@ export class UtilityAsDerivativeCall {
    */
   get asV9271(): {index: number, call: v9271.Call} {
     assert(this.isV9271)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Send a call through an indexed pseudonym of the sender.
+   * 
+   * Filter from origin are passed along. The call will be dispatched with an origin which
+   * use the same filter as the origin of this call.
+   * 
+   * NOTE: If you need to ensure that any account-based filtering is not honored (i.e.
+   * because you expect `proxy` to have been used prior in the call stack and you do not want
+   * the call restrictions to apply to any sub-accounts), then use `as_multi_threshold_1`
+   * in the Multisig pallet instead.
+   * 
+   * NOTE: Prior to version *12, this was called `as_limited_sub`.
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Utility.as_derivative') === '1dd40a7d719579f85950d5307e23092fd470000bf880a4ce56e370d3b6bfa200'
+  }
+
+  /**
+   * Send a call through an indexed pseudonym of the sender.
+   * 
+   * Filter from origin are passed along. The call will be dispatched with an origin which
+   * use the same filter as the origin of this call.
+   * 
+   * NOTE: If you need to ensure that any account-based filtering is not honored (i.e.
+   * because you expect `proxy` to have been used prior in the call stack and you do not want
+   * the call restrictions to apply to any sub-accounts), then use `as_multi_threshold_1`
+   * in the Multisig pallet instead.
+   * 
+   * NOTE: Prior to version *12, this was called `as_limited_sub`.
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   */
+  get asV9291(): {index: number, call: v9291.Call} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -44622,6 +46982,57 @@ export class UtilityBatchCall {
     assert(this.isV9271)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Send a batch of dispatch calls.
+   * 
+   * May be called from any origin.
+   * 
+   * - `calls`: The calls to be dispatched from the same origin. The number of call must not
+   *   exceed the constant: `batched_calls_limit` (available in constant metadata).
+   * 
+   * If origin is root then call are dispatch without checking origin filter. (This includes
+   * bypassing `frame_system::Config::BaseCallFilter`).
+   * 
+   * # <weight>
+   * - Complexity: O(C) where C is the number of calls to be batched.
+   * # </weight>
+   * 
+   * This will return `Ok` in all circumstances. To determine the success of the batch, an
+   * event is deposited. If a call failed and the batch was interrupted, then the
+   * `BatchInterrupted` event is deposited, along with the number of successful calls made
+   * and the error of the failed call. If all were successful, then the `BatchCompleted`
+   * event is deposited.
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Utility.batch') === 'ed655ce179022fd12df3c2d35816f3ef516d03e0f801ed8f6ad39d4d63284ab4'
+  }
+
+  /**
+   * Send a batch of dispatch calls.
+   * 
+   * May be called from any origin.
+   * 
+   * - `calls`: The calls to be dispatched from the same origin. The number of call must not
+   *   exceed the constant: `batched_calls_limit` (available in constant metadata).
+   * 
+   * If origin is root then call are dispatch without checking origin filter. (This includes
+   * bypassing `frame_system::Config::BaseCallFilter`).
+   * 
+   * # <weight>
+   * - Complexity: O(C) where C is the number of calls to be batched.
+   * # </weight>
+   * 
+   * This will return `Ok` in all circumstances. To determine the success of the batch, an
+   * event is deposited. If a call failed and the batch was interrupted, then the
+   * `BatchInterrupted` event is deposited, along with the number of successful calls made
+   * and the error of the failed call. If all were successful, then the `BatchCompleted`
+   * event is deposited.
+   */
+  get asV9291(): {calls: v9291.Call[]} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class UtilityBatchAllCall {
@@ -45520,6 +47931,47 @@ export class UtilityBatchAllCall {
     assert(this.isV9271)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Send a batch of dispatch calls and atomically execute them.
+   * The whole transaction will rollback and fail if any of the calls failed.
+   * 
+   * May be called from any origin.
+   * 
+   * - `calls`: The calls to be dispatched from the same origin. The number of call must not
+   *   exceed the constant: `batched_calls_limit` (available in constant metadata).
+   * 
+   * If origin is root then call are dispatch without checking origin filter. (This includes
+   * bypassing `frame_system::Config::BaseCallFilter`).
+   * 
+   * # <weight>
+   * - Complexity: O(C) where C is the number of calls to be batched.
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Utility.batch_all') === 'ed655ce179022fd12df3c2d35816f3ef516d03e0f801ed8f6ad39d4d63284ab4'
+  }
+
+  /**
+   * Send a batch of dispatch calls and atomically execute them.
+   * The whole transaction will rollback and fail if any of the calls failed.
+   * 
+   * May be called from any origin.
+   * 
+   * - `calls`: The calls to be dispatched from the same origin. The number of call must not
+   *   exceed the constant: `batched_calls_limit` (available in constant metadata).
+   * 
+   * If origin is root then call are dispatch without checking origin filter. (This includes
+   * bypassing `frame_system::Config::BaseCallFilter`).
+   * 
+   * # <weight>
+   * - Complexity: O(C) where C is the number of calls to be batched.
+   * # </weight>
+   */
+  get asV9291(): {calls: v9291.Call[]} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class UtilityCancelAsMultiCall {
@@ -45902,6 +48354,39 @@ export class UtilityDispatchAsCall {
     assert(this.isV9271)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Dispatches a function call with a provided origin.
+   * 
+   * The dispatch origin for this call must be _Root_.
+   * 
+   * # <weight>
+   * - O(1).
+   * - Limited storage reads.
+   * - One DB write (event).
+   * - Weight of derivative `call` execution + T::WeightInfo::dispatch_as().
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Utility.dispatch_as') === '7b8e18e83fa827e3a3a9ab35c9f754ec4f2b597998c240e0f7699ea65b056884'
+  }
+
+  /**
+   * Dispatches a function call with a provided origin.
+   * 
+   * The dispatch origin for this call must be _Root_.
+   * 
+   * # <weight>
+   * - O(1).
+   * - Limited storage reads.
+   * - One DB write (event).
+   * - Weight of derivative `call` execution + T::WeightInfo::dispatch_as().
+   * # </weight>
+   */
+  get asV9291(): {asOrigin: v9291.OriginCaller, call: v9291.Call} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class UtilityForceBatchCall {
@@ -46078,6 +48563,47 @@ export class UtilityForceBatchCall {
    */
   get asV9271(): {calls: v9271.Call[]} {
     assert(this.isV9271)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Send a batch of dispatch calls.
+   * Unlike `batch`, it allows errors and won't interrupt.
+   * 
+   * May be called from any origin.
+   * 
+   * - `calls`: The calls to be dispatched from the same origin. The number of call must not
+   *   exceed the constant: `batched_calls_limit` (available in constant metadata).
+   * 
+   * If origin is root then call are dispatch without checking origin filter. (This includes
+   * bypassing `frame_system::Config::BaseCallFilter`).
+   * 
+   * # <weight>
+   * - Complexity: O(C) where C is the number of calls to be batched.
+   * # </weight>
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('Utility.force_batch') === 'ed655ce179022fd12df3c2d35816f3ef516d03e0f801ed8f6ad39d4d63284ab4'
+  }
+
+  /**
+   * Send a batch of dispatch calls.
+   * Unlike `batch`, it allows errors and won't interrupt.
+   * 
+   * May be called from any origin.
+   * 
+   * - `calls`: The calls to be dispatched from the same origin. The number of call must not
+   *   exceed the constant: `batched_calls_limit` (available in constant metadata).
+   * 
+   * If origin is root then call are dispatch without checking origin filter. (This includes
+   * bypassing `frame_system::Config::BaseCallFilter`).
+   * 
+   * # <weight>
+   * - Complexity: O(C) where C is the number of calls to be batched.
+   * # </weight>
+   */
+  get asV9291(): {calls: v9291.Call[]} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -46698,6 +49224,35 @@ export class VoterListPutInFrontOfCall {
     assert(this.isV9230)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Move the caller's Id directly in front of `lighter`.
+   * 
+   * The dispatch origin for this call must be _Signed_ and can only be called by the Id of
+   * the account going in front of `lighter`.
+   * 
+   * Only works if
+   * - both nodes are within the same bag,
+   * - and `origin` has a greater `Score` than `lighter`.
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('VoterList.put_in_front_of') === '7e9287cfca368105d1ffcdf529d05020ce712c640b68f9f0b0e8791c224766ff'
+  }
+
+  /**
+   * Move the caller's Id directly in front of `lighter`.
+   * 
+   * The dispatch origin for this call must be _Signed_ and can only be called by the Id of
+   * the account going in front of `lighter`.
+   * 
+   * Only works if
+   * - both nodes are within the same bag,
+   * - and `origin` has a greater `Score` than `lighter`.
+   */
+  get asV9291(): {lighter: v9291.MultiAddress} {
+    assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class VoterListRebagCall {
@@ -46743,6 +49298,39 @@ export class VoterListRebagCall {
    */
   get asV9230(): {dislocated: Uint8Array} {
     assert(this.isV9230)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Declare that some `dislocated` account has, through rewards or penalties, sufficiently
+   * changed its score that it should properly fall into a different bag than its current
+   * one.
+   * 
+   * Anyone can call this function about any potentially dislocated account.
+   * 
+   * Will always update the stored score of `dislocated` to the correct score, based on
+   * `ScoreProvider`.
+   * 
+   * If `dislocated` does not exists, it returns an error.
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('VoterList.rebag') === 'a58fcb324a2ede36cc16fb0fd8f25f392cc3d269670833be7cb969809a50d729'
+  }
+
+  /**
+   * Declare that some `dislocated` account has, through rewards or penalties, sufficiently
+   * changed its score that it should properly fall into a different bag than its current
+   * one.
+   * 
+   * Anyone can call this function about any potentially dislocated account.
+   * 
+   * Will always update the stored score of `dislocated` to the correct score, based on
+   * `ScoreProvider`.
+   * 
+   * If `dislocated` does not exists, it returns an error.
+   */
+  get asV9291(): {dislocated: v9291.MultiAddress} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -46897,6 +49485,41 @@ export class XcmPalletExecuteCall {
    */
   get asV9160(): {message: v9160.Type_529, maxWeight: bigint} {
     assert(this.isV9160)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Execute an XCM message from a local, signed, origin.
+   * 
+   * An event is deposited indicating whether `msg` could be executed completely or only
+   * partially.
+   * 
+   * No more than `max_weight` will be used in its attempted execution. If this is less than the
+   * maximum amount of weight that the message could take to be executed, then no execution
+   * attempt will be made.
+   * 
+   * NOTE: A successful return to this does *not* imply that the `msg` was executed successfully
+   * to completion; only that *some* of it was executed.
+   */
+  get isV9291(): boolean {
+    return this._chain.getCallHash('XcmPallet.execute') === '76149fbd7c3d18753d366687484d7bf651dd9b444cec7c11b944262b7ee4dcf5'
+  }
+
+  /**
+   * Execute an XCM message from a local, signed, origin.
+   * 
+   * An event is deposited indicating whether `msg` could be executed completely or only
+   * partially.
+   * 
+   * No more than `max_weight` will be used in its attempted execution. If this is less than the
+   * maximum amount of weight that the message could take to be executed, then no execution
+   * attempt will be made.
+   * 
+   * NOTE: A successful return to this does *not* imply that the `msg` was executed successfully
+   * to completion; only that *some* of it was executed.
+   */
+  get asV9291(): {message: v9291.Type_553, maxWeight: v9291.Weight} {
+    assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
 }

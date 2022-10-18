@@ -1,6 +1,5 @@
 import { Codec as ScaleCodec } from '@subsquid/scale-codec';
 import { Ctx, Block } from '../processor';
-import { ProcessorCache as SquidCache } from '@subsquid/processor-tools';
 import { StakedValue } from '../model';
 import { getOrCreateHistoricalDataMeta } from './histiricalDataMeta';
 import { TOTAL_STAKING_CHECK_STEP } from '../config';
@@ -14,8 +13,10 @@ import {
 } from '../types/generated/storage';
 import { getStorageHash } from '../utils/common';
 
+import storage from '../storage';
+
 export async function handleStakeAmount(ctx: Ctx, block: Block) {
-  const histDataMeta = getOrCreateHistoricalDataMeta();
+  const histDataMeta = await getOrCreateHistoricalDataMeta(ctx);
 
   if (
     block.header.timestamp -
@@ -26,26 +27,77 @@ export async function handleStakeAmount(ctx: Ctx, block: Block) {
   ) {
     return;
   }
+  const activeEraData = await storage.staking.getActiveEra(ctx, block);
+  const currentEraData = await storage.staking.getCurrentEra(ctx, block);
+  //prefered to use ActiveEra because CurrentEra can return next planed era
+  const storageEraData = activeEraData || currentEraData;
 
-  const activeEraStorage = new StakingActiveEraStorage(ctx, block.header);
-  const erasTotalStakeStorage = new StakingErasTotalStakeStorage(
+  if (!storageEraData || storageEraData?.index == null) {
+    return ctx.log.warn(`Unknown era`);
+  }
+
+  const validatorIds = await storage.session.getValidators(ctx, block);
+  if (!validatorIds) {
+    return ctx.log.warn(`Validators for era ${storageEraData} not found`);
+  }
+
+  const validatorsData = await storage.staking.getEraStakersData(
     ctx,
-    block.header
+    block,
+    validatorIds.map((id) => [id, storageEraData.index] as [string, number])
   );
-  // const erasStakersStorage = new StakingErasStakersStorage(ctx, block.header);
-  if (
-    !activeEraStorage.isExists ||
-    !erasTotalStakeStorage.isExists
-    // !erasStakersStorage.isExists
-  )
-    return;
+  if (!validatorsData) {
+    return ctx.log.warn(`Missing info for validators in era ${storageEraData}`);
+  }
 
-  const activeEra = await activeEraStorage.getAsV1050();
-  if (!activeEra || !activeEra.index) return;
+  let totalValidatorsStake = 0n;
+  let totalNominatorsStake = 0n;
+  for (const validatorData of validatorsData) {
+    if (!validatorsData) continue;
+    totalValidatorsStake += validatorData!.own;
+    totalNominatorsStake += validatorData!.total - validatorData!.own;
+  }
 
-  const erasTotalStake = await erasTotalStakeStorage.getAsV1050(
-    activeEra.index
-  );
+  console.log('storageEraData - ', storageEraData);
+  console.log('totalValidatorsStake - ', totalValidatorsStake.toString());
+  console.log('totalNominatorsStake - ', totalNominatorsStake.toString());
+  console.log('SUM - ', totalValidatorsStake + totalNominatorsStake);
+
+  // console.dir(validatorsData, { depth: null });
+
+  // const erasTotalStakeStorage = new StakingErasTotalStakeStorage(
+  //   ctx,
+  //   block.header
+  // );
+  //
+  // if (!erasTotalStakeStorage.isExists)
+  //   return ctx.log.warn(`Missing info for era.`);
+  //
+  // const erasTotalStake = await erasTotalStakeStorage.getAsV1050(
+  //   storageEraData.index
+  // );
+  //
+  // console.log('erasTotalStake - ', erasTotalStake.toString());
+
+  // const activeEraStorage = new StakingActiveEraStorage(ctx, block.header);
+  // const erasTotalStakeStorage = new StakingErasTotalStakeStorage(
+  //   ctx,
+  //   block.header
+  // );
+  // // const erasStakersStorage = new StakingErasStakersStorage(ctx, block.header);
+  // if (
+  //   !activeEraStorage.isExists ||
+  //   !erasTotalStakeStorage.isExists
+  //   // !erasStakersStorage.isExists
+  // )
+  //   return;
+  //
+  // const activeEra = await activeEraStorage.getAsV1050();
+  // if (!activeEra || !activeEra.index) return;
+  //
+  // const erasTotalStake = await erasTotalStakeStorage.getAsV1050(
+  //   activeEra.index
+  // );
 
   // const keys = await ctx._chain.client.call('state_getKeys', [
   //   getStorageHash('Staking', 'ErasStakers'),
@@ -71,21 +123,23 @@ export async function handleStakeAmount(ctx: Ctx, block: Block) {
     id: block.header.height.toString(),
     timestamp: new Date(block.header.timestamp),
     blockHash: block.header.hash,
-    totalStake: erasTotalStake,
-    validatorStake: 0n,
-    nominatorStake: 0n
+    totalStake: totalValidatorsStake + totalNominatorsStake,
+    validatorStake: totalValidatorsStake,
+    nominatorStake: totalNominatorsStake
   });
 
-  SquidCache.upsert(newStakedValueStat);
+  ctx.store.deferredUpsert(newStakedValueStat);
 
   histDataMeta.stakingLatestBlockNumber = BigInt(block.header.height);
   histDataMeta.stakingLatestTime = new Date(block.header.timestamp);
 
-  SquidCache.upsert(histDataMeta);
+  ctx.store.deferredUpsert(histDataMeta);
 
-  const totals = getOrCreateTotals();
+  const totals = await getOrCreateTotals(ctx);
 
-  totals.stakedValueTotal = erasTotalStake;
+  totals.stakedValueTotal = newStakedValueStat.totalStake;
+  totals.stakedValueValidator = newStakedValueStat.validatorStake;
+  totals.stakedValueNominator = newStakedValueStat.nominatorStake;
 
-  SquidCache.upsert(totals);
+  ctx.store.deferredUpsert(totals);
 }

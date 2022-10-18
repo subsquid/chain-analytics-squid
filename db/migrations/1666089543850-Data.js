@@ -1,5 +1,5 @@
-module.exports = class Data1663941118012 {
-  name = 'Data1663941118012'
+module.exports = class Data1666089543850 {
+  name = 'Data1666089543850'
 
   async up(db) {
     await db.query(`CREATE TABLE "totals" ("id" character varying NOT NULL, "finalized_blocks" numeric NOT NULL, "total_issuance" numeric NOT NULL, "signed_extrinsics" numeric NOT NULL, "transfers_count" numeric NOT NULL, "holders" numeric NOT NULL, "validators_ideal_count" integer NOT NULL, "validators_count" integer NOT NULL, "staked_value_total" numeric NOT NULL, "staked_value_validator" numeric, "staked_value_nominator" numeric, "inflation_rate" numeric NOT NULL, CONSTRAINT "PK_3480b9650b4eb64138649f2a416" PRIMARY KEY ("id"))`)
@@ -35,6 +35,11 @@ module.exports = class Data1663941118012 {
     await db.query(`CREATE INDEX "IDX_71babf4242c857721ea9304d19" ON "staked_value" ("validator_stake") `)
     await db.query(`CREATE INDEX "IDX_1bcf0e3f1208df6582427b701d" ON "staked_value" ("nominator_stake") `)
     await db.query(`CREATE INDEX "IDX_e2ffb7bb1781146df9a9e94b74" ON "staked_value" ("block_hash") `)
+    await db.query(`CREATE TABLE "transfers" ("id" character varying NOT NULL, "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, "block_hash" text NOT NULL, "total_amount" numeric NOT NULL, "total_count" numeric NOT NULL, CONSTRAINT "PK_f712e908b465e0085b4408cabc3" PRIMARY KEY ("id"))`)
+    await db.query(`CREATE INDEX "IDX_d6446d8f923c6a64337de94a4f" ON "transfers" ("timestamp") `)
+    await db.query(`CREATE INDEX "IDX_e6120aa71fd685c070b78a32e7" ON "transfers" ("block_hash") `)
+    await db.query(`CREATE INDEX "IDX_a015cebcb56a46b26e253b22de" ON "transfers" ("total_amount") `)
+    await db.query(`CREATE INDEX "IDX_dc453d880689edd108de41a2b1" ON "transfers" ("total_count") `)
   }
 
   async down(db) {
@@ -71,5 +76,10 @@ module.exports = class Data1663941118012 {
     await db.query(`DROP INDEX "public"."IDX_71babf4242c857721ea9304d19"`)
     await db.query(`DROP INDEX "public"."IDX_1bcf0e3f1208df6582427b701d"`)
     await db.query(`DROP INDEX "public"."IDX_e2ffb7bb1781146df9a9e94b74"`)
+    await db.query(`DROP TABLE "transfers"`)
+    await db.query(`DROP INDEX "public"."IDX_d6446d8f923c6a64337de94a4f"`)
+    await db.query(`DROP INDEX "public"."IDX_e6120aa71fd685c070b78a32e7"`)
+    await db.query(`DROP INDEX "public"."IDX_a015cebcb56a46b26e253b22de"`)
+    await db.query(`DROP INDEX "public"."IDX_dc453d880689edd108de41a2b1"`)
   }
 }

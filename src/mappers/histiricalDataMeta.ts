@@ -1,8 +1,8 @@
-import { ProcessorCache as SquidCache } from '@subsquid/processor-tools';
+import { Ctx } from '../processor';
 import { HistoricalDataMeta } from '../model';
 
-export function getOrCreateHistoricalDataMeta() {
-  let histMetaEntity = SquidCache.get(HistoricalDataMeta, '1');
+export async function getOrCreateHistoricalDataMeta(ctx: Ctx) {
+  let histMetaEntity = await ctx.store.get(HistoricalDataMeta, '1', false);
 
   if (histMetaEntity) return histMetaEntity;
 

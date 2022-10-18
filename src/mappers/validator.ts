@@ -1,5 +1,4 @@
 import { Ctx, Block } from '../processor';
-import { ProcessorCache as SquidCache } from '@subsquid/processor-tools';
 import { Validator } from '../model';
 import { getOrCreateHistoricalDataMeta } from './histiricalDataMeta';
 import { TOTAL_ISSUANCE_CHECK_STEP } from '../config';
@@ -10,7 +9,7 @@ import {
 } from '../types/generated/storage';
 
 export async function handleValidators(ctx: Ctx, block: Block) {
-  const histDataMeta = getOrCreateHistoricalDataMeta();
+  const histDataMeta = await getOrCreateHistoricalDataMeta(ctx);
 
   if (
     block.header.timestamp -
@@ -37,16 +36,16 @@ export async function handleValidators(ctx: Ctx, block: Block) {
     idealCount
   });
 
-  SquidCache.upsert(newValidatorStat);
+  ctx.store.deferredUpsert(newValidatorStat);
 
   histDataMeta.validatorLatestBlockNumber = BigInt(block.header.height);
   histDataMeta.validatorLatestTime = new Date(block.header.timestamp);
 
-  SquidCache.upsert(histDataMeta);
+  ctx.store.deferredUpsert(histDataMeta);
 
-  const totals = getOrCreateTotals();
+  const totals = await getOrCreateTotals(ctx);
   totals.validatorsIdealCount = idealCount;
   totals.validatorsCount = currentCount.length;
 
-  SquidCache.upsert(totals);
+  ctx.store.deferredUpsert(totals);
 }

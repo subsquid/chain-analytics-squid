@@ -1,5 +1,4 @@
 import { Ctx, Block } from '../processor';
-import { ProcessorCache as SquidCache } from '@subsquid/processor-tools';
 import { HistoricalDataMeta, Holders } from '../model';
 import { getOrCreateHistoricalDataMeta } from './histiricalDataMeta';
 import { TOTAL_HOLDERS_CHECK_STEP } from '../config';
@@ -11,7 +10,7 @@ import {
 import { getStorageHash } from '../utils/common';
 
 export async function handleChainHolders(ctx: Ctx, block: Block) {
-  const histDataMeta = getOrCreateHistoricalDataMeta();
+  const histDataMeta = await getOrCreateHistoricalDataMeta(ctx);
 
   if (
     block.header.timestamp -
@@ -43,16 +42,16 @@ export async function handleChainHolders(ctx: Ctx, block: Block) {
     blockHash: block.header.hash
   });
 
-  SquidCache.upsert(newHoldersStat);
+  ctx.store.deferredUpsert(newHoldersStat);
 
   histDataMeta.holdersLatestBlockNumber = BigInt(block.header.height);
   histDataMeta.holdersLatestTime = new Date(block.header.timestamp);
 
-  SquidCache.upsert(histDataMeta);
+  ctx.store.deferredUpsert(histDataMeta);
 
-  const totals = getOrCreateTotals();
+  const totals = await getOrCreateTotals(ctx);
 
   totals.holders = totalHolders;
 
-  SquidCache.upsert(totals);
+  ctx.store.deferredUpsert(totals);
 }

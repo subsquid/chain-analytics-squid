@@ -21,6 +21,7 @@ import * as v9190 from './v9190'
 import * as v9200 from './v9200'
 import * as v9220 from './v9220'
 import * as v9230 from './v9230'
+import * as v9291 from './v9291'
 
 export class AuctionsAuctionClosedEvent {
   private readonly _chain: Chain
@@ -3400,6 +3401,39 @@ export class DummySlotsDummyEvent {
   }
 }
 
+export class ElectionProviderMultiPhaseElectionFailedEvent {
+  private readonly _chain: Chain
+  private readonly event: Event
+
+  constructor(ctx: EventContext)
+  constructor(ctx: ChainContext, event: Event)
+  constructor(ctx: EventContext, event?: Event) {
+    event = event || ctx.event
+    assert(event.name === 'ElectionProviderMultiPhase.ElectionFailed')
+    this._chain = ctx._chain
+    this.event = event
+  }
+
+  /**
+   * An election failed.
+   * 
+   * Not much can be said about which computes failed in the process.
+   */
+  get isV9291(): boolean {
+    return this._chain.getEventHash('ElectionProviderMultiPhase.ElectionFailed') === '01f2f9c28aa1d4d36a81ff042620b6677d25bf07c2bf4acc37b58658778a4fca'
+  }
+
+  /**
+   * An election failed.
+   * 
+   * Not much can be said about which computes failed in the process.
+   */
+  get asV9291(): null {
+    assert(this.isV9291)
+    return this._chain.decodeEvent(this.event)
+  }
+}
+
 export class ElectionProviderMultiPhaseElectionFinalizedEvent {
   private readonly _chain: Chain
   private readonly event: Event
@@ -3461,6 +3495,21 @@ export class ElectionProviderMultiPhaseElectionFinalizedEvent {
    */
   get asV9130(): {electionCompute: (v9130.ElectionCompute | undefined)} {
     assert(this.isV9130)
+    return this._chain.decodeEvent(this.event)
+  }
+
+  /**
+   * The election has been finalized, with the given computation and score.
+   */
+  get isV9291(): boolean {
+    return this._chain.getEventHash('ElectionProviderMultiPhase.ElectionFinalized') === 'ed50f7c0b841dc5aadb056d9e4cf2c665a79bd8ac019de47ef20e466590483fa'
+  }
+
+  /**
+   * The election has been finalized, with the given computation and score.
+   */
+  get asV9291(): {compute: v9291.ElectionCompute, score: v9291.ElectionScore} {
+    assert(this.isV9291)
     return this._chain.decodeEvent(this.event)
   }
 }
@@ -3733,6 +3782,31 @@ export class ElectionProviderMultiPhaseSolutionStoredEvent {
    */
   get asV9130(): {electionCompute: v9130.ElectionCompute, prevEjected: boolean} {
     assert(this.isV9130)
+    return this._chain.decodeEvent(this.event)
+  }
+
+  /**
+   * A solution was stored with the given compute.
+   * 
+   * If the solution is signed, this means that it hasn't yet been processed. If the
+   * solution is unsigned, this means that it has also been processed.
+   * 
+   * The `bool` is `true` when a previous solution was ejected to make room for this one.
+   */
+  get isV9291(): boolean {
+    return this._chain.getEventHash('ElectionProviderMultiPhase.SolutionStored') === '13303b2352077ee161260251d8d036c3726a40a944cbac469a87f4659fb4c8fa'
+  }
+
+  /**
+   * A solution was stored with the given compute.
+   * 
+   * If the solution is signed, this means that it hasn't yet been processed. If the
+   * solution is unsigned, this means that it has also been processed.
+   * 
+   * The `bool` is `true` when a previous solution was ejected to make room for this one.
+   */
+  get asV9291(): {compute: v9291.ElectionCompute, prevEjected: boolean} {
+    assert(this.isV9291)
     return this._chain.decodeEvent(this.event)
   }
 }
@@ -10159,6 +10233,21 @@ export class SystemExtrinsicFailedEvent {
     assert(this.isV9190)
     return this._chain.decodeEvent(this.event)
   }
+
+  /**
+   * An extrinsic failed.
+   */
+  get isV9291(): boolean {
+    return this._chain.getEventHash('System.ExtrinsicFailed') === '7a219a9eae41ad22651fdcb4f6a7453254b0ecc7be4b30821be2ab5b44e5f1b4'
+  }
+
+  /**
+   * An extrinsic failed.
+   */
+  get asV9291(): {dispatchError: v9291.DispatchError, dispatchInfo: v9291.DispatchInfo} {
+    assert(this.isV9291)
+    return this._chain.decodeEvent(this.event)
+  }
 }
 
 export class SystemExtrinsicSuccessEvent {
@@ -10231,6 +10320,21 @@ export class SystemExtrinsicSuccessEvent {
    */
   get asV9160(): {dispatchInfo: v9160.DispatchInfo} {
     assert(this.isV9160)
+    return this._chain.decodeEvent(this.event)
+  }
+
+  /**
+   * An extrinsic completed successfully.
+   */
+  get isV9291(): boolean {
+    return this._chain.getEventHash('System.ExtrinsicSuccess') === '6fc1e5ad9f5b3851c6e301764b8507ebb0861fd57381e6bc020a47f2b710167d'
+  }
+
+  /**
+   * An extrinsic completed successfully.
+   */
+  get asV9291(): {dispatchInfo: v9291.DispatchInfo} {
+    assert(this.isV9291)
     return this._chain.decodeEvent(this.event)
   }
 }
@@ -12083,6 +12187,31 @@ export class UmpOverweightEnqueuedEvent {
     assert(this.isV9100)
     return this._chain.decodeEvent(this.event)
   }
+
+  /**
+   * The weight budget was exceeded for an individual upward message.
+   * 
+   * This message can be later dispatched manually using `service_overweight` dispatchable
+   * using the assigned `overweight_index`.
+   * 
+   * \[ para, id, overweight_index, required \]
+   */
+  get isV9291(): boolean {
+    return this._chain.getEventHash('Ump.OverweightEnqueued') === '09896594783fbdea1b3408d435e03e8f5c2c36e769611cd061b92d0980d737ba'
+  }
+
+  /**
+   * The weight budget was exceeded for an individual upward message.
+   * 
+   * This message can be later dispatched manually using `service_overweight` dispatchable
+   * using the assigned `overweight_index`.
+   * 
+   * \[ para, id, overweight_index, required \]
+   */
+  get asV9291(): [number, Uint8Array, bigint, v9291.Weight] {
+    assert(this.isV9291)
+    return this._chain.decodeEvent(this.event)
+  }
 }
 
 export class UmpOverweightServicedEvent {
@@ -12116,6 +12245,27 @@ export class UmpOverweightServicedEvent {
    */
   get asV9100(): [bigint, bigint] {
     assert(this.isV9100)
+    return this._chain.decodeEvent(this.event)
+  }
+
+  /**
+   * Upward message from the overweight queue was executed with the given actual weight
+   * used.
+   * 
+   * \[ overweight_index, used \]
+   */
+  get isV9291(): boolean {
+    return this._chain.getEventHash('Ump.OverweightServiced') === '5274ea4780ef5bc7803ffa3f657e04bf6e6c3d4f47d1d71bce33e198c5bad9c9'
+  }
+
+  /**
+   * Upward message from the overweight queue was executed with the given actual weight
+   * used.
+   * 
+   * \[ overweight_index, used \]
+   */
+  get asV9291(): [bigint, v9291.Weight] {
+    assert(this.isV9291)
     return this._chain.decodeEvent(this.event)
   }
 }
@@ -12209,6 +12359,23 @@ export class UmpWeightExhaustedEvent {
    */
   get asV9090(): [Uint8Array, bigint, bigint] {
     assert(this.isV9090)
+    return this._chain.decodeEvent(this.event)
+  }
+
+  /**
+   * The weight limit for handling upward messages was reached.
+   * \[ id, remaining, required \]
+   */
+  get isV9291(): boolean {
+    return this._chain.getEventHash('Ump.WeightExhausted') === 'bc7674f391b065e5e65a07305ce6828dbeab3200c4619cdecb92046496092002'
+  }
+
+  /**
+   * The weight limit for handling upward messages was reached.
+   * \[ id, remaining, required \]
+   */
+  get asV9291(): [Uint8Array, v9291.Weight, v9291.Weight] {
+    assert(this.isV9291)
     return this._chain.decodeEvent(this.event)
   }
 }
@@ -13215,6 +13382,29 @@ export class XcmPalletNotifyOverweightEvent {
    */
   get asV9111(): [bigint, number, number, bigint, bigint] {
     assert(this.isV9111)
+    return this._chain.decodeEvent(this.event)
+  }
+
+  /**
+   * Query response has been received and query is removed. The registered notification could
+   * not be dispatched because the dispatch weight is greater than the maximum weight
+   * originally budgeted by this runtime for the query result.
+   * 
+   * \[ id, pallet index, call index, actual weight, max budgeted weight \]
+   */
+  get isV9291(): boolean {
+    return this._chain.getEventHash('XcmPallet.NotifyOverweight') === '017f3a2e2d06e91d1be294456b9555e805a1e72a1ad2a469f493c21bf4da0feb'
+  }
+
+  /**
+   * Query response has been received and query is removed. The registered notification could
+   * not be dispatched because the dispatch weight is greater than the maximum weight
+   * originally budgeted by this runtime for the query result.
+   * 
+   * \[ id, pallet index, call index, actual weight, max budgeted weight \]
+   */
+  get asV9291(): [bigint, number, number, v9291.Weight, v9291.Weight] {
+    assert(this.isV9291)
     return this._chain.decodeEvent(this.event)
   }
 }

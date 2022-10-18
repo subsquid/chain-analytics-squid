@@ -1,5 +1,4 @@
 import { Ctx, Block } from '../processor';
-import { ProcessorCache as SquidCache } from '@subsquid/processor-tools';
 import { getOrCreateTotals } from './totals';
 import { SystemNumberStorage } from '../types/generated/storage';
 
@@ -9,9 +8,9 @@ export async function handleFinalizedBlock(ctx: Ctx, block: Block) {
   //
   // const blockNumber = await storage.getAsV1020();
 
-  const totals = getOrCreateTotals();
+  const totals = await getOrCreateTotals(ctx);
 
   totals.finalizedBlocks = BigInt(block.header.height);
 
-  SquidCache.upsert(totals);
+  ctx.store.deferredUpsert(totals);
 }

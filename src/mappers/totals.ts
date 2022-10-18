@@ -1,8 +1,9 @@
-import { ProcessorCache as SquidCache } from '@subsquid/processor-tools';
+import { Ctx } from '../processor';
+
 import { Totals } from '../model';
 
-export function getOrCreateTotals() {
-  let totalsEntity = SquidCache.get(Totals, '1');
+export async function getOrCreateTotals(ctx: Ctx) {
+  let totalsEntity = await ctx.store.get(Totals, '1', false);
 
   if (totalsEntity) return totalsEntity;
 

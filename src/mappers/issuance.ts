@@ -1,5 +1,4 @@
 import { Ctx, Block } from '../processor';
-import { ProcessorCache as SquidCache } from '@subsquid/processor-tools';
 import { Issuance } from '../model';
 import { getOrCreateHistoricalDataMeta } from './histiricalDataMeta';
 import { TOTAL_ISSUANCE_CHECK_STEP } from '../config';
@@ -7,7 +6,7 @@ import { getOrCreateTotals } from './totals';
 import { BalancesTotalIssuanceStorage } from '../types/generated/storage';
 
 export async function handleTotalIssuance(ctx: Ctx, block: Block) {
-  const histDataMeta = getOrCreateHistoricalDataMeta();
+  const histDataMeta = await getOrCreateHistoricalDataMeta(ctx);
 
   if (
     block.header.timestamp -
@@ -31,16 +30,16 @@ export async function handleTotalIssuance(ctx: Ctx, block: Block) {
     amount
   });
 
-  SquidCache.upsert(newIssuanceStat);
+  ctx.store.deferredUpsert(newIssuanceStat);
 
   histDataMeta.issuanceLatestBlockNumber = BigInt(block.header.height);
   histDataMeta.issuanceLatestTime = new Date(block.header.timestamp);
 
-  SquidCache.upsert(histDataMeta);
+  ctx.store.deferredUpsert(histDataMeta);
 
-  const totals = getOrCreateTotals();
+  const totals = await getOrCreateTotals(ctx);
 
   totals.totalIssuance = amount;
 
-  SquidCache.upsert(totals);
+  ctx.store.deferredUpsert(totals);
 }

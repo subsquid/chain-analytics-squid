@@ -56,6 +56,7 @@ import * as v9230 from './v9230'
 import * as v9250 from './v9250'
 import * as v9260 from './v9260'
 import * as v9271 from './v9271'
+import * as v9291 from './v9291'
 
 export class AttestationsDidUpdateStorage {
   private readonly _chain: Chain
@@ -2418,6 +2419,21 @@ export class ConfigurationActiveConfigStorage {
   }
 
   /**
+   *  The active configuration for the current session.
+   */
+  get isV9291() {
+    return this._chain.getStorageItemTypeHash('Configuration', 'ActiveConfig') === 'ca162b5f811d7cd7a6777d1aecb2fa039f74633179010c8cf0e0d1630dbce770'
+  }
+
+  /**
+   *  The active configuration for the current session.
+   */
+  async getAsV9291(): Promise<v9291.HostConfiguration> {
+    assert(this.isV9291)
+    return this._chain.getStorage(this.blockHash, 'Configuration', 'ActiveConfig')
+  }
+
+  /**
    * Checks whether the storage item is defined for the current chain version.
    */
   get isExists(): boolean {
@@ -2568,6 +2584,33 @@ export class ConfigurationPendingConfigsStorage {
    */
   async getAsV9160(): Promise<[number, v9160.HostConfiguration][]> {
     assert(this.isV9160)
+    return this._chain.getStorage(this.blockHash, 'Configuration', 'PendingConfigs')
+  }
+
+  /**
+   *  Pending configuration changes.
+   * 
+   *  This is a list of configuration changes, each with a session index at which it should
+   *  be applied.
+   * 
+   *  The list is sorted ascending by session index. Also, this list can only contain at most
+   *  2 items: for the next session and for the `scheduled_session`.
+   */
+  get isV9291() {
+    return this._chain.getStorageItemTypeHash('Configuration', 'PendingConfigs') === 'e66df23f56745228fac9a39b351a614d8d7cd03a234ef02643504298936edf39'
+  }
+
+  /**
+   *  Pending configuration changes.
+   * 
+   *  This is a list of configuration changes, each with a session index at which it should
+   *  be applied.
+   * 
+   *  The list is sorted ascending by session index. Also, this list can only contain at most
+   *  2 items: for the next session and for the `scheduled_session`.
+   */
+  async getAsV9291(): Promise<[number, v9291.HostConfiguration][]> {
+    assert(this.isV9291)
     return this._chain.getStorage(this.blockHash, 'Configuration', 'PendingConfigs')
   }
 
@@ -2968,6 +3011,31 @@ export class CouncilProposalOfStorage {
 
   async getAllAsV9271(): Promise<(v9271.Call)[]> {
     assert(this.isV9271)
+    return this._chain.queryStorage(this.blockHash, 'Council', 'ProposalOf')
+  }
+
+  /**
+   *  Actual proposal for a given hash, if it's current.
+   */
+  get isV9291() {
+    return this._chain.getStorageItemTypeHash('Council', 'ProposalOf') === '15ce1541499aecffbe2bf8eeafc64023633a5d282a468972bd6c44aa77b52ce3'
+  }
+
+  /**
+   *  Actual proposal for a given hash, if it's current.
+   */
+  async getAsV9291(key: Uint8Array): Promise<v9291.Call | undefined> {
+    assert(this.isV9291)
+    return this._chain.getStorage(this.blockHash, 'Council', 'ProposalOf', key)
+  }
+
+  async getManyAsV9291(keys: Uint8Array[]): Promise<(v9291.Call | undefined)[]> {
+    assert(this.isV9291)
+    return this._chain.queryStorage(this.blockHash, 'Council', 'ProposalOf', keys.map(k => [k]))
+  }
+
+  async getAllAsV9291(): Promise<(v9291.Call)[]> {
+    assert(this.isV9291)
     return this._chain.queryStorage(this.blockHash, 'Council', 'ProposalOf')
   }
 
@@ -15728,6 +15796,31 @@ export class SchedulerAgendaStorage {
   }
 
   /**
+   *  Items to be executed, indexed by the block number that they should be executed on.
+   */
+  get isV9291() {
+    return this._chain.getStorageItemTypeHash('Scheduler', 'Agenda') === '808705ea298473713ebf6d39078298bcb67c781da92e01623d6d9711c03c49db'
+  }
+
+  /**
+   *  Items to be executed, indexed by the block number that they should be executed on.
+   */
+  async getAsV9291(key: number): Promise<(v9291.ScheduledV3 | undefined)[]> {
+    assert(this.isV9291)
+    return this._chain.getStorage(this.blockHash, 'Scheduler', 'Agenda', key)
+  }
+
+  async getManyAsV9291(keys: number[]): Promise<((v9291.ScheduledV3 | undefined)[])[]> {
+    assert(this.isV9291)
+    return this._chain.queryStorage(this.blockHash, 'Scheduler', 'Agenda', keys.map(k => [k]))
+  }
+
+  async getAllAsV9291(): Promise<((v9291.ScheduledV3 | undefined)[])[]> {
+    assert(this.isV9291)
+    return this._chain.queryStorage(this.blockHash, 'Scheduler', 'Agenda')
+  }
+
+  /**
    * Checks whether the storage item is defined for the current chain version.
    */
   get isExists(): boolean {
@@ -20551,6 +20644,21 @@ export class SystemBlockWeightStorage {
   }
 
   /**
+   *  The current weight for the block.
+   */
+  get isV9291() {
+    return this._chain.getStorageItemTypeHash('System', 'BlockWeight') === 'd35f09c6f3fd2f6e93d9006f364b5b6e91ce1207594e51247070364731dba424'
+  }
+
+  /**
+   *  The current weight for the block.
+   */
+  async getAsV9291(): Promise<v9291.PerDispatchClass> {
+    assert(this.isV9291)
+    return this._chain.getStorage(this.blockHash, 'System', 'BlockWeight')
+  }
+
+  /**
    * Checks whether the storage item is defined for the current chain version.
    */
   get isExists(): boolean {
@@ -21587,6 +21695,33 @@ export class SystemEventsStorage {
   }
 
   /**
+   *  Events deposited for the current block.
+   * 
+   *  NOTE: The item is unbound and should therefore never be read on chain.
+   *  It could otherwise inflate the PoV size of a block.
+   * 
+   *  Events have a large in-memory size. Box the events to not go out-of-memory
+   *  just in case someone still reads them from within the runtime.
+   */
+  get isV9291() {
+    return this._chain.getStorageItemTypeHash('System', 'Events') === 'f1d6f96db7690a787ab254ab7cab65c1d24be7bd56f82740dcfa56d4244b642d'
+  }
+
+  /**
+   *  Events deposited for the current block.
+   * 
+   *  NOTE: The item is unbound and should therefore never be read on chain.
+   *  It could otherwise inflate the PoV size of a block.
+   * 
+   *  Events have a large in-memory size. Box the events to not go out-of-memory
+   *  just in case someone still reads them from within the runtime.
+   */
+  async getAsV9291(): Promise<v9291.EventRecord[]> {
+    assert(this.isV9291)
+    return this._chain.getStorage(this.blockHash, 'System', 'Events')
+  }
+
+  /**
    * Checks whether the storage item is defined for the current chain version.
    */
   get isExists(): boolean {
@@ -22397,6 +22532,31 @@ export class TechnicalCommitteeProposalOfStorage {
 
   async getAllAsV9271(): Promise<(v9271.Call)[]> {
     assert(this.isV9271)
+    return this._chain.queryStorage(this.blockHash, 'TechnicalCommittee', 'ProposalOf')
+  }
+
+  /**
+   *  Actual proposal for a given hash, if it's current.
+   */
+  get isV9291() {
+    return this._chain.getStorageItemTypeHash('TechnicalCommittee', 'ProposalOf') === '15ce1541499aecffbe2bf8eeafc64023633a5d282a468972bd6c44aa77b52ce3'
+  }
+
+  /**
+   *  Actual proposal for a given hash, if it's current.
+   */
+  async getAsV9291(key: Uint8Array): Promise<v9291.Call | undefined> {
+    assert(this.isV9291)
+    return this._chain.getStorage(this.blockHash, 'TechnicalCommittee', 'ProposalOf', key)
+  }
+
+  async getManyAsV9291(keys: Uint8Array[]): Promise<(v9291.Call | undefined)[]> {
+    assert(this.isV9291)
+    return this._chain.queryStorage(this.blockHash, 'TechnicalCommittee', 'ProposalOf', keys.map(k => [k]))
+  }
+
+  async getAllAsV9291(): Promise<(v9291.Call)[]> {
+    assert(this.isV9291)
     return this._chain.queryStorage(this.blockHash, 'TechnicalCommittee', 'ProposalOf')
   }
 
