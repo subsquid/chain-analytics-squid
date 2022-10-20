@@ -14,14 +14,11 @@ export async function getOrCreateHistoricalDataMeta(ctx: Ctx) {
     issuanceLatestBlockNumber: 0n,
     issuanceLatestTime: null,
 
-    validatorLatestBlockNumber: 0n,
-    validatorLatestTime: null,
+    validatorsLatestBlockNumber: 0n,
+    validatorsLatestTime: null,
 
     stakingLatestBlockNumber: 0n,
-    stakingLatestTime: null,
-
-    transferLatestBlockNumber: 0n,
-    transferLatestTime: null
+    stakingLatestTime: null
   });
 
   return histMetaEntity;

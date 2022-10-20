@@ -2,7 +2,6 @@ import { Codec as ScaleCodec } from '@subsquid/scale-codec';
 import { Ctx, Block } from '../processor';
 import { StakedValue } from '../model';
 import { getOrCreateHistoricalDataMeta } from './histiricalDataMeta';
-import { TOTAL_STAKING_CHECK_STEP } from '../config';
 import { getOrCreateTotals } from './totals';
 import {
   BalancesTotalIssuanceStorage,
@@ -11,25 +10,22 @@ import {
   StakingErasTotalStakeStorage,
   StakingNominatorsStorage
 } from '../types/generated/storage';
-import { getStorageHash } from '../utils/common';
+import { getStorageHash, isCheckPoint } from '../utils/common';
 
 import storage from '../storage';
+import { CheckPointsKeys } from '../utils/types';
 
 export async function handleStakeAmount(ctx: Ctx, block: Block) {
   const histDataMeta = await getOrCreateHistoricalDataMeta(ctx);
 
-  if (
-    block.header.timestamp -
-      (histDataMeta.stakingLatestTime
-        ? histDataMeta.stakingLatestTime.getTime()
-        : 0) <
-    TOTAL_STAKING_CHECK_STEP
-  ) {
-    return;
-  }
+  if (!isCheckPoint(CheckPointsKeys.staking, histDataMeta, block)) return;
+
   const activeEraData = await storage.staking.getActiveEra(ctx, block);
   const currentEraData = await storage.staking.getCurrentEra(ctx, block);
-  //prefered to use ActiveEra because CurrentEra can return next planed era
+
+  /**
+   * Preferred to use ActiveEra because CurrentEra can return next planed era
+   */
   const storageEraData = activeEraData || currentEraData;
 
   if (!storageEraData || storageEraData?.index == null) {
@@ -58,10 +54,10 @@ export async function handleStakeAmount(ctx: Ctx, block: Block) {
     totalNominatorsStake += validatorData!.total - validatorData!.own;
   }
 
-  console.log('storageEraData - ', storageEraData);
-  console.log('totalValidatorsStake - ', totalValidatorsStake.toString());
-  console.log('totalNominatorsStake - ', totalNominatorsStake.toString());
-  console.log('SUM - ', totalValidatorsStake + totalNominatorsStake);
+  // console.log('storageEraData - ', storageEraData);
+  // console.log('totalValidatorsStake - ', totalValidatorsStake.toString());
+  // console.log('totalNominatorsStake - ', totalNominatorsStake.toString());
+  // console.log('SUM - ', totalValidatorsStake + totalNominatorsStake);
 
   // console.dir(validatorsData, { depth: null });
 

@@ -21,14 +21,11 @@ type HistoricalDataMeta @entity {
   issuanceLatestBlockNumber: BigInt! @index
   issuanceLatestTime: DateTime @index
 
-  validatorLatestBlockNumber: BigInt! @index
-  validatorLatestTime: DateTime @index
+  validatorsLatestBlockNumber: BigInt! @index
+  validatorsLatestTime: DateTime @index
 
   stakingLatestBlockNumber: BigInt! @index
   stakingLatestTime: DateTime @index
-
-  transferLatestBlockNumber: BigInt! @index
-  transferLatestTime: DateTime @index
 }
 
 type Holders @entity {
@@ -66,11 +63,21 @@ type StakedValue @entity {
   blockHash: String! @index
 }
 
-type Transfers @entity {
+type Transfer @entity {
   "Block number"
   id: ID!
-  timestamp: DateTime! @index
-  blockHash: String! @index
+  timestamp: DateTime!   @index
+  blockHash: String!   @index
   totalAmount: BigInt! @index
-  totalCount: BigInt! @index
+  totalCount: Int! @index
 }
+
+type Extrinsic @entity {
+  "Block number"
+  id: ID!
+  timestamp: DateTime!   @index
+  blockHash: String!   @index
+  totalCount: Int! @index
+  calls: String
+}
+

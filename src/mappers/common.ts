@@ -1,10 +1,16 @@
 import { Ctx } from '../processor';
-import { BalancesTransferEvent } from '../types/generated/events';
-// import { Account, AccountBalance, Currency } from "../model";
-import { BlockEventName, BalancesTransferEventData } from '../utils/types';
+import {
+  BalancesTransferEvent,
+  BalancesWithdrawEvent
+} from '../types/generated/events';
+import {
+  BlockEventName,
+  BalancesTransferEventData,
+  BalancesWithdrawEventData,
+  CallSignedExtrinsicData
+} from '../utils/types';
 
 import { ParsedEventsDataScope } from '../utils/common';
-
 
 export function getParsedEventsData(ctx: Ctx): ParsedEventsDataScope {
   const parsedData = new ParsedEventsDataScope();
@@ -14,11 +20,10 @@ export function getParsedEventsData(ctx: Ctx): ParsedEventsDataScope {
       switch (item.name) {
         case 'Balances.Transfer': {
           const event = new BalancesTransferEvent(ctx, item.event);
-
           let data: BalancesTransferEventData = {
             id: item.event.id,
             amount: 0n,
-            blockNumber: BigInt(block.header.height),
+            blockNumber: block.header.height,
             blockHash: block.header.hash,
             timestamp: new Date(block.header.timestamp)
           };
@@ -40,6 +45,17 @@ export function getParsedEventsData(ctx: Ctx): ParsedEventsDataScope {
         }
 
         default:
+          //@ts-ignore
+          if (item.extrinsic.signature) {
+            parsedData.set(BlockEventName.SIGNED_EXTRINSIC, {
+              //@ts-ignore
+              id: item.extrinsic.id,
+              blockNumber: block.header.height,
+              blockHash: block.header.hash,
+              timestamp: new Date(block.header.timestamp),
+              callName: item.name
+            } as CallSignedExtrinsicData);
+          }
       }
     }
   }

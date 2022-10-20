@@ -1,39 +1,20 @@
 import { Ctx, Block } from '../processor';
-import { HistoricalDataMeta, Holders } from '../model';
+import { Holders } from '../model';
 import { getOrCreateHistoricalDataMeta } from './histiricalDataMeta';
-import { TOTAL_HOLDERS_CHECK_STEP } from '../config';
 import { getOrCreateTotals } from './totals';
-import {
-  BalancesAccountStorage,
-  SystemAccountStorage
-} from '../types/generated/storage';
-import { getStorageHash } from '../utils/common';
+import storage from '../storage';
+import { isCheckPoint } from '../utils/common';
+import { CheckPointsKeys } from '../utils/types';
 
 export async function handleChainHolders(ctx: Ctx, block: Block) {
   const histDataMeta = await getOrCreateHistoricalDataMeta(ctx);
 
-  if (
-    block.header.timestamp -
-      (histDataMeta.holdersLatestTime
-        ? histDataMeta.holdersLatestTime.getTime()
-        : 0) <
-    TOTAL_HOLDERS_CHECK_STEP
-  ) {
-    return;
-  }
-  let keys = null;
+  if (!isCheckPoint(CheckPointsKeys.holders, histDataMeta, block)) return;
 
-  const storageSys = new SystemAccountStorage(ctx, block.header);
-  if (!storageSys.isExists) return;
-
-  keys = await ctx._chain.client.call('state_getKeys', [
-    getStorageHash('System', 'Account'),
-    block.header.hash
-  ]);
-
+  const keys = await storage.system.getHoldersKeys(ctx, block);
   if (!keys) return;
 
-  const totalHolders = BigInt([...keys].length);
+  const totalHolders = BigInt(keys.length);
 
   const newHoldersStat = new Holders({
     id: block.header.height.toString(),

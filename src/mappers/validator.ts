@@ -1,32 +1,19 @@
 import { Ctx, Block } from '../processor';
 import { Validator } from '../model';
 import { getOrCreateHistoricalDataMeta } from './histiricalDataMeta';
-import { TOTAL_ISSUANCE_CHECK_STEP } from '../config';
 import { getOrCreateTotals } from './totals';
-import {
-  StakingValidatorCountStorage,
-  SessionValidatorsStorage
-} from '../types/generated/storage';
+import { isCheckPoint } from '../utils/common';
+import { CheckPointsKeys } from '../utils/types';
+import { getIdealValidatorsCount, getValidators } from '../storage/session';
 
 export async function handleValidators(ctx: Ctx, block: Block) {
   const histDataMeta = await getOrCreateHistoricalDataMeta(ctx);
 
-  if (
-    block.header.timestamp -
-      (histDataMeta.validatorLatestTime
-        ? histDataMeta.validatorLatestTime.getTime()
-        : 0) <
-    TOTAL_ISSUANCE_CHECK_STEP
-  ) {
-    return;
-  }
+  if (!isCheckPoint(CheckPointsKeys.validators, histDataMeta, block)) return;
 
-  const storageIdealCount = new StakingValidatorCountStorage(ctx, block.header);
-  const storageCount = new SessionValidatorsStorage(ctx, block.header);
-  if (!storageIdealCount.isExists || !storageCount.isExists) return;
+  const idealCount = (await getIdealValidatorsCount(ctx, block)) || 0;
 
-  const idealCount = await storageIdealCount.getAsV1020();
-  const currentCount = (await storageCount.getAsV1020()) ?? [];
+  const currentCount = (await getValidators(ctx, block)) || [];
 
   const newValidatorStat = new Validator({
     id: block.header.height.toString(),
@@ -38,8 +25,8 @@ export async function handleValidators(ctx: Ctx, block: Block) {
 
   ctx.store.deferredUpsert(newValidatorStat);
 
-  histDataMeta.validatorLatestBlockNumber = BigInt(block.header.height);
-  histDataMeta.validatorLatestTime = new Date(block.header.timestamp);
+  histDataMeta.validatorsLatestBlockNumber = BigInt(block.header.height);
+  histDataMeta.validatorsLatestTime = new Date(block.header.timestamp);
 
   ctx.store.deferredUpsert(histDataMeta);
 

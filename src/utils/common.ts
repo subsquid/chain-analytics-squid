@@ -1,9 +1,19 @@
-import { ParsedEventsDataMap, BlockEventName, ParsedEventsData } from './types';
+import {
+  ParsedEventsDataMap,
+  BlockEventName,
+  ParsedEventsData,
+  CheckPointsKeys
+} from './types';
 import * as sto from '@subsquid/substrate-processor/lib/util/storage';
 
 import * as ss58 from '@subsquid/ss58';
 import { decodeHex } from '@subsquid/util-internal-hex';
-import { processorConfig } from '../config';
+import {
+  checkPointKeys,
+  processorConfig,
+} from '../config';
+import { Block } from '../processor';
+import { HistoricalDataMeta } from '../model';
 
 const ss58codec = ss58.codec(processorConfig.prefix);
 
@@ -32,5 +42,22 @@ export function encodeAccount(id: Uint8Array) {
 }
 
 export function decodeAccount(id: string) {
-  return ss58codec.decode(id)
+  return ss58codec.decode(id);
+}
+
+export function isCheckPoint(
+  checkPointKey: CheckPointsKeys,
+  histDataMeta: HistoricalDataMeta,
+  block: Block
+) {
+  if (!checkPointKeys.has(checkPointKey))
+    throw Error(`Unknown checkPointKey - "${checkPointKey}"`);
+
+  return (
+    block.header.timestamp -
+      (histDataMeta[`${checkPointKey}LatestTime`]
+        ? histDataMeta[`${checkPointKey}LatestTime`]!.getTime()
+        : 0) <
+    checkPointKeys.get(checkPointKey)!
+  );
 }

@@ -28,11 +28,11 @@ export class HistoricalDataMeta {
 
   @Index_()
   @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-  validatorLatestBlockNumber!: bigint
+  validatorsLatestBlockNumber!: bigint
 
   @Index_()
   @Column_("timestamp with time zone", {nullable: true})
-  validatorLatestTime!: Date | undefined | null
+  validatorsLatestTime!: Date | undefined | null
 
   @Index_()
   @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
@@ -41,12 +41,4 @@ export class HistoricalDataMeta {
   @Index_()
   @Column_("timestamp with time zone", {nullable: true})
   stakingLatestTime!: Date | undefined | null
-
-  @Index_()
-  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-  transferLatestBlockNumber!: bigint
-
-  @Index_()
-  @Column_("timestamp with time zone", {nullable: true})
-  transferLatestTime!: Date | undefined | null
 }

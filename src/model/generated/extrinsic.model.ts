@@ -1,9 +1,8 @@
 import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, Index as Index_} from "typeorm"
-import * as marshal from "./marshal"
 
 @Entity_()
-export class Transfers {
-  constructor(props?: Partial<Transfers>) {
+export class Extrinsic {
+  constructor(props?: Partial<Extrinsic>) {
     Object.assign(this, props)
   }
 
@@ -22,10 +21,9 @@ export class Transfers {
   blockHash!: string
 
   @Index_()
-  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-  totalAmount!: bigint
+  @Column_("int4", {nullable: false})
+  totalCount!: number
 
-  @Index_()
-  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-  totalCount!: bigint
+  @Column_("text", {nullable: true})
+  calls!: string | undefined | null
 }
