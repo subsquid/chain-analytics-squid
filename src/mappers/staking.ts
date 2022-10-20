@@ -22,6 +22,12 @@ export async function handleStakeAmount(ctx: Ctx, block: Block) {
 
   const activeEraData = await storage.staking.getActiveEra(ctx, block);
   const currentEraData = await storage.staking.getCurrentEra(ctx, block);
+  const saveStakingCheckMarker = () => {
+    histDataMeta.stakingLatestBlockNumber = BigInt(block.header.height);
+    histDataMeta.stakingLatestTime = new Date(block.header.timestamp);
+
+    ctx.store.deferredUpsert(histDataMeta);
+  };
 
   /**
    * Preferred to use ActiveEra because CurrentEra can return next planed era
@@ -29,11 +35,13 @@ export async function handleStakeAmount(ctx: Ctx, block: Block) {
   const storageEraData = activeEraData || currentEraData;
 
   if (!storageEraData || storageEraData?.index == null) {
+    saveStakingCheckMarker();
     return ctx.log.warn(`Unknown era`);
   }
 
   const validatorIds = await storage.session.getValidators(ctx, block);
   if (!validatorIds) {
+    saveStakingCheckMarker();
     return ctx.log.warn(`Validators for era ${storageEraData} not found`);
   }
 
@@ -43,6 +51,7 @@ export async function handleStakeAmount(ctx: Ctx, block: Block) {
     validatorIds.map((id) => [id, storageEraData.index] as [string, number])
   );
   if (!validatorsData) {
+    saveStakingCheckMarker();
     return ctx.log.warn(`Missing info for validators in era ${storageEraData}`);
   }
 
@@ -53,67 +62,6 @@ export async function handleStakeAmount(ctx: Ctx, block: Block) {
     totalValidatorsStake += validatorData!.own;
     totalNominatorsStake += validatorData!.total - validatorData!.own;
   }
-
-  // console.log('storageEraData - ', storageEraData);
-  // console.log('totalValidatorsStake - ', totalValidatorsStake.toString());
-  // console.log('totalNominatorsStake - ', totalNominatorsStake.toString());
-  // console.log('SUM - ', totalValidatorsStake + totalNominatorsStake);
-
-  // console.dir(validatorsData, { depth: null });
-
-  // const erasTotalStakeStorage = new StakingErasTotalStakeStorage(
-  //   ctx,
-  //   block.header
-  // );
-  //
-  // if (!erasTotalStakeStorage.isExists)
-  //   return ctx.log.warn(`Missing info for era.`);
-  //
-  // const erasTotalStake = await erasTotalStakeStorage.getAsV1050(
-  //   storageEraData.index
-  // );
-  //
-  // console.log('erasTotalStake - ', erasTotalStake.toString());
-
-  // const activeEraStorage = new StakingActiveEraStorage(ctx, block.header);
-  // const erasTotalStakeStorage = new StakingErasTotalStakeStorage(
-  //   ctx,
-  //   block.header
-  // );
-  // // const erasStakersStorage = new StakingErasStakersStorage(ctx, block.header);
-  // if (
-  //   !activeEraStorage.isExists ||
-  //   !erasTotalStakeStorage.isExists
-  //   // !erasStakersStorage.isExists
-  // )
-  //   return;
-  //
-  // const activeEra = await activeEraStorage.getAsV1050();
-  // if (!activeEra || !activeEra.index) return;
-  //
-  // const erasTotalStake = await erasTotalStakeStorage.getAsV1050(
-  //   activeEra.index
-  // );
-
-  // const keys = await ctx._chain.client.call('state_getKeys', [
-  //   getStorageHash('Staking', 'ErasStakers'),
-  //   block.header.hash
-  // ]);
-
-  // const erasStakers = await ctx._chain.getStorage(
-  //   block.header.hash,
-  //   'Staking',
-  //   'ErasStakers',
-  //   activeEra,
-  //   null
-  // );
-  // let req =
-  //   getStorageHash('Staking', 'ErasStakers') + 'c0459bb3f1b3dade2a070000';
-  //
-  // const erasStakers = await ctx._chain.client.call('state_getStorageAt', [
-  //   req,
-  //   block.header.hash
-  // ]);
 
   const newStakedValueStat = new StakedValue({
     id: block.header.height.toString(),
@@ -126,10 +74,7 @@ export async function handleStakeAmount(ctx: Ctx, block: Block) {
 
   ctx.store.deferredUpsert(newStakedValueStat);
 
-  histDataMeta.stakingLatestBlockNumber = BigInt(block.header.height);
-  histDataMeta.stakingLatestTime = new Date(block.header.timestamp);
-
-  ctx.store.deferredUpsert(histDataMeta);
+  saveStakingCheckMarker();
 
   const totals = await getOrCreateTotals(ctx);
 

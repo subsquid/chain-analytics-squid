@@ -12,27 +12,26 @@ export async function handleTotalIssuance(ctx: Ctx, block: Block) {
   if (!isCheckPoint(CheckPointsKeys.issuance, histDataMeta, block)) return;
 
   const storage = new BalancesTotalIssuanceStorage(ctx, block.header);
-  if (!storage.isExists) return;
+  if (storage.isExists) {
+    const amount = await storage.getAsV1020();
 
-  const amount = await storage.getAsV1020();
+    const newIssuanceStat = new Issuance({
+      id: block.header.height.toString(),
+      timestamp: new Date(block.header.timestamp),
+      blockHash: block.header.hash,
+      amount
+    });
 
-  const newIssuanceStat = new Issuance({
-    id: block.header.height.toString(),
-    timestamp: new Date(block.header.timestamp),
-    blockHash: block.header.hash,
-    amount
-  });
+    ctx.store.deferredUpsert(newIssuanceStat);
 
-  ctx.store.deferredUpsert(newIssuanceStat);
+    const totals = await getOrCreateTotals(ctx);
+
+    totals.totalIssuance = amount;
+
+    ctx.store.deferredUpsert(totals);
+  }
 
   histDataMeta.issuanceLatestBlockNumber = BigInt(block.header.height);
   histDataMeta.issuanceLatestTime = new Date(block.header.timestamp);
-
   ctx.store.deferredUpsert(histDataMeta);
-
-  const totals = await getOrCreateTotals(ctx);
-
-  totals.totalIssuance = amount;
-
-  ctx.store.deferredUpsert(totals);
 }

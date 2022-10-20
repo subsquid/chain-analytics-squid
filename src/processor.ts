@@ -31,7 +31,7 @@ const processor = new SubstrateBatchProcessor()
     }),
     chain: processorConfig.dataSource.chain
   })
-  // .setBlockRange({ from: 1400000 })
+  .setBlockRange({ from: 1400000 })
   .includeAllBlocks()
   .addEvent('Balances.Transfer', {
     data: { event: { args: true } }
@@ -56,9 +56,9 @@ processor.run(new TypeormDatabase(), async (ctx) => {
 
   for (let block of ctx.blocks) {
     await handleFinalizedBlock(ctx, block);
+    await handleValidators(ctx, block);
     await handleChainHolders(ctx, block);
     await handleTotalIssuance(ctx, block);
-    await handleValidators(ctx, block);
     await handleStakeAmount(ctx, block);
   }
 

@@ -12,27 +12,27 @@ export async function handleChainHolders(ctx: Ctx, block: Block) {
   if (!isCheckPoint(CheckPointsKeys.holders, histDataMeta, block)) return;
 
   const keys = await storage.system.getHoldersKeys(ctx, block);
-  if (!keys) return;
 
-  const totalHolders = BigInt(keys.length);
+  if (keys) {
+    const totalHolders = BigInt(keys.length);
 
-  const newHoldersStat = new Holders({
-    id: block.header.height.toString(),
-    amount: totalHolders,
-    timestamp: new Date(block.header.timestamp),
-    blockHash: block.header.hash
-  });
+    const newHoldersStat = new Holders({
+      id: block.header.height.toString(),
+      amount: totalHolders,
+      timestamp: new Date(block.header.timestamp),
+      blockHash: block.header.hash
+    });
 
-  ctx.store.deferredUpsert(newHoldersStat);
+    ctx.store.deferredUpsert(newHoldersStat);
+
+    const totals = await getOrCreateTotals(ctx);
+
+    totals.holders = totalHolders;
+
+    ctx.store.deferredUpsert(totals);
+  }
 
   histDataMeta.holdersLatestBlockNumber = BigInt(block.header.height);
   histDataMeta.holdersLatestTime = new Date(block.header.timestamp);
-
   ctx.store.deferredUpsert(histDataMeta);
-
-  const totals = await getOrCreateTotals(ctx);
-
-  totals.holders = totalHolders;
-
-  ctx.store.deferredUpsert(totals);
 }

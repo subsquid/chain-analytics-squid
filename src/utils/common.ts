@@ -8,10 +8,7 @@ import * as sto from '@subsquid/substrate-processor/lib/util/storage';
 
 import * as ss58 from '@subsquid/ss58';
 import { decodeHex } from '@subsquid/util-internal-hex';
-import {
-  checkPointKeys,
-  processorConfig,
-} from '../config';
+import { checkPointKeys, processorConfig } from '../config';
 import { Block } from '../processor';
 import { HistoricalDataMeta } from '../model';
 
@@ -57,7 +54,7 @@ export function isCheckPoint(
     block.header.timestamp -
       (histDataMeta[`${checkPointKey}LatestTime`]
         ? histDataMeta[`${checkPointKey}LatestTime`]!.getTime()
-        : 0) <
+        : 0) >
     checkPointKeys.get(checkPointKey)!
   );
 }
