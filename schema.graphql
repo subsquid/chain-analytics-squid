@@ -39,7 +39,7 @@ type Holders @entity {
 type Issuance @entity {
   "Block number"
   id: ID!
-  amount: BigInt! @index
+  volume: BigInt! @index
   timestamp: DateTime! @index
   blockHash: String! @index
 }
@@ -68,7 +68,7 @@ type Transfer @entity {
   id: ID!
   timestamp: DateTime!   @index
   blockHash: String!   @index
-  totalAmount: BigInt! @index
+  totalVolume: BigInt! @index
   totalCount: Int! @index
 }
 

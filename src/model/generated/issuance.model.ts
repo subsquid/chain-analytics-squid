@@ -15,7 +15,7 @@ export class Issuance {
 
   @Index_()
   @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-  amount!: bigint
+  volume!: bigint
 
   @Index_()
   @Column_("timestamp with time zone", {nullable: false})

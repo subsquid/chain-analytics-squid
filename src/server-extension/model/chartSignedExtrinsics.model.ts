@@ -12,12 +12,3 @@ export class SignedExtrinsicsChartEntity {
     Object.assign(this, props);
   }
 }
-
-export enum SignedExtrinsicsChartInterval {
-  minute = 'minute',
-  hour = 'hour',
-  day = 'day',
-  month = 'month'
-}
-
-registerEnumType(SignedExtrinsicsChartInterval, { name: 'SignedExtrinsicsChartInterval' });

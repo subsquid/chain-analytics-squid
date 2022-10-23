@@ -13,20 +13,20 @@ export async function handleTotalIssuance(ctx: Ctx, block: Block) {
 
   const storage = new BalancesTotalIssuanceStorage(ctx, block.header);
   if (storage.isExists) {
-    const amount = await storage.getAsV1020();
+    const volume = await storage.getAsV1020();
 
     const newIssuanceStat = new Issuance({
       id: block.header.height.toString(),
       timestamp: new Date(block.header.timestamp),
       blockHash: block.header.hash,
-      amount
+      volume
     });
 
     ctx.store.deferredUpsert(newIssuanceStat);
 
     const totals = await getOrCreateTotals(ctx);
 
-    totals.totalIssuance = amount;
+    totals.totalIssuance = volume;
 
     ctx.store.deferredUpsert(totals);
   }

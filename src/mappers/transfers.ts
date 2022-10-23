@@ -19,7 +19,7 @@ export async function getOrCreateTransfer(
     id: blockData.blockNumber.toString(),
     blockHash: blockData.blockHash,
     timestamp: new Date(),
-    totalAmount: 0n,
+    totalVolume: 0n,
     totalCount: 0
   });
 
@@ -37,7 +37,7 @@ export async function handleTransfers(
     const tr = await getOrCreateTransfer(ctx, e);
 
     tr.timestamp = e.timestamp;
-    tr.totalAmount += e.amount;
+    tr.totalVolume += e.volume;
     tr.totalCount += 1;
 
     ctx.store.deferredUpsert(tr);
