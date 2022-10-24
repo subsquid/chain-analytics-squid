@@ -1,17 +1,17 @@
 export function getChartTransferQuery(withRange: boolean) {
   return `
 SELECT 
-  res.volume as volume,
+  res.amount as amount,
   res.count as count,
   datetime
 FROM (
     SELECT 
-    SUM(agr_res.t_volume) as volume, 
+    SUM(agr_res.t_amount) as amount, 
     SUM(agr_res.t_count) as count, 
     datetime
     FROM( 
       SELECT
-        tr.total_volume::bigint as t_volume,
+        tr.total_amount::bigint as t_amount,
         tr.total_count::bigint as t_count,
         tr.timestamp as timestamp,
         date_trunc(${withRange ? `$3` : `$1`}, tr.timestamp::timestamptz) as datetime

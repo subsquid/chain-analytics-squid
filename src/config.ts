@@ -15,7 +15,7 @@ export const processorConfig = {
     chain: 'wss://kusama-rpc.polkadot.io'
   },
   typesBundle: 'kusama',
-  batchSize: 100,
+  batchSize: 50,
   blockRange: {
     from: 100000
   }

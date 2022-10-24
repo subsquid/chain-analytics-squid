@@ -23,7 +23,7 @@ export class Transfer {
 
   @Index_()
   @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-  totalVolume!: bigint
+  totalAmount!: bigint
 
   @Index_()
   @Column_("int4", {nullable: false})

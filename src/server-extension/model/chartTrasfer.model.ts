@@ -6,7 +6,7 @@ export class TransferChartEntity {
   datetime!: Date;
 
   @Field(() => BigInt, { nullable: true, defaultValue: 0n })
-  volume!: bigint;
+  amount!: bigint;
 
   @Field(() => BigInt, { nullable: true, defaultValue: 0n })
   count!: number;
@@ -16,3 +16,11 @@ export class TransferChartEntity {
   }
 }
 
+export enum TransactionsChartInterval {
+  minute = 'minute',
+  hour = 'hour',
+  day = 'day',
+  month = 'month'
+}
+
+registerEnumType(TransactionsChartInterval, { name: 'TransactionsChartStep' });

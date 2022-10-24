@@ -1,19 +1,11 @@
-import { Arg, Query, registerEnumType, Resolver } from 'type-graphql';
+import { Arg, Query, Resolver } from 'type-graphql';
 import type { EntityManager } from 'typeorm';
 import { Transfer } from '../../model';
-import { SignedExtrinsicsChartEntity } from '../model/chartSignedExtrinsics.model';
+import {
+  SignedExtrinsicsChartEntity,
+  SignedExtrinsicsChartInterval
+} from '../model/chartSignedExtrinsics.model';
 import { getChartSignedExtrinsicsQuery } from '../query/chartSignedExtrinsics';
-import assert from 'assert';
-
-export enum SignedExtrinsicsChartInterval {
-  minute = 'minute',
-  hour = 'hour',
-  day = 'day'
-}
-
-registerEnumType(SignedExtrinsicsChartInterval, {
-  name: 'SignedExtrinsicsChartInterval'
-});
 
 @Resolver()
 export class SignedExtrinsicsChartResolver {
@@ -21,9 +13,9 @@ export class SignedExtrinsicsChartResolver {
 
   @Query(() => [SignedExtrinsicsChartEntity])
   async signedExtrinsicsChart(
-    @Arg('from', { nullable: false }) from: string,
-    @Arg('to', { nullable: false }) to: string,
-    @Arg('interval', () => SignedExtrinsicsChartInterval, {
+    @Arg('from', { nullable: true }) from: string,
+    @Arg('to', { nullable: true }) to: string,
+    @Arg('interval', {
       nullable: false,
       defaultValue: SignedExtrinsicsChartInterval.hour,
       description: `Can contain next values: minute, hour, day, month.`
@@ -31,12 +23,6 @@ export class SignedExtrinsicsChartResolver {
     interval: SignedExtrinsicsChartInterval
   ): Promise<SignedExtrinsicsChartEntity[]> {
     const withRange = !!(from && from.length > 0 && to && to.length);
-
-    assert(
-      new Date(to).getTime() - new Date(from).getTime() <= 604800000,
-      'range can not be wider than a week'
-    );
-
     const query = getChartSignedExtrinsicsQuery(withRange);
 
     let intervalSec = 'minute';
@@ -46,6 +32,9 @@ export class SignedExtrinsicsChartResolver {
         break;
       case SignedExtrinsicsChartInterval.day:
         intervalSec = 'day';
+        break;
+      case SignedExtrinsicsChartInterval.month:
+        intervalSec = 'month';
         break;
       default:
     }
@@ -64,10 +53,7 @@ export class SignedExtrinsicsChartResolver {
     const manager = await this.tx();
     const repository = manager.getRepository(Transfer);
 
-    const result: SignedExtrinsicsChartEntity[] = await repository.query(
-      query,
-      params
-    );
+    const result: SignedExtrinsicsChartEntity[] = await repository.query(query, params);
     return result;
   }
 }

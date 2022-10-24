@@ -16,7 +16,7 @@ export interface BalancesTransferEventData {
   blockNumber: number;
   blockHash: string;
   timestamp: Date;
-  volume: bigint;
+  amount: bigint;
 }
 
 export interface BalancesWithdrawEventData {

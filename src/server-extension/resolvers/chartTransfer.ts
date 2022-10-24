@@ -1,19 +1,11 @@
-import { Arg, Query, registerEnumType, Resolver } from 'type-graphql';
+import { Arg, Query, Resolver } from 'type-graphql';
 import type { EntityManager } from 'typeorm';
 import { Transfer } from '../../model';
-import { TransferChartEntity } from '../model/chartTrasfer.model';
+import {
+  TransferChartEntity,
+  TransactionsChartInterval
+} from '../model/chartTrasfer.model';
 import { getChartTransferQuery } from '../query/chartTransfer';
-import assert from 'assert';
-
-export enum TransactionsChartInterval {
-  minute = 'minute',
-  hour = 'hour',
-  day = 'day'
-}
-
-registerEnumType(TransactionsChartInterval, {
-  name: 'TransactionsChartInterval'
-});
 
 @Resolver()
 export class TransferChartResolver {
@@ -21,9 +13,9 @@ export class TransferChartResolver {
 
   @Query(() => [TransferChartEntity])
   async transactionsChart(
-    @Arg('from', { nullable: false }) from: string,
-    @Arg('to', { nullable: false }) to: string,
-    @Arg('interval', () => TransactionsChartInterval, {
+    @Arg('from', { nullable: true }) from: string,
+    @Arg('to', { nullable: true }) to: string,
+    @Arg('interval', {
       nullable: false,
       defaultValue: TransactionsChartInterval.hour,
       description: `Can contain next values: minute, hour, day, month.`
@@ -31,11 +23,6 @@ export class TransferChartResolver {
     interval: TransactionsChartInterval
   ): Promise<TransferChartEntity[]> {
     const withRange = !!(from && from.length > 0 && to && to.length);
-
-    assert(
-      new Date(to).getTime() - new Date(from).getTime() <= 604800000,
-      'range can not be wider than a week'
-    );
     const query = getChartTransferQuery(withRange);
 
     let intervalSec = 'minute';
@@ -45,6 +32,9 @@ export class TransferChartResolver {
         break;
       case TransactionsChartInterval.day:
         intervalSec = 'day';
+        break;
+      case TransactionsChartInterval.month:
+        intervalSec = 'month';
         break;
       default:
     }
