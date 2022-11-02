@@ -1,10 +1,9 @@
-//1000 * 60 * 60 * 24
 
 export const checkPointKeys = new Map([
-  ['holders', 1000 * 60],
-  ['issuance', 1000 * 60],
-  ['staking', 1000 * 60],
-  ['validators', 1000 * 60]
+  ['holders', 1000 * 60 * 60],
+  ['issuance', 1000 * 60 * 60],
+  ['staking', 1000 * 60 * 60],
+  ['validators', 1000 * 60 * 60]
 ]);
 
 export const processorConfig = {
@@ -15,7 +14,7 @@ export const processorConfig = {
     chain: 'wss://kusama-rpc.polkadot.io'
   },
   typesBundle: 'kusama',
-  batchSize: 100,
+  batchSize: 50,
   blockRange: {
     from: 100000
   }
