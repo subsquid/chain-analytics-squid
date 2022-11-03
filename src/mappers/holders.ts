@@ -11,10 +11,10 @@ export async function handleChainHolders(ctx: Ctx, block: Block) {
 
   if (!isCheckPoint(CheckPointsKeys.holders, histDataMeta, block)) return;
 
-  const keys = await storage.system.getHoldersKeys(ctx, block);
+  const keys = await storage.system.getHoldersKeysCount(ctx, block);
 
-  if (keys) {
-    const totalHolders = BigInt(keys.length);
+  if (keys !== undefined) {
+    const totalHolders = BigInt(keys);
 
     const newHoldersStat = new Holders({
       id: block.header.height.toString(),

@@ -57,6 +57,7 @@ import * as v9250 from './v9250'
 import * as v9260 from './v9260'
 import * as v9271 from './v9271'
 import * as v9291 from './v9291'
+import * as v9300 from './v9300'
 
 export class AttestationsDidUpdateStorage {
   private readonly _chain: Chain
@@ -3040,6 +3041,31 @@ export class CouncilProposalOfStorage {
   }
 
   /**
+   *  Actual proposal for a given hash, if it's current.
+   */
+  get isV9300() {
+    return this._chain.getStorageItemTypeHash('Council', 'ProposalOf') === '4489558a261f014c524a3fa533244e852a4234f4db9aba95f960d069aa1a2db7'
+  }
+
+  /**
+   *  Actual proposal for a given hash, if it's current.
+   */
+  async getAsV9300(key: Uint8Array): Promise<v9300.Call | undefined> {
+    assert(this.isV9300)
+    return this._chain.getStorage(this.blockHash, 'Council', 'ProposalOf', key)
+  }
+
+  async getManyAsV9300(keys: Uint8Array[]): Promise<(v9300.Call | undefined)[]> {
+    assert(this.isV9300)
+    return this._chain.queryStorage(this.blockHash, 'Council', 'ProposalOf', keys.map(k => [k]))
+  }
+
+  async getAllAsV9300(): Promise<(v9300.Call)[]> {
+    assert(this.isV9300)
+    return this._chain.queryStorage(this.blockHash, 'Council', 'ProposalOf')
+  }
+
+  /**
    * Checks whether the storage item is defined for the current chain version.
    */
   get isExists(): boolean {
@@ -5278,6 +5304,170 @@ export class ElectionProviderMultiPhaseSnapshotMetadataStorage {
    */
   get isExists(): boolean {
     return this._chain.getStorageItemTypeHash('ElectionProviderMultiPhase', 'SnapshotMetadata') != null
+  }
+}
+
+export class FastUnstakeCounterForQueueStorage {
+  private readonly _chain: Chain
+  private readonly blockHash: string
+
+  constructor(ctx: BlockContext)
+  constructor(ctx: ChainContext, block: Block)
+  constructor(ctx: BlockContext, block?: Block) {
+    block = block || ctx.block
+    this.blockHash = block.hash
+    this._chain = ctx._chain
+  }
+
+  /**
+   * Counter for the related counted storage map
+   */
+  get isV9300() {
+    return this._chain.getStorageItemTypeHash('FastUnstake', 'CounterForQueue') === '81bbbe8e62451cbcc227306706c919527aa2538970bd6d67a9969dd52c257d02'
+  }
+
+  /**
+   * Counter for the related counted storage map
+   */
+  async getAsV9300(): Promise<number> {
+    assert(this.isV9300)
+    return this._chain.getStorage(this.blockHash, 'FastUnstake', 'CounterForQueue')
+  }
+
+  /**
+   * Checks whether the storage item is defined for the current chain version.
+   */
+  get isExists(): boolean {
+    return this._chain.getStorageItemTypeHash('FastUnstake', 'CounterForQueue') != null
+  }
+}
+
+export class FastUnstakeErasToCheckPerBlockStorage {
+  private readonly _chain: Chain
+  private readonly blockHash: string
+
+  constructor(ctx: BlockContext)
+  constructor(ctx: ChainContext, block: Block)
+  constructor(ctx: BlockContext, block?: Block) {
+    block = block || ctx.block
+    this.blockHash = block.hash
+    this._chain = ctx._chain
+  }
+
+  /**
+   *  Number of eras to check per block.
+   * 
+   *  If set to 0, this pallet does absolutely nothing.
+   * 
+   *  Based on the amount of weight available at `on_idle`, up to this many eras of a single
+   *  nominator might be checked.
+   */
+  get isV9300() {
+    return this._chain.getStorageItemTypeHash('FastUnstake', 'ErasToCheckPerBlock') === '81bbbe8e62451cbcc227306706c919527aa2538970bd6d67a9969dd52c257d02'
+  }
+
+  /**
+   *  Number of eras to check per block.
+   * 
+   *  If set to 0, this pallet does absolutely nothing.
+   * 
+   *  Based on the amount of weight available at `on_idle`, up to this many eras of a single
+   *  nominator might be checked.
+   */
+  async getAsV9300(): Promise<number> {
+    assert(this.isV9300)
+    return this._chain.getStorage(this.blockHash, 'FastUnstake', 'ErasToCheckPerBlock')
+  }
+
+  /**
+   * Checks whether the storage item is defined for the current chain version.
+   */
+  get isExists(): boolean {
+    return this._chain.getStorageItemTypeHash('FastUnstake', 'ErasToCheckPerBlock') != null
+  }
+}
+
+export class FastUnstakeHeadStorage {
+  private readonly _chain: Chain
+  private readonly blockHash: string
+
+  constructor(ctx: BlockContext)
+  constructor(ctx: ChainContext, block: Block)
+  constructor(ctx: BlockContext, block?: Block) {
+    block = block || ctx.block
+    this.blockHash = block.hash
+    this._chain = ctx._chain
+  }
+
+  /**
+   *  The current "head of the queue" being unstaked.
+   */
+  get isV9300() {
+    return this._chain.getStorageItemTypeHash('FastUnstake', 'Head') === '9e110b529129d2bf445e71d5f73e7f43fc91ac729a4db9536cfc0fb67d92e6cf'
+  }
+
+  /**
+   *  The current "head of the queue" being unstaked.
+   */
+  async getAsV9300(): Promise<v9300.UnstakeRequest | undefined> {
+    assert(this.isV9300)
+    return this._chain.getStorage(this.blockHash, 'FastUnstake', 'Head')
+  }
+
+  /**
+   * Checks whether the storage item is defined for the current chain version.
+   */
+  get isExists(): boolean {
+    return this._chain.getStorageItemTypeHash('FastUnstake', 'Head') != null
+  }
+}
+
+export class FastUnstakeQueueStorage {
+  private readonly _chain: Chain
+  private readonly blockHash: string
+
+  constructor(ctx: BlockContext)
+  constructor(ctx: ChainContext, block: Block)
+  constructor(ctx: BlockContext, block?: Block) {
+    block = block || ctx.block
+    this.blockHash = block.hash
+    this._chain = ctx._chain
+  }
+
+  /**
+   *  The map of all accounts wishing to be unstaked.
+   * 
+   *  Keeps track of `AccountId` wishing to unstake and it's corresponding deposit.
+   */
+  get isV9300() {
+    return this._chain.getStorageItemTypeHash('FastUnstake', 'Queue') === '009da6de235ea9f0b5ac0b37d404d4fe998946da2f8f3e9c0899035c6d182a52'
+  }
+
+  /**
+   *  The map of all accounts wishing to be unstaked.
+   * 
+   *  Keeps track of `AccountId` wishing to unstake and it's corresponding deposit.
+   */
+  async getAsV9300(key: Uint8Array): Promise<bigint | undefined> {
+    assert(this.isV9300)
+    return this._chain.getStorage(this.blockHash, 'FastUnstake', 'Queue', key)
+  }
+
+  async getManyAsV9300(keys: Uint8Array[]): Promise<(bigint | undefined)[]> {
+    assert(this.isV9300)
+    return this._chain.queryStorage(this.blockHash, 'FastUnstake', 'Queue', keys.map(k => [k]))
+  }
+
+  async getAllAsV9300(): Promise<(bigint)[]> {
+    assert(this.isV9300)
+    return this._chain.queryStorage(this.blockHash, 'FastUnstake', 'Queue')
+  }
+
+  /**
+   * Checks whether the storage item is defined for the current chain version.
+   */
+  get isExists(): boolean {
+    return this._chain.getStorageItemTypeHash('FastUnstake', 'Queue') != null
   }
 }
 
@@ -15821,6 +16011,31 @@ export class SchedulerAgendaStorage {
   }
 
   /**
+   *  Items to be executed, indexed by the block number that they should be executed on.
+   */
+  get isV9300() {
+    return this._chain.getStorageItemTypeHash('Scheduler', 'Agenda') === 'a9432053e5bdf0321dfad50276e601ccd5a7a584930bea46e185a387a90f9d35'
+  }
+
+  /**
+   *  Items to be executed, indexed by the block number that they should be executed on.
+   */
+  async getAsV9300(key: number): Promise<(v9300.ScheduledV3 | undefined)[]> {
+    assert(this.isV9300)
+    return this._chain.getStorage(this.blockHash, 'Scheduler', 'Agenda', key)
+  }
+
+  async getManyAsV9300(keys: number[]): Promise<((v9300.ScheduledV3 | undefined)[])[]> {
+    assert(this.isV9300)
+    return this._chain.queryStorage(this.blockHash, 'Scheduler', 'Agenda', keys.map(k => [k]))
+  }
+
+  async getAllAsV9300(): Promise<((v9300.ScheduledV3 | undefined)[])[]> {
+    assert(this.isV9300)
+    return this._chain.queryStorage(this.blockHash, 'Scheduler', 'Agenda')
+  }
+
+  /**
    * Checks whether the storage item is defined for the current chain version.
    */
   get isExists(): boolean {
@@ -19784,6 +19999,27 @@ export class StakingStorageVersionStorage {
   }
 
   /**
+   *  True if network has been upgraded to this version.
+   *  Storage version of the pallet.
+   * 
+   *  This is set to v7.0.0 for new networks.
+   */
+  get isV9300() {
+    return this._chain.getStorageItemTypeHash('Staking', 'StorageVersion') === '5124cfaa968e88f2d457c9ef638f4306fd6837d49a99d8ecb792d7300f6f114c'
+  }
+
+  /**
+   *  True if network has been upgraded to this version.
+   *  Storage version of the pallet.
+   * 
+   *  This is set to v7.0.0 for new networks.
+   */
+  async getAsV9300(): Promise<v9300.Type_252> {
+    assert(this.isV9300)
+    return this._chain.getStorage(this.blockHash, 'Staking', 'StorageVersion')
+  }
+
+  /**
    * Checks whether the storage item is defined for the current chain version.
    */
   get isExists(): boolean {
@@ -21722,6 +21958,33 @@ export class SystemEventsStorage {
   }
 
   /**
+   *  Events deposited for the current block.
+   * 
+   *  NOTE: The item is unbound and should therefore never be read on chain.
+   *  It could otherwise inflate the PoV size of a block.
+   * 
+   *  Events have a large in-memory size. Box the events to not go out-of-memory
+   *  just in case someone still reads them from within the runtime.
+   */
+  get isV9300() {
+    return this._chain.getStorageItemTypeHash('System', 'Events') === '69f2981e10cf7fc88edd64f160610c677572cda047424915c752b8d45feb0b57'
+  }
+
+  /**
+   *  Events deposited for the current block.
+   * 
+   *  NOTE: The item is unbound and should therefore never be read on chain.
+   *  It could otherwise inflate the PoV size of a block.
+   * 
+   *  Events have a large in-memory size. Box the events to not go out-of-memory
+   *  just in case someone still reads them from within the runtime.
+   */
+  async getAsV9300(): Promise<v9300.EventRecord[]> {
+    assert(this.isV9300)
+    return this._chain.getStorage(this.blockHash, 'System', 'Events')
+  }
+
+  /**
    * Checks whether the storage item is defined for the current chain version.
    */
   get isExists(): boolean {
@@ -22557,6 +22820,31 @@ export class TechnicalCommitteeProposalOfStorage {
 
   async getAllAsV9291(): Promise<(v9291.Call)[]> {
     assert(this.isV9291)
+    return this._chain.queryStorage(this.blockHash, 'TechnicalCommittee', 'ProposalOf')
+  }
+
+  /**
+   *  Actual proposal for a given hash, if it's current.
+   */
+  get isV9300() {
+    return this._chain.getStorageItemTypeHash('TechnicalCommittee', 'ProposalOf') === '4489558a261f014c524a3fa533244e852a4234f4db9aba95f960d069aa1a2db7'
+  }
+
+  /**
+   *  Actual proposal for a given hash, if it's current.
+   */
+  async getAsV9300(key: Uint8Array): Promise<v9300.Call | undefined> {
+    assert(this.isV9300)
+    return this._chain.getStorage(this.blockHash, 'TechnicalCommittee', 'ProposalOf', key)
+  }
+
+  async getManyAsV9300(keys: Uint8Array[]): Promise<(v9300.Call | undefined)[]> {
+    assert(this.isV9300)
+    return this._chain.queryStorage(this.blockHash, 'TechnicalCommittee', 'ProposalOf', keys.map(k => [k]))
+  }
+
+  async getAllAsV9300(): Promise<(v9300.Call)[]> {
+    assert(this.isV9300)
     return this._chain.queryStorage(this.blockHash, 'TechnicalCommittee', 'ProposalOf')
   }
 

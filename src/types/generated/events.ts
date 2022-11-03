@@ -22,6 +22,7 @@ import * as v9200 from './v9200'
 import * as v9220 from './v9220'
 import * as v9230 from './v9230'
 import * as v9291 from './v9291'
+import * as v9300 from './v9300'
 
 export class AuctionsAuctionClosedEvent {
   private readonly _chain: Chain
@@ -4122,6 +4123,153 @@ export class ElectionsPhragmenVoterReportedEvent {
   }
 }
 
+export class FastUnstakeCheckingEvent {
+  private readonly _chain: Chain
+  private readonly event: Event
+
+  constructor(ctx: EventContext)
+  constructor(ctx: ChainContext, event: Event)
+  constructor(ctx: EventContext, event?: Event) {
+    event = event || ctx.event
+    assert(event.name === 'FastUnstake.Checking')
+    this._chain = ctx._chain
+    this.event = event
+  }
+
+  /**
+   * A staker was partially checked for the given eras, but the process did not finish.
+   */
+  get isV9300(): boolean {
+    return this._chain.getEventHash('FastUnstake.Checking') === '1dad67a3a9102761dd650aab2b38a8be2af4c5cbb41aec1ea7daf14f8353ec54'
+  }
+
+  /**
+   * A staker was partially checked for the given eras, but the process did not finish.
+   */
+  get asV9300(): {stash: Uint8Array, eras: number[]} {
+    assert(this.isV9300)
+    return this._chain.decodeEvent(this.event)
+  }
+}
+
+export class FastUnstakeErroredEvent {
+  private readonly _chain: Chain
+  private readonly event: Event
+
+  constructor(ctx: EventContext)
+  constructor(ctx: ChainContext, event: Event)
+  constructor(ctx: EventContext, event?: Event) {
+    event = event || ctx.event
+    assert(event.name === 'FastUnstake.Errored')
+    this._chain = ctx._chain
+    this.event = event
+  }
+
+  /**
+   * Some internal error happened while migrating stash. They are removed as head as a
+   * consequence.
+   */
+  get isV9300(): boolean {
+    return this._chain.getEventHash('FastUnstake.Errored') === '7f6c53511d7cf7d5d6d53c9bd68762f88e130eef3cdaff66e227fd21c493b12c'
+  }
+
+  /**
+   * Some internal error happened while migrating stash. They are removed as head as a
+   * consequence.
+   */
+  get asV9300(): {stash: Uint8Array} {
+    assert(this.isV9300)
+    return this._chain.decodeEvent(this.event)
+  }
+}
+
+export class FastUnstakeInternalErrorEvent {
+  private readonly _chain: Chain
+  private readonly event: Event
+
+  constructor(ctx: EventContext)
+  constructor(ctx: ChainContext, event: Event)
+  constructor(ctx: EventContext, event?: Event) {
+    event = event || ctx.event
+    assert(event.name === 'FastUnstake.InternalError')
+    this._chain = ctx._chain
+    this.event = event
+  }
+
+  /**
+   * An internal error happened. Operations will be paused now.
+   */
+  get isV9300(): boolean {
+    return this._chain.getEventHash('FastUnstake.InternalError') === '01f2f9c28aa1d4d36a81ff042620b6677d25bf07c2bf4acc37b58658778a4fca'
+  }
+
+  /**
+   * An internal error happened. Operations will be paused now.
+   */
+  get asV9300(): null {
+    assert(this.isV9300)
+    return this._chain.decodeEvent(this.event)
+  }
+}
+
+export class FastUnstakeSlashedEvent {
+  private readonly _chain: Chain
+  private readonly event: Event
+
+  constructor(ctx: EventContext)
+  constructor(ctx: ChainContext, event: Event)
+  constructor(ctx: EventContext, event?: Event) {
+    event = event || ctx.event
+    assert(event.name === 'FastUnstake.Slashed')
+    this._chain = ctx._chain
+    this.event = event
+  }
+
+  /**
+   * A staker was slashed for requesting fast-unstake whilst being exposed.
+   */
+  get isV9300(): boolean {
+    return this._chain.getEventHash('FastUnstake.Slashed') === '9623d141834cd425342a1ff7a2b2265acd552799bcd6a0df67eb08a661e2215d'
+  }
+
+  /**
+   * A staker was slashed for requesting fast-unstake whilst being exposed.
+   */
+  get asV9300(): {stash: Uint8Array, amount: bigint} {
+    assert(this.isV9300)
+    return this._chain.decodeEvent(this.event)
+  }
+}
+
+export class FastUnstakeUnstakedEvent {
+  private readonly _chain: Chain
+  private readonly event: Event
+
+  constructor(ctx: EventContext)
+  constructor(ctx: ChainContext, event: Event)
+  constructor(ctx: EventContext, event?: Event) {
+    event = event || ctx.event
+    assert(event.name === 'FastUnstake.Unstaked')
+    this._chain = ctx._chain
+    this.event = event
+  }
+
+  /**
+   * A staker was unstaked.
+   */
+  get isV9300(): boolean {
+    return this._chain.getEventHash('FastUnstake.Unstaked') === '4cfde92b2a1e6e216cf7f809fbc0beebb3a5db66bab999ab6891f829cdf64fc9'
+  }
+
+  /**
+   * A staker was unstaked.
+   */
+  get asV9300(): {stash: Uint8Array, result: Result<null, v9300.DispatchError>} {
+    assert(this.isV9300)
+    return this._chain.decodeEvent(this.event)
+  }
+}
+
 export class GiltBidPlacedEvent {
   private readonly _chain: Chain
   private readonly event: Event
@@ -7756,6 +7904,37 @@ export class ProxyProxyRemovedEvent {
   }
 }
 
+export class ProxyPureCreatedEvent {
+  private readonly _chain: Chain
+  private readonly event: Event
+
+  constructor(ctx: EventContext)
+  constructor(ctx: ChainContext, event: Event)
+  constructor(ctx: EventContext, event?: Event) {
+    event = event || ctx.event
+    assert(event.name === 'Proxy.PureCreated')
+    this._chain = ctx._chain
+    this.event = event
+  }
+
+  /**
+   * A pure account has been created by new proxy with given
+   * disambiguation index and proxy type.
+   */
+  get isV9300(): boolean {
+    return this._chain.getEventHash('Proxy.PureCreated') === 'feddd1f2bd26a6287ef80e55437a903a1419b7580dc9dd6ca0b1437d5c468a99'
+  }
+
+  /**
+   * A pure account has been created by new proxy with given
+   * disambiguation index and proxy type.
+   */
+  get asV9300(): {pure: Uint8Array, who: Uint8Array, proxyType: v9300.ProxyType, disambiguationIndex: number} {
+    assert(this.isV9300)
+    return this._chain.decodeEvent(this.event)
+  }
+}
+
 export class RecoveryAccountRecoveredEvent {
   private readonly _chain: Chain
   private readonly event: Event
@@ -9444,6 +9623,27 @@ export class StakingBondedEvent {
     assert(this.isV1051)
     return this._chain.decodeEvent(this.event)
   }
+
+  /**
+   * An account has bonded this amount. \[stash, amount\]
+   * 
+   * NOTE: This event is only emitted when funds are bonded via a dispatchable. Notably,
+   * it will not be emitted for staking rewards when they are added to stake.
+   */
+  get isV9300(): boolean {
+    return this._chain.getEventHash('Staking.Bonded') === '9623d141834cd425342a1ff7a2b2265acd552799bcd6a0df67eb08a661e2215d'
+  }
+
+  /**
+   * An account has bonded this amount. \[stash, amount\]
+   * 
+   * NOTE: This event is only emitted when funds are bonded via a dispatchable. Notably,
+   * it will not be emitted for staking rewards when they are added to stake.
+   */
+  get asV9300(): {stash: Uint8Array, amount: bigint} {
+    assert(this.isV9300)
+    return this._chain.decodeEvent(this.event)
+  }
 }
 
 export class StakingChilledEvent {
@@ -9473,6 +9673,21 @@ export class StakingChilledEvent {
    */
   get asV9090(): Uint8Array {
     assert(this.isV9090)
+    return this._chain.decodeEvent(this.event)
+  }
+
+  /**
+   * An account has stopped participating as either a validator or nominator.
+   */
+  get isV9300(): boolean {
+    return this._chain.getEventHash('Staking.Chilled') === '7f6c53511d7cf7d5d6d53c9bd68762f88e130eef3cdaff66e227fd21c493b12c'
+  }
+
+  /**
+   * An account has stopped participating as either a validator or nominator.
+   */
+  get asV9300(): {stash: Uint8Array} {
+    assert(this.isV9300)
     return this._chain.decodeEvent(this.event)
   }
 }
@@ -9506,6 +9721,23 @@ export class StakingEraPaidEvent {
    */
   get asV9090(): [number, bigint, bigint] {
     assert(this.isV9090)
+    return this._chain.decodeEvent(this.event)
+  }
+
+  /**
+   * The era payout has been set; the first balance is the validator-payout; the second is
+   * the remainder from the maximum amount of reward.
+   */
+  get isV9300(): boolean {
+    return this._chain.getEventHash('Staking.EraPaid') === '940fb56de13a3a5bb887ff8bc3518465d73e48a2e4418a6edb32a9d338f0b44a'
+  }
+
+  /**
+   * The era payout has been set; the first balance is the validator-payout; the second is
+   * the remainder from the maximum amount of reward.
+   */
+  get asV9300(): {eraIndex: number, validatorPayout: bigint, remainder: bigint} {
+    assert(this.isV9300)
     return this._chain.decodeEvent(this.event)
   }
 }
@@ -9568,6 +9800,21 @@ export class StakingKickedEvent {
     assert(this.isV2028)
     return this._chain.decodeEvent(this.event)
   }
+
+  /**
+   * A nominator has been kicked from a validator.
+   */
+  get isV9300(): boolean {
+    return this._chain.getEventHash('Staking.Kicked') === 'd7d337878d792eb4a5ab3986a889ac0dcae3a639d0158fd9509bad8b5f25f81a'
+  }
+
+  /**
+   * A nominator has been kicked from a validator.
+   */
+  get asV9300(): {nominator: Uint8Array, stash: Uint8Array} {
+    assert(this.isV9300)
+    return this._chain.decodeEvent(this.event)
+  }
 }
 
 export class StakingOldSlashingReportDiscardedEvent {
@@ -9599,6 +9846,23 @@ export class StakingOldSlashingReportDiscardedEvent {
     assert(this.isV1020)
     return this._chain.decodeEvent(this.event)
   }
+
+  /**
+   * An old slashing report from a prior era was discarded because it could
+   * not be processed.
+   */
+  get isV9300(): boolean {
+    return this._chain.getEventHash('Staking.OldSlashingReportDiscarded') === '75fa09d2d8b5fbcbe4f75feb6c886998092453010ae364a5b06b9bb6319f1086'
+  }
+
+  /**
+   * An old slashing report from a prior era was discarded because it could
+   * not be processed.
+   */
+  get asV9300(): {sessionIndex: number} {
+    assert(this.isV9300)
+    return this._chain.decodeEvent(this.event)
+  }
 }
 
 export class StakingPayoutStartedEvent {
@@ -9626,6 +9890,21 @@ export class StakingPayoutStartedEvent {
    */
   get asV9090(): [number, Uint8Array] {
     assert(this.isV9090)
+    return this._chain.decodeEvent(this.event)
+  }
+
+  /**
+   * The stakers' rewards are getting paid.
+   */
+  get isV9300(): boolean {
+    return this._chain.getEventHash('Staking.PayoutStarted') === 'd95599bb0ef0f714befa738223f11c2fc8127ccc863fcf601c59c2c90393c3cf'
+  }
+
+  /**
+   * The stakers' rewards are getting paid.
+   */
+  get asV9300(): {eraIndex: number, validatorStash: Uint8Array} {
+    assert(this.isV9300)
     return this._chain.decodeEvent(this.event)
   }
 }
@@ -9703,6 +9982,21 @@ export class StakingRewardedEvent {
     assert(this.isV9090)
     return this._chain.decodeEvent(this.event)
   }
+
+  /**
+   * The nominator has been rewarded by this amount.
+   */
+  get isV9300(): boolean {
+    return this._chain.getEventHash('Staking.Rewarded') === '9623d141834cd425342a1ff7a2b2265acd552799bcd6a0df67eb08a661e2215d'
+  }
+
+  /**
+   * The nominator has been rewarded by this amount.
+   */
+  get asV9300(): {stash: Uint8Array, amount: bigint} {
+    assert(this.isV9300)
+    return this._chain.decodeEvent(this.event)
+  }
 }
 
 export class StakingSlashEvent {
@@ -9761,6 +10055,21 @@ export class StakingSlashedEvent {
    */
   get asV9090(): [Uint8Array, bigint] {
     assert(this.isV9090)
+    return this._chain.decodeEvent(this.event)
+  }
+
+  /**
+   * One staker (and potentially its nominators) has been slashed by the given amount.
+   */
+  get isV9300(): boolean {
+    return this._chain.getEventHash('Staking.Slashed') === '8043a273ae232adf290e1fbbd88711bdf078eb5beb2a947de455999b434e7896'
+  }
+
+  /**
+   * One staker (and potentially its nominators) has been slashed by the given amount.
+   */
+  get asV9300(): {staker: Uint8Array, amount: bigint} {
+    assert(this.isV9300)
     return this._chain.decodeEvent(this.event)
   }
 }
@@ -9923,6 +10232,21 @@ export class StakingUnbondedEvent {
     assert(this.isV1051)
     return this._chain.decodeEvent(this.event)
   }
+
+  /**
+   * An account has unbonded this amount.
+   */
+  get isV9300(): boolean {
+    return this._chain.getEventHash('Staking.Unbonded') === '9623d141834cd425342a1ff7a2b2265acd552799bcd6a0df67eb08a661e2215d'
+  }
+
+  /**
+   * An account has unbonded this amount.
+   */
+  get asV9300(): {stash: Uint8Array, amount: bigint} {
+    assert(this.isV9300)
+    return this._chain.decodeEvent(this.event)
+  }
 }
 
 export class StakingValidatorPrefsSetEvent {
@@ -9950,6 +10274,21 @@ export class StakingValidatorPrefsSetEvent {
    */
   get asV9200(): [Uint8Array, v9200.ValidatorPrefs] {
     assert(this.isV9200)
+    return this._chain.decodeEvent(this.event)
+  }
+
+  /**
+   * A validator has set their preferences.
+   */
+  get isV9300(): boolean {
+    return this._chain.getEventHash('Staking.ValidatorPrefsSet') === 'ddd49ae78e2f486962719114045bf4dd54c48ed4387a2f0ad91dc62c7bfc3212'
+  }
+
+  /**
+   * A validator has set their preferences.
+   */
+  get asV9300(): {stash: Uint8Array, prefs: v9300.ValidatorPrefs} {
+    assert(this.isV9300)
     return this._chain.decodeEvent(this.event)
   }
 }
@@ -9981,6 +10320,23 @@ export class StakingWithdrawnEvent {
    */
   get asV1051(): [Uint8Array, bigint] {
     assert(this.isV1051)
+    return this._chain.decodeEvent(this.event)
+  }
+
+  /**
+   * An account has called `withdraw_unbonded` and removed unbonding chunks worth `Balance`
+   * from the unlocking queue.
+   */
+  get isV9300(): boolean {
+    return this._chain.getEventHash('Staking.Withdrawn') === '9623d141834cd425342a1ff7a2b2265acd552799bcd6a0df67eb08a661e2215d'
+  }
+
+  /**
+   * An account has called `withdraw_unbonded` and removed unbonding chunks worth `Balance`
+   * from the unlocking queue.
+   */
+  get asV9300(): {stash: Uint8Array, amount: bigint} {
+    assert(this.isV9300)
     return this._chain.decodeEvent(this.event)
   }
 }

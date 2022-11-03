@@ -49,6 +49,7 @@ import * as v9230 from './v9230'
 import * as v9250 from './v9250'
 import * as v9271 from './v9271'
 import * as v9291 from './v9291'
+import * as v9300 from './v9300'
 
 export class AttestationsMoreAttestationsCall {
   private readonly _chain: Chain
@@ -5762,6 +5763,41 @@ export class CouncilExecuteCall {
     assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Dispatch a proposal from a member using the `Member` origin.
+   * 
+   * Origin must be a member of the collective.
+   * 
+   * # <weight>
+   * ## Weight
+   * - `O(M + P)` where `M` members-count (code-bounded) and `P` complexity of dispatching
+   *   `proposal`
+   * - DB: 1 read (codec `O(M)`) + DB access of `proposal`
+   * - 1 event
+   * # </weight>
+   */
+  get isV9300(): boolean {
+    return this._chain.getCallHash('Council.execute') === 'a695717a491a5cfe8b100d51a5eb5307234afcaba60440a290525ea938fb3f4b'
+  }
+
+  /**
+   * Dispatch a proposal from a member using the `Member` origin.
+   * 
+   * Origin must be a member of the collective.
+   * 
+   * # <weight>
+   * ## Weight
+   * - `O(M + P)` where `M` members-count (code-bounded) and `P` complexity of dispatching
+   *   `proposal`
+   * - DB: 1 read (codec `O(M)`) + DB access of `proposal`
+   * - 1 event
+   * # </weight>
+   */
+  get asV9300(): {proposal: v9300.Call, lengthBound: number} {
+    assert(this.isV9300)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class CouncilProposeCall {
@@ -8275,6 +8311,73 @@ export class CouncilProposeCall {
    */
   get asV9291(): {threshold: number, proposal: v9291.Call, lengthBound: number} {
     assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Add a new proposal to either be voted on or executed directly.
+   * 
+   * Requires the sender to be member.
+   * 
+   * `threshold` determines whether `proposal` is executed directly (`threshold < 2`)
+   * or put up for voting.
+   * 
+   * # <weight>
+   * ## Weight
+   * - `O(B + M + P1)` or `O(B + M + P2)` where:
+   *   - `B` is `proposal` size in bytes (length-fee-bounded)
+   *   - `M` is members-count (code- and governance-bounded)
+   *   - branching is influenced by `threshold` where:
+   *     - `P1` is proposal execution complexity (`threshold < 2`)
+   *     - `P2` is proposals-count (code-bounded) (`threshold >= 2`)
+   * - DB:
+   *   - 1 storage read `is_member` (codec `O(M)`)
+   *   - 1 storage read `ProposalOf::contains_key` (codec `O(1)`)
+   *   - DB accesses influenced by `threshold`:
+   *     - EITHER storage accesses done by `proposal` (`threshold < 2`)
+   *     - OR proposal insertion (`threshold <= 2`)
+   *       - 1 storage mutation `Proposals` (codec `O(P2)`)
+   *       - 1 storage mutation `ProposalCount` (codec `O(1)`)
+   *       - 1 storage write `ProposalOf` (codec `O(B)`)
+   *       - 1 storage write `Voting` (codec `O(M)`)
+   *   - 1 event
+   * # </weight>
+   */
+  get isV9300(): boolean {
+    return this._chain.getCallHash('Council.propose') === 'c85d0cb8ba24bf2c879cec22c7b3d30f30d2d1771aaa03ae59a907a2acde9644'
+  }
+
+  /**
+   * Add a new proposal to either be voted on or executed directly.
+   * 
+   * Requires the sender to be member.
+   * 
+   * `threshold` determines whether `proposal` is executed directly (`threshold < 2`)
+   * or put up for voting.
+   * 
+   * # <weight>
+   * ## Weight
+   * - `O(B + M + P1)` or `O(B + M + P2)` where:
+   *   - `B` is `proposal` size in bytes (length-fee-bounded)
+   *   - `M` is members-count (code- and governance-bounded)
+   *   - branching is influenced by `threshold` where:
+   *     - `P1` is proposal execution complexity (`threshold < 2`)
+   *     - `P2` is proposals-count (code-bounded) (`threshold >= 2`)
+   * - DB:
+   *   - 1 storage read `is_member` (codec `O(M)`)
+   *   - 1 storage read `ProposalOf::contains_key` (codec `O(1)`)
+   *   - DB accesses influenced by `threshold`:
+   *     - EITHER storage accesses done by `proposal` (`threshold < 2`)
+   *     - OR proposal insertion (`threshold <= 2`)
+   *       - 1 storage mutation `Proposals` (codec `O(P2)`)
+   *       - 1 storage mutation `ProposalCount` (codec `O(1)`)
+   *       - 1 storage write `ProposalOf` (codec `O(B)`)
+   *       - 1 storage write `Voting` (codec `O(M)`)
+   *   - 1 event
+   * # </weight>
+   */
+  get asV9300(): {threshold: number, proposal: v9300.Call, lengthBound: number} {
+    assert(this.isV9300)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -12021,6 +12124,143 @@ export class ElectionsPhragmenVoteCall {
   }
 }
 
+export class FastUnstakeControlCall {
+  private readonly _chain: Chain
+  private readonly call: Call
+
+  constructor(ctx: CallContext)
+  constructor(ctx: ChainContext, call: Call)
+  constructor(ctx: CallContext, call?: Call) {
+    call = call || ctx.call
+    assert(call.name === 'FastUnstake.control')
+    this._chain = ctx._chain
+    this.call = call
+  }
+
+  /**
+   * Control the operation of this pallet.
+   * 
+   * Dispatch origin must be signed by the [`Config::ControlOrigin`].
+   */
+  get isV9300(): boolean {
+    return this._chain.getCallHash('FastUnstake.control') === 'fba6d3249ebe11bdfcd30ffbc4ac9ab928994503f624c610a6b6b66b78a663ba'
+  }
+
+  /**
+   * Control the operation of this pallet.
+   * 
+   * Dispatch origin must be signed by the [`Config::ControlOrigin`].
+   */
+  get asV9300(): {uncheckedErasToCheck: number} {
+    assert(this.isV9300)
+    return this._chain.decodeCall(this.call)
+  }
+}
+
+export class FastUnstakeDeregisterCall {
+  private readonly _chain: Chain
+  private readonly call: Call
+
+  constructor(ctx: CallContext)
+  constructor(ctx: ChainContext, call: Call)
+  constructor(ctx: CallContext, call?: Call) {
+    call = call || ctx.call
+    assert(call.name === 'FastUnstake.deregister')
+    this._chain = ctx._chain
+    this.call = call
+  }
+
+  /**
+   * Deregister oneself from the fast-unstake.
+   * 
+   * This is useful if one is registered, they are still waiting, and they change their mind.
+   * 
+   * Note that the associated stash is still fully unbonded and chilled as a consequence of
+   * calling `register_fast_unstake`. This should probably be followed by a call to
+   * `Staking::rebond`.
+   */
+  get isV9300(): boolean {
+    return this._chain.getCallHash('FastUnstake.deregister') === '01f2f9c28aa1d4d36a81ff042620b6677d25bf07c2bf4acc37b58658778a4fca'
+  }
+
+  /**
+   * Deregister oneself from the fast-unstake.
+   * 
+   * This is useful if one is registered, they are still waiting, and they change their mind.
+   * 
+   * Note that the associated stash is still fully unbonded and chilled as a consequence of
+   * calling `register_fast_unstake`. This should probably be followed by a call to
+   * `Staking::rebond`.
+   */
+  get asV9300(): null {
+    assert(this.isV9300)
+    return this._chain.decodeCall(this.call)
+  }
+}
+
+export class FastUnstakeRegisterFastUnstakeCall {
+  private readonly _chain: Chain
+  private readonly call: Call
+
+  constructor(ctx: CallContext)
+  constructor(ctx: ChainContext, call: Call)
+  constructor(ctx: CallContext, call?: Call) {
+    call = call || ctx.call
+    assert(call.name === 'FastUnstake.register_fast_unstake')
+    this._chain = ctx._chain
+    this.call = call
+  }
+
+  /**
+   * Register oneself for fast-unstake.
+   * 
+   * The dispatch origin of this call must be signed by the controller account, similar to
+   * `staking::unbond`.
+   * 
+   * The stash associated with the origin must have no ongoing unlocking chunks. If
+   * successful, this will fully unbond and chill the stash. Then, it will enqueue the stash
+   * to be checked in further blocks.
+   * 
+   * If by the time this is called, the stash is actually eligible for fast-unstake, then
+   * they are guaranteed to remain eligible, because the call will chill them as well.
+   * 
+   * If the check works, the entire staking data is removed, i.e. the stash is fully
+   * unstaked.
+   * 
+   * If the check fails, the stash remains chilled and waiting for being unbonded as in with
+   * the normal staking system, but they lose part of their unbonding chunks due to consuming
+   * the chain's resources.
+   */
+  get isV9300(): boolean {
+    return this._chain.getCallHash('FastUnstake.register_fast_unstake') === '01f2f9c28aa1d4d36a81ff042620b6677d25bf07c2bf4acc37b58658778a4fca'
+  }
+
+  /**
+   * Register oneself for fast-unstake.
+   * 
+   * The dispatch origin of this call must be signed by the controller account, similar to
+   * `staking::unbond`.
+   * 
+   * The stash associated with the origin must have no ongoing unlocking chunks. If
+   * successful, this will fully unbond and chill the stash. Then, it will enqueue the stash
+   * to be checked in further blocks.
+   * 
+   * If by the time this is called, the stash is actually eligible for fast-unstake, then
+   * they are guaranteed to remain eligible, because the call will chill them as well.
+   * 
+   * If the check works, the entire staking data is removed, i.e. the stash is fully
+   * unstaked.
+   * 
+   * If the check fails, the stash remains chilled and waiting for being unbonded as in with
+   * the normal staking system, but they lose part of their unbonding chunks due to consuming
+   * the chain's resources.
+   */
+  get asV9300(): null {
+    assert(this.isV9300)
+    return this._chain.decodeCall(this.call)
+  }
+}
+
 export class FinalityTrackerFinalHintCall {
   private readonly _chain: Chain
   private readonly call: Call
@@ -13530,6 +13770,59 @@ export class IdentityProvideJudgementCall {
    */
   get asV9111(): {regIndex: number, target: v9111.MultiAddress, judgement: v9111.Judgement} {
     assert(this.isV9111)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Provide a judgement for an account's identity.
+   * 
+   * The dispatch origin for this call must be _Signed_ and the sender must be the account
+   * of the registrar whose index is `reg_index`.
+   * 
+   * - `reg_index`: the index of the registrar whose judgement is being made.
+   * - `target`: the account whose identity the judgement is upon. This must be an account
+   *   with a registered identity.
+   * - `judgement`: the judgement of the registrar of index `reg_index` about `target`.
+   * - `identity`: The hash of the [`IdentityInfo`] for that the judgement is provided.
+   * 
+   * Emits `JudgementGiven` if successful.
+   * 
+   * # <weight>
+   * - `O(R + X)`.
+   * - One balance-transfer operation.
+   * - Up to one account-lookup operation.
+   * - Storage: 1 read `O(R)`, 1 mutate `O(R + X)`.
+   * - One event.
+   * # </weight>
+   */
+  get isV9300(): boolean {
+    return this._chain.getCallHash('Identity.provide_judgement') === '293a16f5e8f521553f92204e3de7063fafc7905d71ca7812337b8bc6e200bcf9'
+  }
+
+  /**
+   * Provide a judgement for an account's identity.
+   * 
+   * The dispatch origin for this call must be _Signed_ and the sender must be the account
+   * of the registrar whose index is `reg_index`.
+   * 
+   * - `reg_index`: the index of the registrar whose judgement is being made.
+   * - `target`: the account whose identity the judgement is upon. This must be an account
+   *   with a registered identity.
+   * - `judgement`: the judgement of the registrar of index `reg_index` about `target`.
+   * - `identity`: The hash of the [`IdentityInfo`] for that the judgement is provided.
+   * 
+   * Emits `JudgementGiven` if successful.
+   * 
+   * # <weight>
+   * - `O(R + X)`.
+   * - One balance-transfer operation.
+   * - Up to one account-lookup operation.
+   * - Storage: 1 read `O(R)`, 1 mutate `O(R + X)`.
+   * - One event.
+   * # </weight>
+   */
+  get asV9300(): {regIndex: number, target: v9300.MultiAddress, judgement: v9300.Judgement, identity: Uint8Array} {
+    assert(this.isV9300)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -16959,6 +17252,51 @@ export class MultisigAsMultiThreshold1Call {
    */
   get asV9291(): {otherSignatories: Uint8Array[], call: v9291.Call} {
     assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Immediately dispatch a multi-signature call using a single approval from the caller.
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * - `other_signatories`: The accounts (other than the sender) who are part of the
+   * multi-signature, but do not participate in the approval process.
+   * - `call`: The call to be executed.
+   * 
+   * Result is equivalent to the dispatched result.
+   * 
+   * # <weight>
+   * O(Z + C) where Z is the length of the call and C its execution weight.
+   * -------------------------------
+   * - DB Weight: None
+   * - Plus Call Weight
+   * # </weight>
+   */
+  get isV9300(): boolean {
+    return this._chain.getCallHash('Multisig.as_multi_threshold_1') === '8ce160aed47109e71225e45953c60df2ea8257f14882e46d066d1e0b478ff039'
+  }
+
+  /**
+   * Immediately dispatch a multi-signature call using a single approval from the caller.
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * - `other_signatories`: The accounts (other than the sender) who are part of the
+   * multi-signature, but do not participate in the approval process.
+   * - `call`: The call to be executed.
+   * 
+   * Result is equivalent to the dispatched result.
+   * 
+   * # <weight>
+   * O(Z + C) where Z is the length of the call and C its execution weight.
+   * -------------------------------
+   * - DB Weight: None
+   * - Plus Call Weight
+   * # </weight>
+   */
+  get asV9300(): {otherSignatories: Uint8Array[], call: v9300.Call} {
+    assert(this.isV9300)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -21065,6 +21403,69 @@ export class ProxyAnonymousCall {
   }
 }
 
+export class ProxyCreatePureCall {
+  private readonly _chain: Chain
+  private readonly call: Call
+
+  constructor(ctx: CallContext)
+  constructor(ctx: ChainContext, call: Call)
+  constructor(ctx: CallContext, call?: Call) {
+    call = call || ctx.call
+    assert(call.name === 'Proxy.create_pure')
+    this._chain = ctx._chain
+    this.call = call
+  }
+
+  /**
+   * Spawn a fresh new account that is guaranteed to be otherwise inaccessible, and
+   * initialize it with a proxy of `proxy_type` for `origin` sender.
+   * 
+   * Requires a `Signed` origin.
+   * 
+   * - `proxy_type`: The type of the proxy that the sender will be registered as over the
+   * new account. This will almost always be the most permissive `ProxyType` possible to
+   * allow for maximum flexibility.
+   * - `index`: A disambiguation index, in case this is called multiple times in the same
+   * transaction (e.g. with `utility::batch`). Unless you're using `batch` you probably just
+   * want to use `0`.
+   * - `delay`: The announcement period required of the initial proxy. Will generally be
+   * zero.
+   * 
+   * Fails with `Duplicate` if this has already been called in this transaction, from the
+   * same sender, with the same parameters.
+   * 
+   * Fails if there are insufficient funds to pay for deposit.
+   */
+  get isV9300(): boolean {
+    return this._chain.getCallHash('Proxy.create_pure') === '3233758a9077ff591727ac841f0563c310d2c8475a287b9165d561d1eb0f9863'
+  }
+
+  /**
+   * Spawn a fresh new account that is guaranteed to be otherwise inaccessible, and
+   * initialize it with a proxy of `proxy_type` for `origin` sender.
+   * 
+   * Requires a `Signed` origin.
+   * 
+   * - `proxy_type`: The type of the proxy that the sender will be registered as over the
+   * new account. This will almost always be the most permissive `ProxyType` possible to
+   * allow for maximum flexibility.
+   * - `index`: A disambiguation index, in case this is called multiple times in the same
+   * transaction (e.g. with `utility::batch`). Unless you're using `batch` you probably just
+   * want to use `0`.
+   * - `delay`: The announcement period required of the initial proxy. Will generally be
+   * zero.
+   * 
+   * Fails with `Duplicate` if this has already been called in this transaction, from the
+   * same sender, with the same parameters.
+   * 
+   * Fails if there are insufficient funds to pay for deposit.
+   */
+  get asV9300(): {proxyType: v9300.ProxyType, delay: number, index: number} {
+    assert(this.isV9300)
+    return this._chain.decodeCall(this.call)
+  }
+}
+
 export class ProxyKillAnonymousCall {
   private readonly _chain: Chain
   private readonly call: Call
@@ -21238,6 +21639,65 @@ export class ProxyKillAnonymousCall {
    */
   get asV9291(): {spawner: v9291.MultiAddress, proxyType: v9291.ProxyType, index: number, height: number, extIndex: number} {
     assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
+}
+
+export class ProxyKillPureCall {
+  private readonly _chain: Chain
+  private readonly call: Call
+
+  constructor(ctx: CallContext)
+  constructor(ctx: ChainContext, call: Call)
+  constructor(ctx: CallContext, call?: Call) {
+    call = call || ctx.call
+    assert(call.name === 'Proxy.kill_pure')
+    this._chain = ctx._chain
+    this.call = call
+  }
+
+  /**
+   * Removes a previously spawned pure proxy.
+   * 
+   * WARNING: **All access to this account will be lost.** Any funds held in it will be
+   * inaccessible.
+   * 
+   * Requires a `Signed` origin, and the sender account must have been created by a call to
+   * `pure` with corresponding parameters.
+   * 
+   * - `spawner`: The account that originally called `pure` to create this account.
+   * - `index`: The disambiguation index originally passed to `pure`. Probably `0`.
+   * - `proxy_type`: The proxy type originally passed to `pure`.
+   * - `height`: The height of the chain when the call to `pure` was processed.
+   * - `ext_index`: The extrinsic index in which the call to `pure` was processed.
+   * 
+   * Fails with `NoPermission` in case the caller is not a previously created pure
+   * account whose `pure` call has corresponding parameters.
+   */
+  get isV9300(): boolean {
+    return this._chain.getCallHash('Proxy.kill_pure') === 'f9b25ab9a1db47807bc07c907a249982635532bd858ef287fed07bf4c0833c49'
+  }
+
+  /**
+   * Removes a previously spawned pure proxy.
+   * 
+   * WARNING: **All access to this account will be lost.** Any funds held in it will be
+   * inaccessible.
+   * 
+   * Requires a `Signed` origin, and the sender account must have been created by a call to
+   * `pure` with corresponding parameters.
+   * 
+   * - `spawner`: The account that originally called `pure` to create this account.
+   * - `index`: The disambiguation index originally passed to `pure`. Probably `0`.
+   * - `proxy_type`: The proxy type originally passed to `pure`.
+   * - `height`: The height of the chain when the call to `pure` was processed.
+   * - `ext_index`: The extrinsic index in which the call to `pure` was processed.
+   * 
+   * Fails with `NoPermission` in case the caller is not a previously created pure
+   * account whose `pure` call has corresponding parameters.
+   */
+  get asV9300(): {spawner: v9300.MultiAddress, proxyType: v9300.ProxyType, index: number, height: number, extIndex: number} {
+    assert(this.isV9300)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -22642,6 +23102,41 @@ export class ProxyProxyCall {
     assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Dispatch the given `call` from an account that the sender is authorised for through
+   * `add_proxy`.
+   * 
+   * Removes any corresponding announcement(s).
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * Parameters:
+   * - `real`: The account that the proxy will make a call on behalf of.
+   * - `force_proxy_type`: Specify the exact proxy type to be used and checked for this call.
+   * - `call`: The call to be made by the `real` account.
+   */
+  get isV9300(): boolean {
+    return this._chain.getCallHash('Proxy.proxy') === '50499479a459962a998d81187d03c6f9ecd81f5da429d91c76b2cd1232227494'
+  }
+
+  /**
+   * Dispatch the given `call` from an account that the sender is authorised for through
+   * `add_proxy`.
+   * 
+   * Removes any corresponding announcement(s).
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * Parameters:
+   * - `real`: The account that the proxy will make a call on behalf of.
+   * - `force_proxy_type`: Specify the exact proxy type to be used and checked for this call.
+   * - `call`: The call to be made by the `real` account.
+   */
+  get asV9300(): {real: v9300.MultiAddress, forceProxyType: (v9300.ProxyType | undefined), call: v9300.Call} {
+    assert(this.isV9300)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class ProxyProxyAnnouncedCall {
@@ -23876,6 +24371,41 @@ export class ProxyProxyAnnouncedCall {
    */
   get asV9291(): {delegate: v9291.MultiAddress, real: v9291.MultiAddress, forceProxyType: (v9291.ProxyType | undefined), call: v9291.Call} {
     assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Dispatch the given `call` from an account that the sender is authorized for through
+   * `add_proxy`.
+   * 
+   * Removes any corresponding announcement(s).
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * Parameters:
+   * - `real`: The account that the proxy will make a call on behalf of.
+   * - `force_proxy_type`: Specify the exact proxy type to be used and checked for this call.
+   * - `call`: The call to be made by the `real` account.
+   */
+  get isV9300(): boolean {
+    return this._chain.getCallHash('Proxy.proxy_announced') === 'f2b0b2dec5cd4c023ef096215b40dab81d246febaeadea450afdbeb8da17c74b'
+  }
+
+  /**
+   * Dispatch the given `call` from an account that the sender is authorized for through
+   * `add_proxy`.
+   * 
+   * Removes any corresponding announcement(s).
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   * 
+   * Parameters:
+   * - `real`: The account that the proxy will make a call on behalf of.
+   * - `force_proxy_type`: Specify the exact proxy type to be used and checked for this call.
+   * - `call`: The call to be made by the `real` account.
+   */
+  get asV9300(): {delegate: v9300.MultiAddress, real: v9300.MultiAddress, forceProxyType: (v9300.ProxyType | undefined), call: v9300.Call} {
+    assert(this.isV9300)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -25778,6 +26308,35 @@ export class RecoveryAsRecoveredCall {
    */
   get asV9291(): {account: v9291.MultiAddress, call: v9291.Call} {
     assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Send a call through a recovered account.
+   * 
+   * The dispatch origin for this call must be _Signed_ and registered to
+   * be able to make calls on behalf of the recovered account.
+   * 
+   * Parameters:
+   * - `account`: The recovered account you want to make a call on-behalf-of.
+   * - `call`: The call you want to make with the recovered account.
+   */
+  get isV9300(): boolean {
+    return this._chain.getCallHash('Recovery.as_recovered') === '157777c4dd1afc374d15b667c88a39c63354740c8b2241d5c82f0e754df568c3'
+  }
+
+  /**
+   * Send a call through a recovered account.
+   * 
+   * The dispatch origin for this call must be _Signed_ and registered to
+   * be able to make calls on behalf of the recovered account.
+   * 
+   * Parameters:
+   * - `account`: The recovered account you want to make a call on-behalf-of.
+   * - `call`: The call you want to make with the recovered account.
+   */
+  get asV9300(): {account: v9300.MultiAddress, call: v9300.Call} {
+    assert(this.isV9300)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -27997,6 +28556,21 @@ export class SchedulerScheduleCall {
     assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Anonymously schedule a task.
+   */
+  get isV9300(): boolean {
+    return this._chain.getCallHash('Scheduler.schedule') === 'abe25ff0c03ac6c91716278c7e6c28feeecb8d2dafe46f40072626c338a96cc5'
+  }
+
+  /**
+   * Anonymously schedule a task.
+   */
+  get asV9300(): {when: number, maybePeriodic: ([number, number] | undefined), priority: number, call: v9300.MaybeHashed} {
+    assert(this.isV9300)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class SchedulerScheduleAfterCall {
@@ -28653,6 +29227,29 @@ export class SchedulerScheduleAfterCall {
    */
   get asV9291(): {after: number, maybePeriodic: ([number, number] | undefined), priority: number, call: v9291.MaybeHashed} {
     assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Anonymously schedule a task after a delay.
+   * 
+   * # <weight>
+   * Same as [`schedule`].
+   * # </weight>
+   */
+  get isV9300(): boolean {
+    return this._chain.getCallHash('Scheduler.schedule_after') === '99036be590a578a0839b5138346ee8ef6b33f5a55e7bbf03852003004352f1f9'
+  }
+
+  /**
+   * Anonymously schedule a task after a delay.
+   * 
+   * # <weight>
+   * Same as [`schedule`].
+   * # </weight>
+   */
+  get asV9300(): {after: number, maybePeriodic: ([number, number] | undefined), priority: number, call: v9300.MaybeHashed} {
+    assert(this.isV9300)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -29545,6 +30142,21 @@ export class SchedulerScheduleNamedCall {
     assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Schedule a named task.
+   */
+  get isV9300(): boolean {
+    return this._chain.getCallHash('Scheduler.schedule_named') === 'd31e6f9d387b974a6d727caf4774dfd9cbc0322d5224ee24d1ebf2951fb63ac7'
+  }
+
+  /**
+   * Schedule a named task.
+   */
+  get asV9300(): {id: Uint8Array, when: number, maybePeriodic: ([number, number] | undefined), priority: number, call: v9300.MaybeHashed} {
+    assert(this.isV9300)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class SchedulerScheduleNamedAfterCall {
@@ -30201,6 +30813,29 @@ export class SchedulerScheduleNamedAfterCall {
    */
   get asV9291(): {id: Uint8Array, after: number, maybePeriodic: ([number, number] | undefined), priority: number, call: v9291.MaybeHashed} {
     assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Schedule a named task after a delay.
+   * 
+   * # <weight>
+   * Same as [`schedule_named`](Self::schedule_named).
+   * # </weight>
+   */
+  get isV9300(): boolean {
+    return this._chain.getCallHash('Scheduler.schedule_named_after') === 'd7d4f4ed811bae655294f44cc52b7016237e68af5b3f504cb9a44bb8bcf6392c'
+  }
+
+  /**
+   * Schedule a named task after a delay.
+   * 
+   * # <weight>
+   * Same as [`schedule_named`](Self::schedule_named).
+   * # </weight>
+   */
+  get asV9300(): {id: Uint8Array, after: number, maybePeriodic: ([number, number] | undefined), priority: number, call: v9300.MaybeHashed} {
+    assert(this.isV9300)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -37301,6 +37936,41 @@ export class TechnicalCommitteeExecuteCall {
     assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Dispatch a proposal from a member using the `Member` origin.
+   * 
+   * Origin must be a member of the collective.
+   * 
+   * # <weight>
+   * ## Weight
+   * - `O(M + P)` where `M` members-count (code-bounded) and `P` complexity of dispatching
+   *   `proposal`
+   * - DB: 1 read (codec `O(M)`) + DB access of `proposal`
+   * - 1 event
+   * # </weight>
+   */
+  get isV9300(): boolean {
+    return this._chain.getCallHash('TechnicalCommittee.execute') === 'a695717a491a5cfe8b100d51a5eb5307234afcaba60440a290525ea938fb3f4b'
+  }
+
+  /**
+   * Dispatch a proposal from a member using the `Member` origin.
+   * 
+   * Origin must be a member of the collective.
+   * 
+   * # <weight>
+   * ## Weight
+   * - `O(M + P)` where `M` members-count (code-bounded) and `P` complexity of dispatching
+   *   `proposal`
+   * - DB: 1 read (codec `O(M)`) + DB access of `proposal`
+   * - 1 event
+   * # </weight>
+   */
+  get asV9300(): {proposal: v9300.Call, lengthBound: number} {
+    assert(this.isV9300)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class TechnicalCommitteeProposeCall {
@@ -39814,6 +40484,73 @@ export class TechnicalCommitteeProposeCall {
    */
   get asV9291(): {threshold: number, proposal: v9291.Call, lengthBound: number} {
     assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Add a new proposal to either be voted on or executed directly.
+   * 
+   * Requires the sender to be member.
+   * 
+   * `threshold` determines whether `proposal` is executed directly (`threshold < 2`)
+   * or put up for voting.
+   * 
+   * # <weight>
+   * ## Weight
+   * - `O(B + M + P1)` or `O(B + M + P2)` where:
+   *   - `B` is `proposal` size in bytes (length-fee-bounded)
+   *   - `M` is members-count (code- and governance-bounded)
+   *   - branching is influenced by `threshold` where:
+   *     - `P1` is proposal execution complexity (`threshold < 2`)
+   *     - `P2` is proposals-count (code-bounded) (`threshold >= 2`)
+   * - DB:
+   *   - 1 storage read `is_member` (codec `O(M)`)
+   *   - 1 storage read `ProposalOf::contains_key` (codec `O(1)`)
+   *   - DB accesses influenced by `threshold`:
+   *     - EITHER storage accesses done by `proposal` (`threshold < 2`)
+   *     - OR proposal insertion (`threshold <= 2`)
+   *       - 1 storage mutation `Proposals` (codec `O(P2)`)
+   *       - 1 storage mutation `ProposalCount` (codec `O(1)`)
+   *       - 1 storage write `ProposalOf` (codec `O(B)`)
+   *       - 1 storage write `Voting` (codec `O(M)`)
+   *   - 1 event
+   * # </weight>
+   */
+  get isV9300(): boolean {
+    return this._chain.getCallHash('TechnicalCommittee.propose') === 'c85d0cb8ba24bf2c879cec22c7b3d30f30d2d1771aaa03ae59a907a2acde9644'
+  }
+
+  /**
+   * Add a new proposal to either be voted on or executed directly.
+   * 
+   * Requires the sender to be member.
+   * 
+   * `threshold` determines whether `proposal` is executed directly (`threshold < 2`)
+   * or put up for voting.
+   * 
+   * # <weight>
+   * ## Weight
+   * - `O(B + M + P1)` or `O(B + M + P2)` where:
+   *   - `B` is `proposal` size in bytes (length-fee-bounded)
+   *   - `M` is members-count (code- and governance-bounded)
+   *   - branching is influenced by `threshold` where:
+   *     - `P1` is proposal execution complexity (`threshold < 2`)
+   *     - `P2` is proposals-count (code-bounded) (`threshold >= 2`)
+   * - DB:
+   *   - 1 storage read `is_member` (codec `O(M)`)
+   *   - 1 storage read `ProposalOf::contains_key` (codec `O(1)`)
+   *   - DB accesses influenced by `threshold`:
+   *     - EITHER storage accesses done by `proposal` (`threshold < 2`)
+   *     - OR proposal insertion (`threshold <= 2`)
+   *       - 1 storage mutation `Proposals` (codec `O(P2)`)
+   *       - 1 storage mutation `ProposalCount` (codec `O(1)`)
+   *       - 1 storage write `ProposalOf` (codec `O(B)`)
+   *       - 1 storage write `Voting` (codec `O(M)`)
+   *   - 1 event
+   * # </weight>
+   */
+  get asV9300(): {threshold: number, proposal: v9300.Call, lengthBound: number} {
+    assert(this.isV9300)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -43363,6 +44100,45 @@ export class UtilityAsDerivativeCall {
    */
   get asV9291(): {index: number, call: v9291.Call} {
     assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Send a call through an indexed pseudonym of the sender.
+   * 
+   * Filter from origin are passed along. The call will be dispatched with an origin which
+   * use the same filter as the origin of this call.
+   * 
+   * NOTE: If you need to ensure that any account-based filtering is not honored (i.e.
+   * because you expect `proxy` to have been used prior in the call stack and you do not want
+   * the call restrictions to apply to any sub-accounts), then use `as_multi_threshold_1`
+   * in the Multisig pallet instead.
+   * 
+   * NOTE: Prior to version *12, this was called `as_limited_sub`.
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   */
+  get isV9300(): boolean {
+    return this._chain.getCallHash('Utility.as_derivative') === '14be5e508c458920237526110b6653cd31f4893857b96594025ec6a90d498cb5'
+  }
+
+  /**
+   * Send a call through an indexed pseudonym of the sender.
+   * 
+   * Filter from origin are passed along. The call will be dispatched with an origin which
+   * use the same filter as the origin of this call.
+   * 
+   * NOTE: If you need to ensure that any account-based filtering is not honored (i.e.
+   * because you expect `proxy` to have been used prior in the call stack and you do not want
+   * the call restrictions to apply to any sub-accounts), then use `as_multi_threshold_1`
+   * in the Multisig pallet instead.
+   * 
+   * NOTE: Prior to version *12, this was called `as_limited_sub`.
+   * 
+   * The dispatch origin for this call must be _Signed_.
+   */
+  get asV9300(): {index: number, call: v9300.Call} {
+    assert(this.isV9300)
     return this._chain.decodeCall(this.call)
   }
 }
@@ -47033,6 +47809,57 @@ export class UtilityBatchCall {
     assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Send a batch of dispatch calls.
+   * 
+   * May be called from any origin.
+   * 
+   * - `calls`: The calls to be dispatched from the same origin. The number of call must not
+   *   exceed the constant: `batched_calls_limit` (available in constant metadata).
+   * 
+   * If origin is root then call are dispatch without checking origin filter. (This includes
+   * bypassing `frame_system::Config::BaseCallFilter`).
+   * 
+   * # <weight>
+   * - Complexity: O(C) where C is the number of calls to be batched.
+   * # </weight>
+   * 
+   * This will return `Ok` in all circumstances. To determine the success of the batch, an
+   * event is deposited. If a call failed and the batch was interrupted, then the
+   * `BatchInterrupted` event is deposited, along with the number of successful calls made
+   * and the error of the failed call. If all were successful, then the `BatchCompleted`
+   * event is deposited.
+   */
+  get isV9300(): boolean {
+    return this._chain.getCallHash('Utility.batch') === 'f82da1b6e1cb8187be486f8831c8972330088e92184cba9b64a14d4e726c7887'
+  }
+
+  /**
+   * Send a batch of dispatch calls.
+   * 
+   * May be called from any origin.
+   * 
+   * - `calls`: The calls to be dispatched from the same origin. The number of call must not
+   *   exceed the constant: `batched_calls_limit` (available in constant metadata).
+   * 
+   * If origin is root then call are dispatch without checking origin filter. (This includes
+   * bypassing `frame_system::Config::BaseCallFilter`).
+   * 
+   * # <weight>
+   * - Complexity: O(C) where C is the number of calls to be batched.
+   * # </weight>
+   * 
+   * This will return `Ok` in all circumstances. To determine the success of the batch, an
+   * event is deposited. If a call failed and the batch was interrupted, then the
+   * `BatchInterrupted` event is deposited, along with the number of successful calls made
+   * and the error of the failed call. If all were successful, then the `BatchCompleted`
+   * event is deposited.
+   */
+  get asV9300(): {calls: v9300.Call[]} {
+    assert(this.isV9300)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class UtilityBatchAllCall {
@@ -47972,6 +48799,47 @@ export class UtilityBatchAllCall {
     assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Send a batch of dispatch calls and atomically execute them.
+   * The whole transaction will rollback and fail if any of the calls failed.
+   * 
+   * May be called from any origin.
+   * 
+   * - `calls`: The calls to be dispatched from the same origin. The number of call must not
+   *   exceed the constant: `batched_calls_limit` (available in constant metadata).
+   * 
+   * If origin is root then call are dispatch without checking origin filter. (This includes
+   * bypassing `frame_system::Config::BaseCallFilter`).
+   * 
+   * # <weight>
+   * - Complexity: O(C) where C is the number of calls to be batched.
+   * # </weight>
+   */
+  get isV9300(): boolean {
+    return this._chain.getCallHash('Utility.batch_all') === 'f82da1b6e1cb8187be486f8831c8972330088e92184cba9b64a14d4e726c7887'
+  }
+
+  /**
+   * Send a batch of dispatch calls and atomically execute them.
+   * The whole transaction will rollback and fail if any of the calls failed.
+   * 
+   * May be called from any origin.
+   * 
+   * - `calls`: The calls to be dispatched from the same origin. The number of call must not
+   *   exceed the constant: `batched_calls_limit` (available in constant metadata).
+   * 
+   * If origin is root then call are dispatch without checking origin filter. (This includes
+   * bypassing `frame_system::Config::BaseCallFilter`).
+   * 
+   * # <weight>
+   * - Complexity: O(C) where C is the number of calls to be batched.
+   * # </weight>
+   */
+  get asV9300(): {calls: v9300.Call[]} {
+    assert(this.isV9300)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class UtilityCancelAsMultiCall {
@@ -48387,6 +49255,39 @@ export class UtilityDispatchAsCall {
     assert(this.isV9291)
     return this._chain.decodeCall(this.call)
   }
+
+  /**
+   * Dispatches a function call with a provided origin.
+   * 
+   * The dispatch origin for this call must be _Root_.
+   * 
+   * # <weight>
+   * - O(1).
+   * - Limited storage reads.
+   * - One DB write (event).
+   * - Weight of derivative `call` execution + T::WeightInfo::dispatch_as().
+   * # </weight>
+   */
+  get isV9300(): boolean {
+    return this._chain.getCallHash('Utility.dispatch_as') === 'c888051b1b67acf5413bf1502e5b01e20ea21eca71c9dfae4566cc5427ae56bd'
+  }
+
+  /**
+   * Dispatches a function call with a provided origin.
+   * 
+   * The dispatch origin for this call must be _Root_.
+   * 
+   * # <weight>
+   * - O(1).
+   * - Limited storage reads.
+   * - One DB write (event).
+   * - Weight of derivative `call` execution + T::WeightInfo::dispatch_as().
+   * # </weight>
+   */
+  get asV9300(): {asOrigin: v9300.OriginCaller, call: v9300.Call} {
+    assert(this.isV9300)
+    return this._chain.decodeCall(this.call)
+  }
 }
 
 export class UtilityForceBatchCall {
@@ -48604,6 +49505,47 @@ export class UtilityForceBatchCall {
    */
   get asV9291(): {calls: v9291.Call[]} {
     assert(this.isV9291)
+    return this._chain.decodeCall(this.call)
+  }
+
+  /**
+   * Send a batch of dispatch calls.
+   * Unlike `batch`, it allows errors and won't interrupt.
+   * 
+   * May be called from any origin.
+   * 
+   * - `calls`: The calls to be dispatched from the same origin. The number of call must not
+   *   exceed the constant: `batched_calls_limit` (available in constant metadata).
+   * 
+   * If origin is root then call are dispatch without checking origin filter. (This includes
+   * bypassing `frame_system::Config::BaseCallFilter`).
+   * 
+   * # <weight>
+   * - Complexity: O(C) where C is the number of calls to be batched.
+   * # </weight>
+   */
+  get isV9300(): boolean {
+    return this._chain.getCallHash('Utility.force_batch') === 'f82da1b6e1cb8187be486f8831c8972330088e92184cba9b64a14d4e726c7887'
+  }
+
+  /**
+   * Send a batch of dispatch calls.
+   * Unlike `batch`, it allows errors and won't interrupt.
+   * 
+   * May be called from any origin.
+   * 
+   * - `calls`: The calls to be dispatched from the same origin. The number of call must not
+   *   exceed the constant: `batched_calls_limit` (available in constant metadata).
+   * 
+   * If origin is root then call are dispatch without checking origin filter. (This includes
+   * bypassing `frame_system::Config::BaseCallFilter`).
+   * 
+   * # <weight>
+   * - Complexity: O(C) where C is the number of calls to be batched.
+   * # </weight>
+   */
+  get asV9300(): {calls: v9300.Call[]} {
+    assert(this.isV9300)
     return this._chain.decodeCall(this.call)
   }
 }

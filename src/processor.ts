@@ -24,7 +24,7 @@ import { handleExtrinsics } from './mappers/extrinsics';
 import { processorConfig } from './config';
 
 const processor = new SubstrateBatchProcessor()
-  .setBatchSize(processorConfig.batchSize)
+  // .setBatchSize(processorConfig.batchSize)
   .setDataSource({
     archive: lookupArchive(processorConfig.chainName as KnownArchives, {
       release: 'FireSquid'
@@ -32,6 +32,7 @@ const processor = new SubstrateBatchProcessor()
     chain: processorConfig.dataSource.chain
   })
   // .setBlockRange({ from: 1400000 })
+  // .setBlockRange({ from: 7597749 })
   .includeAllBlocks()
   .addEvent('Balances.Transfer', {
     data: { event: { args: true } }
