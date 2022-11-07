@@ -1,3 +1,5 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 export const checkPointKeys = new Map([
   ['holders', 1000 * 60 * 60],
@@ -11,7 +13,7 @@ export const processorConfig = {
   prefix: 'kusama',
   dataSource: {
     archive: 'https://kusama.archive.subsquid.io/graphql',
-    chain: 'wss://kusama.api.onfinality.io/public-ws'
+    chain: process.env.ONFINALITY_KUSAMA_ENDPOINT
   },
   typesBundle: 'kusama',
   batchSize: 50,
