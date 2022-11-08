@@ -18,7 +18,8 @@ import { handleTransfers } from './mappers/transfers';
 import {
   BlockEventName,
   BalancesTransferEventData,
-  BalancesWithdrawEventData, CallSignedExtrinsicData
+  BalancesWithdrawEventData,
+  CallSignedExtrinsicData
 } from './utils/types';
 import { handleExtrinsics } from './mappers/extrinsics';
 import { processorConfig } from './config';
@@ -49,6 +50,7 @@ export type Ctx = BatchContext<Store, Item>;
 export type Block = BatchBlock<Item>;
 
 processor.run(new TypeormDatabase(), async (ctx) => {
+  console.log('ctx.blocks - ', ctx.blocks.length);
   const parsedEvents = getParsedEventsData(ctx);
   ctx.store.deferredLoad(Totals, '1');
   ctx.store.deferredLoad(HistoricalDataMeta, '1');
@@ -70,8 +72,6 @@ processor.run(new TypeormDatabase(), async (ctx) => {
   );
   await handleExtrinsics(
     ctx,
-    parsedEvents.get<CallSignedExtrinsicData>(
-      BlockEventName.SIGNED_EXTRINSIC
-    )
+    parsedEvents.get<CallSignedExtrinsicData>(BlockEventName.SIGNED_EXTRINSIC)
   );
 });

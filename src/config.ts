@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
-dotenv.config();
+// dotenv.config({ path: '../.env.local' });
+dotenv.config({ path: `${__dirname}/../.env.local` });
 
 export const checkPointKeys = new Map([
   ['holders', 1000 * 60 * 60],
@@ -9,14 +10,13 @@ export const checkPointKeys = new Map([
 ]);
 
 export const processorConfig = {
-  chainName: 'kusama',
-  prefix: 'kusama',
+  chainName: 'bifrost',
+  prefix: 'bifrost',
   dataSource: {
-    archive: 'https://kusama.archive.subsquid.io/graphql',
-    chain: process.env.ONFINALITY_KUSAMA_ENDPOINT
+    archive: 'https://bifrost.archive.subsquid.io/graphql',
+    chain: process.env.ONFINALITY_BIFROST_ENDPOINT
   },
-  typesBundle: 'kusama',
-  batchSize: 50,
+  typesBundle: 'bifrost',
   blockRange: {
     from: 100000
   }
