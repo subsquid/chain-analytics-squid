@@ -19,13 +19,6 @@ type StorageData = Uint8Array[];
 //   if (!storage.isExists) return undefined;
 // }
 
-const storageCache: {
-  hash?: string;
-  value?: HolderKeys;
-} = {};
-
-type HolderKeys = string[];
-
 export async function getHoldersKeysCount(
   ctx: Ctx,
   block: Block
@@ -42,7 +35,7 @@ async function countKeys(ctx: Ctx, block: Block, prefix: string, name: string) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const client = (chain as any).client as ResilientRpcClient;
 
-  const req = getStorageHash('System', 'Account');
+  const req = getStorageHash(prefix, name);
 
   const totalSize = (await client.call('state_getStorageSizeAt', [
     req,

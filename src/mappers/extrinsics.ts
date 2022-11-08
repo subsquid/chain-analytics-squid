@@ -1,10 +1,12 @@
 import { Ctx } from '../processor';
 import {
   BalancesWithdrawEventData,
+  BlockEventName,
   CallSignedExtrinsicData
 } from '../utils/types';
 import { getOrCreateTotals } from './totals';
 import { Extrinsic } from '../model';
+import { ParsedEventsDataScope } from '../utils/common';
 
 export async function getOrCreateSignedExtrinsics(
   ctx: Ctx,
@@ -29,10 +31,11 @@ export async function getOrCreateSignedExtrinsics(
   return ex;
 }
 
-export async function handleExtrinsics(
-  ctx: Ctx,
-  callsData: Set<CallSignedExtrinsicData> | undefined
-) {
+export async function handleExtrinsics(ctx: Ctx) {
+  const callsData: Set<CallSignedExtrinsicData> | undefined =
+    ParsedEventsDataScope.getInstance().get<CallSignedExtrinsicData>(
+      BlockEventName.SIGNED_EXTRINSIC
+    );
   if (!callsData) return;
   const totals = await getOrCreateTotals(ctx);
 

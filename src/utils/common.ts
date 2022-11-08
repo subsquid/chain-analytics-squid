@@ -15,10 +15,20 @@ import { HistoricalDataMeta } from '../model';
 const ss58codec = ss58.codec(processorConfig.prefix);
 
 export class ParsedEventsDataScope {
-  private scope: ParsedEventsDataMap;
+  private static instance: ParsedEventsDataScope;
 
-  constructor() {
-    this.scope = new Map<BlockEventName, Set<ParsedEventsData>>();
+  private scope: ParsedEventsDataMap = new Map<
+    BlockEventName,
+    Set<ParsedEventsData>
+  >();
+
+  private constructor() {}
+
+  static getInstance() {
+    if (!ParsedEventsDataScope.instance) {
+      ParsedEventsDataScope.instance = new ParsedEventsDataScope();
+    }
+    return ParsedEventsDataScope.instance;
   }
 
   set(section: BlockEventName, value: ParsedEventsData) {
@@ -27,6 +37,22 @@ export class ParsedEventsDataScope {
 
   get<T>(section: BlockEventName): Set<T> {
     return (this.scope.get(section) as Set<T>) || new Set<T>();
+  }
+
+  removeByEntityOrList(
+    section: BlockEventName,
+    entityOrList: ParsedEventsData | ParsedEventsData[]
+  ) {
+    const currentVal = this.scope.get(section) || new Set<ParsedEventsData>();
+
+    for (const dataEntity of Array.isArray(entityOrList)
+      ? entityOrList
+      : [entityOrList]) {
+      currentVal.delete(dataEntity);
+    }
+  }
+  purgeSection(section: BlockEventName) {
+    this.scope.delete(section);
   }
 }
 
@@ -57,4 +83,16 @@ export function isCheckPoint(
         : 0) >
     checkPointKeys.get(checkPointKey)!
   );
+}
+
+export function getOriginAccountId(origin: any) {
+  if (
+    origin &&
+    origin.__kind === 'system' &&
+    origin.value.__kind === 'Signed'
+  ) {
+    return decodeHex(origin.value.value);
+  } else {
+    return undefined;
+  }
 }

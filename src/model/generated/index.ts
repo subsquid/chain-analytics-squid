@@ -1,6 +1,7 @@
 export * from "./totals.model"
 export * from "./historicalDataMeta.model"
 export * from "./holders.model"
+export * from "./account.model"
 export * from "./issuance.model"
 export * from "./validator.model"
 export * from "./stakedValue.model"

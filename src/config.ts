@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
-dotenv.config();
+// dotenv.config();
+dotenv.config({ path: `${__dirname}/../.env.local` });
 
 export const checkPointKeys = new Map([
   ['holders', 1000 * 60 * 60],

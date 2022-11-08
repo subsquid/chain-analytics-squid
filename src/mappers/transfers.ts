@@ -1,7 +1,8 @@
 import { Ctx } from '../processor';
-import { BalancesTransferEventData } from '../utils/types';
+import { BalancesTransferEventData, BlockEventName } from '../utils/types';
 import { getOrCreateTotals } from './totals';
 import { Transfer } from '../model';
+import { ParsedEventsDataScope } from '../utils/common';
 
 export async function getOrCreateTransfer(
   ctx: Ctx,
@@ -26,10 +27,12 @@ export async function getOrCreateTransfer(
   return tr;
 }
 
-export async function handleTransfers(
-  ctx: Ctx,
-  transferEventsData: Set<BalancesTransferEventData> | undefined
-) {
+export async function handleTransfers(ctx: Ctx) {
+  const transferEventsData: Set<BalancesTransferEventData> | undefined =
+    ParsedEventsDataScope.getInstance().get<BalancesTransferEventData>(
+      BlockEventName.BALANCES_TRANSFER
+    );
+
   if (!transferEventsData) return;
   const totals = await getOrCreateTotals(ctx);
 

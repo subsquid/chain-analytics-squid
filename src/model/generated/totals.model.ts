@@ -22,8 +22,8 @@ export class Totals {
   @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
   transfersCount!: bigint
 
-  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-  holders!: bigint
+  @Column_("int4", {nullable: false})
+  holders!: number
 
   @Column_("int4", {nullable: false})
   validatorsIdealCount!: number

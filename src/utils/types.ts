@@ -1,6 +1,6 @@
 export enum BlockEventName {
   BALANCES_TRANSFER = 'BALANCES_TRANSFER',
-  BALANCES_WITHDRAW = 'BALANCES_WITHDRAW',
+  BALANCES_ACCOUNT = 'BALANCES_ACCOUNT',
   SIGNED_EXTRINSIC = 'SIGNED_EXTRINSIC'
 }
 
@@ -17,6 +17,13 @@ export interface BalancesTransferEventData {
   blockHash: string;
   timestamp: Date;
   volume: bigint;
+}
+
+export interface BalancesAccountData {
+  idList: Set<Uint8Array>;
+  blockNumber: number;
+  blockHash: string;
+  timestamp: Date;
 }
 
 export interface BalancesWithdrawEventData {
@@ -37,6 +44,7 @@ export interface CallSignedExtrinsicData {
 export type ParsedEventsData =
   | BalancesTransferEventData
   | BalancesWithdrawEventData
-  | CallSignedExtrinsicData;
+  | CallSignedExtrinsicData
+  | BalancesAccountData;
 
 export type ParsedEventsDataMap = Map<BlockEventName, Set<ParsedEventsData>>;
