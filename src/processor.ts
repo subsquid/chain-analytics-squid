@@ -34,7 +34,7 @@ const processor = new SubstrateBatchProcessor()
     }),
     chain: processorConfig.dataSource.chain
   })
-  .setBlockRange({ from: 1400000 })
+  // .setBlockRange({ from: 1400000 })
   .addEvent('Balances.Endowed', {
     data: { event: { args: true } }
   } as const)
