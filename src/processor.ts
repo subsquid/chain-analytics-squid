@@ -86,7 +86,7 @@ processor.run(new TypeormDatabase(), async (ctx) => {
   for (let block of ctx.blocks) {
     await handleFinalizedBlock(ctx, block);
     await handleValidators(ctx, block);
-    await handleChainAccounts(ctx, block);
+    // await handleChainAccounts(ctx, block);
     await handleTotalIssuance(ctx, block);
     await handleStakeAmount(ctx, block);
   }
