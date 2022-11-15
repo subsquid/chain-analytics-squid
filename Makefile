@@ -25,8 +25,11 @@ codegen:
 	@npx squid-typeorm-codegen
 
 
-typegen:
-	@npx squid-substrate-typegen typegen.json
+typegen-bifrost:
+	@npx squid-substrate-typegen ./typegen/bifrost.json
+
+typegen-kusama:
+	@npx squid-substrate-typegen ./typegen/kusama.json
 
 
 up:
@@ -37,4 +40,4 @@ down:
 	@docker-compose down
 
 
-.PHONY: build serve process migrate codegen typegen up down
+.PHONY: build serve process migrate codegen typegen typegen-bifrost typegen-kusama up down

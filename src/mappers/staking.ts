@@ -1,16 +1,8 @@
-import { Codec as ScaleCodec } from '@subsquid/scale-codec';
 import { Ctx, Block } from '../processor';
 import { StakedValue } from '../model';
 import { getOrCreateHistoricalDataMeta } from './histiricalDataMeta';
 import { getOrCreateTotals } from './totals';
-import {
-  BalancesTotalIssuanceStorage,
-  StakingActiveEraStorage,
-  StakingErasStakersStorage,
-  StakingErasTotalStakeStorage,
-  StakingNominatorsStorage
-} from '../types/generated/storage';
-import { getStorageHash, isCheckPoint } from '../utils/common';
+import { isCheckPoint } from '../utils/common';
 
 import storage from '../storage';
 import { CheckPointsKeys } from '../utils/types';

@@ -1,0 +1,15 @@
+{
+  "outDir": "../src/types/bifrost/",
+  "specVersions": "https://bifrost.archive.subsquid.io/graphql",
+  "events": ["Balances.Transfer"],
+  "storage": [
+    "System.Account",
+    "Staking.ValidatorCount",
+    "Staking.Stakers",
+    "Staking.ErasStakers",
+    "Session.Validators",
+    "Staking.ActiveEra",
+    "Staking.CurrentEra",
+    "Balances.TotalIssuance"
+  ]
+}

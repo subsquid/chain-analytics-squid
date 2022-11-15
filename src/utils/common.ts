@@ -8,11 +8,13 @@ import * as sto from '@subsquid/substrate-processor/lib/util/storage';
 
 import * as ss58 from '@subsquid/ss58';
 import { decodeHex } from '@subsquid/util-internal-hex';
-import { checkPointKeys, processorConfig } from '../config';
+import { getConfig } from '../config';
 import { Block } from '../processor';
 import { HistoricalDataMeta } from '../model';
 
-const ss58codec = ss58.codec(processorConfig.prefix);
+const chainConfig = getConfig();
+
+const ss58codec = ss58.codec(chainConfig.srcConfig.prefix);
 
 export class ParsedEventsDataScope {
   private scope: ParsedEventsDataMap;
@@ -47,7 +49,7 @@ export function isCheckPoint(
   histDataMeta: HistoricalDataMeta,
   block: Block
 ) {
-  if (!checkPointKeys.has(checkPointKey))
+  if (!chainConfig.intervalsConfig.has(checkPointKey))
     throw Error(`Unknown checkPointKey - "${checkPointKey}"`);
 
   return (
@@ -55,6 +57,6 @@ export function isCheckPoint(
       (histDataMeta[`${checkPointKey}LatestTime`]
         ? histDataMeta[`${checkPointKey}LatestTime`]!.getTime()
         : 0) >
-    checkPointKeys.get(checkPointKey)!
+    chainConfig.intervalsConfig.get(checkPointKey)!
   );
 }

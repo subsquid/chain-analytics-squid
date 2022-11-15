@@ -37,7 +37,6 @@ export interface CallSignedExtrinsicData {
   blockNumber: number;
   blockHash: string;
   timestamp: Date;
-  callName: string;
 }
 
 export type ParsedEventsData =

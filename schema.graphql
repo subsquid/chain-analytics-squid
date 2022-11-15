@@ -78,6 +78,5 @@ type Extrinsic @entity {
   timestamp: DateTime!   @index
   blockHash: String!   @index
   totalCount: Int! @index
-  calls: String
 }
 

@@ -8,7 +8,7 @@ import { Extrinsic } from '../model';
 
 export async function getOrCreateSignedExtrinsics(
   ctx: Ctx,
-  blockData: { blockNumber: number; blockHash: string }
+  blockData: { blockNumber: number; blockHash: string; timestamp: Date }
 ) {
   let ex = await ctx.store.get(
     Extrinsic,
@@ -21,9 +21,8 @@ export async function getOrCreateSignedExtrinsics(
   ex = new Extrinsic({
     id: blockData.blockNumber.toString(),
     blockHash: blockData.blockHash,
-    timestamp: new Date(),
-    totalCount: 0,
-    calls: ''
+    timestamp: blockData.timestamp,
+    totalCount: 0
   });
 
   return ex;
@@ -38,12 +37,7 @@ export async function handleExtrinsics(
 
   for (const e of callsData) {
     const ex = await getOrCreateSignedExtrinsics(ctx, e);
-
-    ex.timestamp = e.timestamp;
     ex.totalCount += 1;
-    ex.calls =
-      ex.calls!.length === 0 ? e.callName : `${ex.calls},${e.callName}`;
-
     ctx.store.deferredUpsert(ex);
   }
 

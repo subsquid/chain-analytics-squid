@@ -1,6 +1,4 @@
-import { lookupArchive, KnownArchives } from '@subsquid/archive-registry';
-const Piscina = require('piscina');
-const path = require('path');
+import { lookupArchive } from '@subsquid/archive-registry';
 import {
   BatchContext,
   BatchProcessorItem,
@@ -20,22 +18,21 @@ import { handleTransfers } from './mappers/transfers';
 import {
   BlockEventName,
   BalancesTransferEventData,
-  BalancesWithdrawEventData,
-  CallSignedExtrinsicData, SubProcessorTask
+  CallSignedExtrinsicData,
 } from './utils/types';
 import { handleExtrinsics } from './mappers/extrinsics';
-import { processorConfig } from './config';
-import { TreadsPool } from './subProcessor';
+import { getConfig } from './config';
+
+const chainConfig = getConfig();
 
 const processor = new SubstrateBatchProcessor()
-  // .setBatchSize(processorConfig.batchSize)
   .setDataSource({
-    archive: lookupArchive(processorConfig.chainName as KnownArchives, {
+    archive: lookupArchive(chainConfig.srcConfig.chainName, {
       release: 'FireSquid'
     }),
-    chain: processorConfig.dataSource.chain
+    chain: chainConfig.srcConfig.dataSource.chain
   })
-  .setBlockRange({ from: 1400000 })
+  // .setBlockRange({ from: 1400000 })
   .includeAllBlocks()
   .addEvent('Balances.Transfer', {
     data: { event: { args: true } }

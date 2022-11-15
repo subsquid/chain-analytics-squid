@@ -23,7 +23,4 @@ export class Extrinsic {
   @Index_()
   @Column_("int4", {nullable: false})
   totalCount!: number
-
-  @Column_("text", {nullable: true})
-  calls!: string | undefined | null
 }

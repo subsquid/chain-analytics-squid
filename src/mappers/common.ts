@@ -1,14 +1,16 @@
 import { Ctx } from '../processor';
 import {
   BalancesTransferEvent,
-  BalancesWithdrawEvent
 } from '../types/generated/events';
 import {
   BlockEventName,
   BalancesTransferEventData,
-  BalancesWithdrawEventData,
   CallSignedExtrinsicData
 } from '../utils/types';
+
+// import { getGetters } from '../getters';
+//
+// const getters = getGetters();
 
 import { ParsedEventsDataScope } from '../utils/common';
 
@@ -52,8 +54,7 @@ export function getParsedEventsData(ctx: Ctx): ParsedEventsDataScope {
               id: item.extrinsic.id,
               blockNumber: block.header.height,
               blockHash: block.header.hash,
-              timestamp: new Date(block.header.timestamp),
-              callName: item.name
+              timestamp: new Date(block.header.timestamp)
             } as CallSignedExtrinsicData);
           }
       }

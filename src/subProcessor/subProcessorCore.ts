@@ -1,10 +1,11 @@
 import { MessagePort } from 'worker_threads';
 import { SubstrateBatchProcessor } from '@subsquid/substrate-processor';
-import { KnownArchives, lookupArchive } from '@subsquid/archive-registry';
-import { processorConfig } from '../config';
-import { Store, TypeormDatabase } from '@subsquid/processor-tools';
-import { getHoldersKeysCount } from '../storage/system';
+import { lookupArchive } from '@subsquid/archive-registry';
+import { getConfig } from '../config';
+import { TypeormDatabase } from '@subsquid/processor-tools';
 import storage from '../storage';
+
+const chainConfig = getConfig();
 
 module.exports = async ({
   taskId,
@@ -25,10 +26,10 @@ module.exports = async ({
     const processor = new SubstrateBatchProcessor()
       .setPrometheusPort(promPort)
       .setDataSource({
-        archive: lookupArchive(processorConfig.chainName as KnownArchives, {
+        archive: lookupArchive(chainConfig.srcConfig.chainName, {
           release: 'FireSquid'
         }),
-        chain: processorConfig.dataSource.chain
+        chain: chainConfig.srcConfig.dataSource.chain
       })
       .setBlockRange({ from: blockHeight, to: blockHeight + 1 })
       .includeAllBlocks();

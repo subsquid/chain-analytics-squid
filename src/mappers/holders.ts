@@ -19,8 +19,6 @@ export async function handleChainHolders(ctx: Ctx, block: Block) {
     SubProcessorTask.GET_HOLDERS_KEYS_COUNT
   );
   if (tasksResults && tasksResults.length > 0) {
-    console.log('>>>> tasksResults - ');
-    console.dir(tasksResults, { depth: null });
 
     treadsPoolInst.clearTaskResultsListByTaskName(
       SubProcessorTask.GET_HOLDERS_KEYS_COUNT
@@ -54,27 +52,6 @@ export async function handleChainHolders(ctx: Ctx, block: Block) {
     blockHeight: block.header.height,
     timestamp: block.header.timestamp
   });
-
-  // const keys = await storage.system.getHoldersKeysCount(ctx, block);
-  //
-  // if (keys !== undefined) {
-  //   const totalHolders = BigInt(keys);
-  //
-  //   const newHoldersStat = new Holders({
-  //     id: block.header.height.toString(),
-  //     amount: totalHolders,
-  //     timestamp: new Date(block.header.timestamp),
-  //     blockHash: block.header.hash
-  //   });
-  //
-  //   ctx.store.deferredUpsert(newHoldersStat);
-  //
-  //   const totals = await getOrCreateTotals(ctx);
-  //
-  //   totals.holders = totalHolders;
-  //
-  //   ctx.store.deferredUpsert(totals);
-  // }
 
   histDataMeta.holdersLatestBlockNumber = BigInt(block.header.height);
   histDataMeta.holdersLatestTime = new Date(block.header.timestamp);
