@@ -1,4 +1,6 @@
 import { lookupArchive, KnownArchives } from '@subsquid/archive-registry';
+const Piscina = require('piscina');
+const path = require('path');
 import {
   BatchContext,
   BatchProcessorItem,
@@ -19,10 +21,11 @@ import {
   BlockEventName,
   BalancesTransferEventData,
   BalancesWithdrawEventData,
-  CallSignedExtrinsicData
+  CallSignedExtrinsicData, SubProcessorTask
 } from './utils/types';
 import { handleExtrinsics } from './mappers/extrinsics';
 import { processorConfig } from './config';
+import { TreadsPool } from './subProcessor';
 
 const processor = new SubstrateBatchProcessor()
   // .setBatchSize(processorConfig.batchSize)
@@ -32,7 +35,7 @@ const processor = new SubstrateBatchProcessor()
     }),
     chain: processorConfig.dataSource.chain
   })
-  // .setBlockRange({ from: 1400000 })
+  .setBlockRange({ from: 1400000 })
   .includeAllBlocks()
   .addEvent('Balances.Transfer', {
     data: { event: { args: true } }
@@ -50,7 +53,6 @@ export type Ctx = BatchContext<Store, Item>;
 export type Block = BatchBlock<Item>;
 
 processor.run(new TypeormDatabase(), async (ctx) => {
-  console.log('ctx.blocks - ', ctx.blocks.length);
   const parsedEvents = getParsedEventsData(ctx);
   ctx.store.deferredLoad(Totals, '1');
   ctx.store.deferredLoad(HistoricalDataMeta, '1');

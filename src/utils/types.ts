@@ -1,3 +1,9 @@
+import { getHoldersKeysCount } from '../storage/system';
+
+export enum SubProcessorTask {
+  GET_HOLDERS_KEYS_COUNT = 'system_getHoldersKeysCount'
+}
+
 export enum BlockEventName {
   BALANCES_TRANSFER = 'BALANCES_TRANSFER',
   BALANCES_WITHDRAW = 'BALANCES_WITHDRAW',
@@ -40,3 +46,15 @@ export type ParsedEventsData =
   | CallSignedExtrinsicData;
 
 export type ParsedEventsDataMap = Map<BlockEventName, Set<ParsedEventsData>>;
+
+export type SubProcessorTaskPayload = {
+  taskId: string;
+  taskName: string;
+  blockHash: string;
+  blockHeight: number;
+  timestamp: number;
+};
+
+export type SubProcessorTaskResult = SubProcessorTaskPayload & {
+  result: number | undefined;
+};

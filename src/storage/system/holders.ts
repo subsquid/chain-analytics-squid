@@ -19,21 +19,19 @@ type StorageData = Uint8Array[];
 //   if (!storage.isExists) return undefined;
 // }
 
-const storageCache: {
-  hash?: string;
-  value?: HolderKeys;
-} = {};
-
 type HolderKeys = string[];
 
 export async function getHoldersKeysCount(
   ctx: Ctx,
-  block: Block
+  block: Block,
+  threadId: string
 ): Promise<number | undefined> {
   const storage = new SystemAccountStorage(ctx, block.header);
   if (!storage.isExists) return undefined;
 
-  return await countKeys(ctx, block, 'System', 'Account');
+  const keysList = await getHoldersKeys(ctx, block, threadId);
+
+  return keysList ? keysList.length : undefined;
 }
 
 async function countKeys(ctx: Ctx, block: Block, prefix: string, name: string) {
@@ -65,26 +63,59 @@ async function countKeys(ctx: Ctx, block: Block, prefix: string, name: string) {
   return totalSize / keySize;
 }
 
-// export async function getHoldersKeys(
-//   ctx: Ctx,
-//   block: Block
-// ): Promise<HolderKeys | undefined> {
-//   // const data = await getStorageData(ctx, block);
-//   // if (!data) return undefined;
-//
-//   // @ts-ignore
-//   const getStorageItemKeysHash = ctx._chain.getStorageItemKeysHash
-//
-//
-//   const storage = new SystemAccountStorage(ctx, block.header);
-//   if (!storage.isExists) return undefined;
-//
-//   const keys: string[] = await ctx._chain.client.call('state_getKeys', [
-//     getStorageHash('System', 'Account'),
-//     block.header.hash
-//   ]);
-//
-//   if (!keys) return undefined;
-//
-//   return [...keys];
-// }
+export async function getHoldersKeys(
+  ctx: Ctx,
+  block: Block,
+  threadId: string
+): Promise<HolderKeys | undefined> {
+  const storage = new SystemAccountStorage(ctx, block.header);
+  if (!storage.isExists) return undefined;
+
+  console.log(`>>> ${threadId} :::  start  - ${new Date().toISOString()}`);
+  let keyArray = await ctx._chain.client.call('state_getKeysPaged', [
+    getStorageHash('System', 'Account'),
+    1000,
+    null,
+    block.header.hash
+  ]);
+
+  if (keyArray === undefined || keyArray.length === 0) {
+    const keys: string[] = await ctx._chain.client.call('state_getKeys', [
+      getStorageHash('System', 'Account'),
+      block.header.hash
+    ]);
+
+    console.log(
+      `>>> ${threadId} :::  finish  - ${new Date().toISOString()} - ${
+        keys ? keys.length : 0
+      }`
+    );
+
+    if (!keys) return undefined;
+
+    return [...keys];
+  }
+
+  let fetched = false;
+  while (!fetched) {
+    let intermArray = await ctx._chain.client.call('state_getKeysPaged', [
+      getStorageHash('System', 'Account'),
+      1000,
+      keyArray[keyArray.length - 1],
+      block.header.hash
+    ]);
+    if (intermArray.length === 0) {
+      fetched = true;
+    } else {
+      keyArray.push(...intermArray);
+    }
+  }
+
+  console.log(
+    `>>> ${threadId} :::  finish  - ${new Date().toISOString()} - ${
+      keyArray ? keyArray.length : 0
+    }`
+  );
+
+  return keyArray;
+}

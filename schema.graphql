@@ -4,7 +4,7 @@ type Totals @entity {
   totalIssuance: BigInt!
   signedExtrinsics: BigInt!
   transfersCount: BigInt!
-  holders: BigInt!
+  holders: Int!
   validatorsIdealCount: Int!
   validatorsCount: Int!
   stakedValueTotal: BigInt!
@@ -31,7 +31,7 @@ type HistoricalDataMeta @entity {
 type Holders @entity {
   "Block number"
   id: ID!
-  amount: BigInt! @index
+  amount: Int! @index
   timestamp: DateTime! @index
   blockHash: String! @index
 }
