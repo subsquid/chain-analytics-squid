@@ -6,7 +6,7 @@ import {
 import { getOrCreateTotals } from './totals';
 import { Extrinsic } from '../model';
 
-export async function getOrCreateSignedExtrinsics(
+export async function getOrCreateSignedExtrinsicsBlockTotals(
   ctx: Ctx,
   blockData: { blockNumber: number; blockHash: string; timestamp: Date }
 ) {
@@ -30,17 +30,17 @@ export async function getOrCreateSignedExtrinsics(
 
 export async function handleExtrinsics(
   ctx: Ctx,
-  callsData: Set<CallSignedExtrinsicData> | undefined
+  extrinsicsData: Map<string, CallSignedExtrinsicData> | undefined
 ) {
-  if (!callsData) return;
+  if (!extrinsicsData) return;
   const totals = await getOrCreateTotals(ctx);
 
-  for (const e of callsData) {
-    const ex = await getOrCreateSignedExtrinsics(ctx, e);
-    ex.totalCount += 1;
-    ctx.store.deferredUpsert(ex);
+  for (const e of [...extrinsicsData.values()]) {
+    const exBlockTotals = await getOrCreateSignedExtrinsicsBlockTotals(ctx, e);
+    exBlockTotals.totalCount += 1;
+    ctx.store.deferredUpsert(exBlockTotals);
   }
 
-  totals.signedExtrinsics += BigInt(callsData.size);
+  totals.signedExtrinsics += BigInt(extrinsicsData.size);
   ctx.store.deferredUpsert(totals);
 }

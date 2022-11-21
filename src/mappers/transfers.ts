@@ -28,12 +28,12 @@ export async function getOrCreateTransfer(
 
 export async function handleTransfers(
   ctx: Ctx,
-  transferEventsData: Set<BalancesTransferEventData> | undefined
+  transferEventsData: Map<string, BalancesTransferEventData> | undefined
 ) {
   if (!transferEventsData) return;
   const totals = await getOrCreateTotals(ctx);
 
-  for (const e of transferEventsData) {
+  for (const e of [...transferEventsData.values()]) {
     const tr = await getOrCreateTransfer(ctx, e);
 
     tr.timestamp = e.timestamp;

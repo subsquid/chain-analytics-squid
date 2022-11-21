@@ -20,15 +20,18 @@ export class ParsedEventsDataScope {
   private scope: ParsedEventsDataMap;
 
   constructor() {
-    this.scope = new Map<BlockEventName, Set<ParsedEventsData>>();
+    this.scope = new Map<BlockEventName, Map<string, ParsedEventsData>>();
   }
 
   set(section: BlockEventName, value: ParsedEventsData) {
-    this.scope.set(section, (this.scope.get(section) || new Set()).add(value));
+    this.scope.set(
+      section,
+      (this.scope.get(section) || new Map()).set(value.id, value)
+    );
   }
 
-  get<T>(section: BlockEventName): Set<T> {
-    return (this.scope.get(section) as Set<T>) || new Set<T>();
+  getBySection<T>(section: BlockEventName): Map<string, T> {
+    return (this.scope.get(section) as Map<string, T>) || new Map<string, T>();
   }
 }
 

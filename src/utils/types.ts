@@ -44,7 +44,10 @@ export type ParsedEventsData =
   | BalancesWithdrawEventData
   | CallSignedExtrinsicData;
 
-export type ParsedEventsDataMap = Map<BlockEventName, Set<ParsedEventsData>>;
+export type ParsedEventsDataMap = Map<
+  BlockEventName,
+  Map<string, ParsedEventsData>
+>;
 
 export type SubProcessorTaskPayload = {
   taskId: string;

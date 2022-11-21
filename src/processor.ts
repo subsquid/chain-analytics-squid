@@ -2,7 +2,8 @@ import { lookupArchive } from '@subsquid/archive-registry';
 import {
   BatchContext,
   BatchProcessorItem,
-  SubstrateBatchProcessor
+  SubstrateBatchProcessor,
+  BatchProcessorCallItem
 } from '@subsquid/substrate-processor';
 import { Store, TypeormDatabase } from '@subsquid/processor-tools';
 import { Totals, HistoricalDataMeta } from './model';
@@ -18,7 +19,7 @@ import { handleTransfers } from './mappers/transfers';
 import {
   BlockEventName,
   BalancesTransferEventData,
-  CallSignedExtrinsicData,
+  CallSignedExtrinsicData
 } from './utils/types';
 import { handleExtrinsics } from './mappers/extrinsics';
 import { getConfig } from './config';
@@ -35,17 +36,16 @@ const processor = new SubstrateBatchProcessor()
   // .setBlockRange({ from: 1400000 })
   .includeAllBlocks()
   .addEvent('Balances.Transfer', {
-    data: { event: { args: true } }
+    data: { event: { extrinsic: true, args: true } }
   } as const)
   .addCall('*', {
     data: {
-      extrinsic: {
-        signature: true
-      }
+      extrinsic: true
     }
   });
 
 export type Item = BatchProcessorItem<typeof processor>;
+export type CallItem = BatchProcessorCallItem<typeof processor>;
 export type Ctx = BatchContext<Store, Item>;
 export type Block = BatchBlock<Item>;
 
@@ -65,12 +65,14 @@ processor.run(new TypeormDatabase(), async (ctx) => {
 
   await handleTransfers(
     ctx,
-    parsedEvents.get<BalancesTransferEventData>(
+    parsedEvents.getBySection<BalancesTransferEventData>(
       BlockEventName.BALANCES_TRANSFER
     )
   );
   await handleExtrinsics(
     ctx,
-    parsedEvents.get<CallSignedExtrinsicData>(BlockEventName.SIGNED_EXTRINSIC)
+    parsedEvents.getBySection<CallSignedExtrinsicData>(
+      BlockEventName.SIGNED_EXTRINSIC
+    )
   );
 });
