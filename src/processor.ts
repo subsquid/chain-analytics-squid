@@ -6,7 +6,7 @@ import {
   BatchProcessorCallItem
 } from '@subsquid/substrate-processor';
 import { Store, TypeormDatabase } from '@subsquid/processor-tools';
-import { Totals, HistoricalDataMeta } from './model';
+import { Totals, HistoricalDataMeta, SubProcessorTask } from './model';
 
 import { getParsedEventsData } from './mappers/common';
 import { handleChainHolders } from './mappers/holders';
@@ -23,6 +23,7 @@ import {
 } from './utils/types';
 import { handleExtrinsics } from './mappers/extrinsics';
 import { getConfig } from './config';
+import { TreadsPool } from './subProcessor';
 
 const chainConfig = getConfig();
 
@@ -53,7 +54,10 @@ processor.run(new TypeormDatabase(), async (ctx) => {
   const parsedEvents = getParsedEventsData(ctx);
   ctx.store.deferredLoad(Totals, '1');
   ctx.store.deferredLoad(HistoricalDataMeta, '1');
+  ctx.store.deferredLoad(SubProcessorTask);
   await ctx.store.load();
+
+  TreadsPool.getInstance(ctx).ensureTasksQueue()
 
   for (let block of ctx.blocks) {
     await handleFinalizedBlock(ctx, block);

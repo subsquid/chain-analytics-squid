@@ -48,11 +48,7 @@ module.exports = async ({
           taskId
         );
 
-        port.postMessage({
-          taskId,
-          taskName,
-          result
-        });
+        port.postMessage(result);
 
         setTimeout(() => {
           ctx.log.info(`Thread ${taskId} has been finished and terminated`);

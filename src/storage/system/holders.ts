@@ -34,7 +34,7 @@ export async function getHoldersKeysCount(
   return keysList ? keysList.length : undefined;
 }
 
-async function countKeys(ctx: Ctx, block: Block, prefix: string, name: string) {
+export async function countKeys(ctx: Ctx, block: Block,) {
   const chain = ctx._chain as ProcessorChain;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -42,10 +42,16 @@ async function countKeys(ctx: Ctx, block: Block, prefix: string, name: string) {
 
   const req = getStorageHash('System', 'Account');
 
+  console.log('req - ', req)
+  console.log('block.header.hash - ', block.header.hash)
+
   const totalSize = (await client.call('state_getStorageSizeAt', [
     req,
     block.header.hash
   ])) as number;
+
+  console.log('totalSize - ', totalSize)
+
   if (totalSize === 0 || !totalSize) return 0;
 
   const keys = (await client.call('state_getKeysPagedAt', [
@@ -55,10 +61,14 @@ async function countKeys(ctx: Ctx, block: Block, prefix: string, name: string) {
     block.header.hash
   ])) as string[];
 
+  console.log('keys - ', keys)
+
   const keySize = (await client.call('state_getStorageSizeAt', [
     keys[0],
     block.header.hash
   ])) as number;
+
+  console.log('keySize - ', keySize)
 
   return totalSize / keySize;
 }

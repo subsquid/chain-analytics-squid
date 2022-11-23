@@ -58,5 +58,5 @@ export type SubProcessorTaskPayload = {
 };
 
 export type SubProcessorTaskResult = SubProcessorTaskPayload & {
-  result: number | undefined;
+  result: number | undefined | null;
 };

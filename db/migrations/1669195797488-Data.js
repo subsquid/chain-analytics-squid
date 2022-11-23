@@ -1,5 +1,5 @@
-module.exports = class Data1668512449017 {
-  name = 'Data1668512449017'
+module.exports = class Data1669195797488 {
+  name = 'Data1669195797488'
 
   async up(db) {
     await db.query(`CREATE TABLE "totals" ("id" character varying NOT NULL, "finalized_blocks" numeric NOT NULL, "total_issuance" numeric NOT NULL, "signed_extrinsics" numeric NOT NULL, "transfers_count" numeric NOT NULL, "holders" integer NOT NULL, "validators_ideal_count" integer NOT NULL, "validators_count" integer NOT NULL, "staked_value_total" numeric NOT NULL, "staked_value_validator" numeric, "staked_value_nominator" numeric, "inflation_rate" numeric NOT NULL, CONSTRAINT "PK_3480b9650b4eb64138649f2a416" PRIMARY KEY ("id"))`)
@@ -38,7 +38,7 @@ module.exports = class Data1668512449017 {
     await db.query(`CREATE INDEX "IDX_0774176de46f3a8828b06dbf5c" ON "transfer" ("block_hash") `)
     await db.query(`CREATE INDEX "IDX_d38871b7648d1f265dac5cc0d1" ON "transfer" ("total_volume") `)
     await db.query(`CREATE INDEX "IDX_eccf860f253057e9d8d14ea7a4" ON "transfer" ("total_count") `)
-    await db.query(`CREATE TABLE "extrinsic" ("id" character varying NOT NULL, "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, "block_hash" text NOT NULL, "total_count" integer NOT NULL, "calls" text, CONSTRAINT "PK_80d7db0e4b1e83e30336bc76755" PRIMARY KEY ("id"))`)
+    await db.query(`CREATE TABLE "extrinsic" ("id" character varying NOT NULL, "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, "block_hash" text NOT NULL, "total_count" integer NOT NULL, CONSTRAINT "PK_80d7db0e4b1e83e30336bc76755" PRIMARY KEY ("id"))`)
     await db.query(`CREATE INDEX "IDX_6e232918078798b1fade21dcf8" ON "extrinsic" ("timestamp") `)
     await db.query(`CREATE INDEX "IDX_579e39f71ef5f3b2a6839cd70b" ON "extrinsic" ("block_hash") `)
     await db.query(`CREATE INDEX "IDX_7186b6cb739d4f4e89006e519b" ON "extrinsic" ("total_count") `)

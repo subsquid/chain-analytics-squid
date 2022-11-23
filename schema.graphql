@@ -1,3 +1,21 @@
+enum SubProcessorTaskStatus {
+  completed
+  processing
+}
+
+type SubProcessorTask @entity {
+  "taskId"
+  id: ID!
+  taskName: String!
+  blockHash: String!
+  blockHeight: Int!
+  timestamp: Int!
+  result: Int
+  resultsIndex: Int!
+  tasksQueueIndex: Int!
+  status: SubProcessorTaskStatus!
+}
+
 type Totals @entity {
   id: ID!
   finalizedBlocks: BigInt!
@@ -66,8 +84,8 @@ type StakedValue @entity {
 type Transfer @entity {
   "Block number"
   id: ID!
-  timestamp: DateTime!   @index
-  blockHash: String!   @index
+  timestamp: DateTime! @index
+  blockHash: String! @index
   totalVolume: BigInt! @index
   totalCount: Int! @index
 }
@@ -75,8 +93,7 @@ type Transfer @entity {
 type Extrinsic @entity {
   "Block number"
   id: ID!
-  timestamp: DateTime!   @index
-  blockHash: String!   @index
+  timestamp: DateTime! @index
+  blockHash: String! @index
   totalCount: Int! @index
 }
-

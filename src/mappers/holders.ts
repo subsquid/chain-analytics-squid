@@ -15,6 +15,8 @@ export async function handleChainHolders(ctx: Ctx, block: Block) {
   const histDataMeta = await getOrCreateHistoricalDataMeta(ctx);
   const treadsPoolInst = TreadsPool.getInstance();
 
+  await storage.system.countKeys(ctx, block)
+
   const tasksResults = treadsPoolInst.getResultsListByTaskName(
     SubProcessorTask.GET_HOLDERS_KEYS_COUNT
   );

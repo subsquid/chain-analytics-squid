@@ -1,3 +1,5 @@
+export * from "./subProcessorTask.model"
+export * from "./_subProcessorTaskStatus"
 export * from "./totals.model"
 export * from "./historicalDataMeta.model"
 export * from "./holders.model"
