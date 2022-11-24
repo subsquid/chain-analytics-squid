@@ -21,7 +21,7 @@ export class TreadsPool {
     concurrentTasksPerWorker: 10,
     minThreads: 2,
     maxThreads: 10,
-    idleTimeout: 1000,
+    idleTimeout: 1000 * 180,
     resourceLimits: {
       stackSizeMb: 800,
       maxOldGenerationSizeMb: 800,
@@ -62,12 +62,19 @@ export class TreadsPool {
 
   private constructor(private context: Ctx) {
     this.pool = new Piscina(this.poolOptions);
-    this.pool.on('error', (e) => {
-      this.context.log.warn(
-        '=============== RUNNER ERROR ON ===================='
-      );
-      console.dir(e, { depth: null });
-    });
+    this.pool
+      .on('error', (e) => {
+        this.context.log.warn(
+          '=============== RUNNER ON ERROR  ===================='
+        );
+        console.dir(e, { depth: null });
+      })
+      .on('end', (e) => {
+        this.context.log.info(
+          '=============== RUNNER ON END ===================='
+        );
+        console.dir(e, { depth: null });
+      });
   }
 
   private ensureResultsStackCacheContainer(taskName: string) {

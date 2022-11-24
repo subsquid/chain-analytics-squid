@@ -48,7 +48,6 @@ module.exports = async ({
         const storageFunc = taskName.split('_');
         if (!storageFunc[0] || !storageFunc[1]) return;
 
-        await sleepTo(2000);
         console.log(
           `::::: SUB PROCESSOR :::::: Thread ${taskId} has been STARTED [at: ${new Date().toISOString()}]`
         );
@@ -61,15 +60,13 @@ module.exports = async ({
           taskId
         );
 
-        await sleepTo(2000);
-
         console.log(
           `::::: SUB PROCESSOR :::::: Thread ${taskId} has been FINISHED with result - ${result} [at: ${new Date().toISOString()}]`
         );
 
         port.postMessage(result ?? 0);
 
-        await sleepTo(1000);
+        await sleepTo(500);
 
         ctx.log
           .child('sub_processor')
@@ -80,4 +77,5 @@ module.exports = async ({
       }
     );
   });
+  return 0;
 };
