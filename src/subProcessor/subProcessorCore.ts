@@ -23,7 +23,8 @@ module.exports = async ({
   promPort: number;
   port: MessagePort;
 }) => {
-  await new Promise<void>((globRes) => {
+  await new Promise<void>(async (globRes) => {
+    await sleepTo(1000);
     console.log(
       `::::: SUB PROCESSOR :::::: Thread ${taskId} has been initialized [at: ${new Date().toISOString()}]`
     );
