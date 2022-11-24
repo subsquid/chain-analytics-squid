@@ -18,9 +18,15 @@ export class TreadsPool {
   private pool: Piscina;
   private poolOptions = {
     filename: path.resolve(__dirname, './subProcessorCore'),
-    minThreads: 1,
-    // maxThreads: 10,
-    idleTimeout: 1000 * 120,
+    minThreads: 2,
+    maxThreads: 10,
+    idleTimeout: 1000,
+    resourceLimits: {
+      stackSizeMb: 500,
+      maxOldGenerationSizeMb: 500,
+      maxYoungGenerationSizeMb: 500,
+      codeRangeSizeMb: 500
+    }
     // stackSizeMb: 300,
     // maxOldGenerationSizeMb: 300,
     // maxYoungGenerationSizeMb: 300,
