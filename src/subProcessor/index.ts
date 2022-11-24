@@ -23,8 +23,7 @@ export class TreadsPool {
     stackSizeMb: 300,
     maxOldGenerationSizeMb: 300,
     maxYoungGenerationSizeMb: 300,
-    codeRangeSizeMb: 300,
-    env: { CHAIN: process.env.CHAIN }
+    codeRangeSizeMb: 300
   };
   /**
    * List of taskIds which shows order of evoked tasks from root thread. It's
@@ -415,7 +414,6 @@ export class TreadsPool {
 
       this.moveTaskResultToResultsList(taskName);
     });
-
   }
 }
 
