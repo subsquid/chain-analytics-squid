@@ -19,12 +19,12 @@ export class TreadsPool {
   private poolOptions = {
     filename: path.resolve(__dirname, './subProcessorCore'),
     minThreads: 1,
-    maxThreads: 20,
+    // maxThreads: 10,
     idleTimeout: 1000 * 120,
-    stackSizeMb: 300,
-    maxOldGenerationSizeMb: 300,
-    maxYoungGenerationSizeMb: 300,
-    codeRangeSizeMb: 300
+    // stackSizeMb: 300,
+    // maxOldGenerationSizeMb: 300,
+    // maxYoungGenerationSizeMb: 300,
+    // codeRangeSizeMb: 300
   };
   /**
    * List of taskIds which shows order of evoked tasks from root thread. It's
