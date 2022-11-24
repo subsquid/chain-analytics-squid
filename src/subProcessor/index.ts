@@ -18,19 +18,16 @@ export class TreadsPool {
   private pool: Piscina;
   private poolOptions = {
     filename: path.resolve(__dirname, './subProcessorCore'),
+    concurrentTasksPerWorker: 10,
     minThreads: 2,
     maxThreads: 10,
     idleTimeout: 1000,
     resourceLimits: {
-      stackSizeMb: 500,
-      maxOldGenerationSizeMb: 500,
-      maxYoungGenerationSizeMb: 500,
-      codeRangeSizeMb: 500
+      stackSizeMb: 800,
+      maxOldGenerationSizeMb: 800,
+      maxYoungGenerationSizeMb: 800,
+      codeRangeSizeMb: 800
     }
-    // stackSizeMb: 300,
-    // maxOldGenerationSizeMb: 300,
-    // maxYoungGenerationSizeMb: 300,
-    // codeRangeSizeMb: 300
   };
   /**
    * List of taskIds which shows order of evoked tasks from root thread. It's
@@ -61,7 +58,7 @@ export class TreadsPool {
   private resultsBuffer: Map<string, Map<string, SubProcessorTaskResult>> =
     new Map();
 
-  private forceTerminationIntervals: Map<string, unknown> = new Map();
+  private forceTerminationIntervals: Map<string, NodeJS.Timer> = new Map();
 
   private constructor(private context: Ctx) {
     this.pool = new Piscina(this.poolOptions);
@@ -102,29 +99,39 @@ export class TreadsPool {
 
   private async addTaskResultsToStack(resData: SubProcessorTaskResult) {
     this.ensureResultsStackCacheContainer(resData.taskName);
-
     this.resultsStackCache.get(resData.taskName)!.set(resData.taskId, resData);
 
-    /**
-     * Save result and task status in SubProcessorTask entity
-     */
-    let taskEntity = await this.context.store.get(
-      SubProcessorTask,
-      resData.taskId,
-      false
-    );
-    if (!taskEntity) {
-      // throw Error(
-      //   `SubProcessorTask entity with id ${resData.taskId} can not be found.`
-      // );
-      this.context.log.warn(
-        `SubProcessorTask entity with id ${resData.taskId} can not be found.`
+    if (!resData.terminated) {
+      /**
+       * Save result and task status in SubProcessorTask entity
+       */
+      let taskEntity = await this.context.store.get(
+        SubProcessorTask,
+        resData.taskId,
+        false
       );
-      return;
+      if (!taskEntity) {
+        // throw Error(
+        //   `SubProcessorTask entity with id ${resData.taskId} can not be found.`
+        // );
+        this.context.log.warn(
+          `SubProcessorTask entity with id ${resData.taskId} can not be found.`
+        );
+        return;
+      }
+      taskEntity.status = SubProcessorTaskStatus.completed;
+      taskEntity.result = resData.result;
+      this.context.store.deferredUpsert(taskEntity);
+
+      try {
+        if (this.forceTerminationIntervals.has(resData.taskId))
+          clearInterval(this.forceTerminationIntervals.get(resData.taskId)!);
+      } catch (e) {
+        this.context.log.warn(
+          `Can not clear termination interval for task -${resData.taskId}`
+        );
+      }
     }
-    taskEntity.status = SubProcessorTaskStatus.completed;
-    taskEntity.result = resData.result;
-    this.context.store.deferredUpsert(taskEntity);
 
     /**
      * Run process of migration results from cache to results list for access by
@@ -151,7 +158,10 @@ export class TreadsPool {
 
     this.resultsStackCache.set(taskName, currentTaskResCache);
     this.tasksQueue.set(taskName, currentTaskQueue);
-    this._resultsListsScope.set(taskName, currentResultsList);
+    this._resultsListsScope.set(
+      taskName,
+      currentResultsList.filter((r) => !r.terminated)
+    );
   }
 
   /**
@@ -236,13 +246,17 @@ export class TreadsPool {
         }
       )
       .then((res) => {
-        console.log(
+        this.context.log.info(
           `::: RUN.then ::: Task ${taskId} has been provided response - ${res}`
         );
       })
       .catch(async (e) => this.handleRunErrorCatch(taskPayload, e)); // TODO add retry logic for failed tasks
 
-    console.log(`::: setTask ::: Task ${taskId} has been added to pool`);
+    this.context.log.info(
+      `::: setTask ::: Task ${taskId} has been added to pool. Pool queue size - ${
+        this.pool.queueSize
+      }. Pool size - ${this.pool.threads ? this.pool.threads.length : 0}`
+    );
 
     this.context.store.deferredUpsert(
       new SubProcessorTask({
@@ -261,10 +275,11 @@ export class TreadsPool {
       if (currentTime - startTime > 1000 * 60 * 10) {
         await this.addTaskResultsToTmpBuffer({
           ...taskPayload,
+          terminated: true,
           result: 0
         });
-        // @ts-ignore
-        clearInterval(this.forceTerminationIntervals.get(taskId)!);
+        if (this.forceTerminationIntervals.has(taskId))
+          clearInterval(this.forceTerminationIntervals.get(taskId)!);
 
         this.context.log.warn(
           `::::: SUB PROCESSOR MANAGER :::::: Thread ${taskId} has been terminated by timeout limit`

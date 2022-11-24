@@ -55,6 +55,7 @@ export type SubProcessorTaskPayload = {
   blockHash: string;
   blockHeight: number;
   timestamp: number;
+  terminated?: boolean;
 };
 
 export type SubProcessorTaskResult = SubProcessorTaskPayload & {
