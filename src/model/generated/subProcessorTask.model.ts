@@ -22,14 +22,11 @@ export class SubProcessorTask {
   @Column_("int4", {nullable: false})
   blockHeight!: number
 
-  @Column_("int4", {nullable: false})
-  timestamp!: number
+  @Column_("text", {nullable: false})
+  timestamp!: string
 
   @Column_("int4", {nullable: true})
   result!: number | undefined | null
-
-  @Column_("int4", {nullable: false})
-  resultsIndex!: number
 
   @Column_("int4", {nullable: false})
   tasksQueueIndex!: number

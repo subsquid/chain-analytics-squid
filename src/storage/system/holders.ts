@@ -1,5 +1,5 @@
 import { UnknownVersionError } from '../../utils/errors';
-import { encodeAccount, getStorageHash } from '../../utils/common';
+import { encodeAccount, getStorageHash, sleepTo } from '../../utils/common';
 import {
   SessionValidatorsStorage,
   SystemAccountStorage
@@ -34,7 +34,7 @@ export async function getHoldersKeysCount(
   return keysList ? keysList.length : undefined;
 }
 
-export async function countKeys(ctx: Ctx, block: Block,) {
+export async function countKeys(ctx: Ctx, block: Block) {
   const chain = ctx._chain as ProcessorChain;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -42,15 +42,10 @@ export async function countKeys(ctx: Ctx, block: Block,) {
 
   const req = getStorageHash('System', 'Account');
 
-  console.log('req - ', req)
-  console.log('block.header.hash - ', block.header.hash)
-
   const totalSize = (await client.call('state_getStorageSizeAt', [
     req,
     block.header.hash
   ])) as number;
-
-  console.log('totalSize - ', totalSize)
 
   if (totalSize === 0 || !totalSize) return 0;
 
@@ -61,14 +56,10 @@ export async function countKeys(ctx: Ctx, block: Block,) {
     block.header.hash
   ])) as string[];
 
-  console.log('keys - ', keys)
-
   const keySize = (await client.call('state_getStorageSizeAt', [
     keys[0],
     block.header.hash
   ])) as number;
-
-  console.log('keySize - ', keySize)
 
   return totalSize / keySize;
 }
@@ -81,7 +72,7 @@ export async function getHoldersKeys(
   const storage = new SystemAccountStorage(ctx, block.header);
   if (!storage.isExists) return undefined;
 
-  console.log(`>>> ${threadId} :::  start  - ${new Date().toISOString()}`);
+  // console.log(`>>> ${threadId} :::  start  - ${new Date().toISOString()}`);
   let keyArray = await ctx._chain.client.call('state_getKeysPaged', [
     getStorageHash('System', 'Account'),
     1000,
@@ -95,11 +86,11 @@ export async function getHoldersKeys(
       block.header.hash
     ]);
 
-    console.log(
-      `>>> ${threadId} :::  finish  - ${new Date().toISOString()} - ${
-        keys ? keys.length : 0
-      }`
-    );
+    // console.log(
+    //   `>>> ${threadId} :::  finish  - ${new Date().toISOString()} - ${
+    //     keys ? keys.length : 0
+    //   }`
+    // );
 
     if (!keys) return undefined;
 
@@ -108,6 +99,7 @@ export async function getHoldersKeys(
 
   let fetched = false;
   while (!fetched) {
+    await sleepTo(500);
     let intermArray = await ctx._chain.client.call('state_getKeysPaged', [
       getStorageHash('System', 'Account'),
       1000,
@@ -121,11 +113,11 @@ export async function getHoldersKeys(
     }
   }
 
-  console.log(
-    `>>> ${threadId} :::  finish  - ${new Date().toISOString()} - ${
-      keyArray ? keyArray.length : 0
-    }`
-  );
+  // console.log(
+  //   `>>> ${threadId} :::  finish  - ${new Date().toISOString()} - ${
+  //     keyArray ? keyArray.length : 0
+  //   }`
+  // );
 
   return keyArray;
 }

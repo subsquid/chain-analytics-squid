@@ -4,6 +4,7 @@ import { lookupArchive } from '@subsquid/archive-registry';
 import { getConfig } from '../config';
 import { TypeormDatabase } from '@subsquid/processor-tools';
 import storage from '../storage';
+import { sleepTo } from '../utils/common';
 
 const chainConfig = getConfig();
 
@@ -23,6 +24,9 @@ module.exports = async ({
   port: MessagePort;
 }) => {
   await new Promise<void>((globRes) => {
+    console.log(
+      `::::: SUB PROCESSOR :::::: Thread ${taskId} has been initialized [at: ${new Date().toISOString()}]`
+    );
     const processor = new SubstrateBatchProcessor()
       .setPrometheusPort(promPort)
       .setDataSource({
@@ -31,14 +35,23 @@ module.exports = async ({
         }),
         chain: chainConfig.srcConfig.dataSource.chain
       })
-      .setBlockRange({ from: blockHeight, to: blockHeight + 1 })
+      .setBlockRange({ from: blockHeight })
       .includeAllBlocks();
-
+    console.log(
+      `::::: SUB PROCESSOR :::::: Thread ${taskId}: processor has been initialized for chain - ${
+        chainConfig.srcConfig.dataSource.chain
+      } [at: ${new Date().toISOString()}]`
+    );
     processor.run(
       new TypeormDatabase({ stateSchema: taskId, disableAutoFlush: true }),
       async (ctx) => {
         const storageFunc = taskName.split('_');
         if (!storageFunc[0] || !storageFunc[1]) return;
+
+        await sleepTo(2000);
+        console.log(
+          `::::: SUB PROCESSOR :::::: Thread ${taskId} has been STARTED [at: ${new Date().toISOString()}]`
+        );
         // @ts-ignore
         const result = await storage[storageFunc[0]][storageFunc[1]](
           ctx,
@@ -48,14 +61,22 @@ module.exports = async ({
           taskId
         );
 
+        console.log(
+          `::::: SUB PROCESSOR :::::: Thread ${taskId} has been FINISHED with result - ${result} [at: ${new Date().toISOString()}]`
+        );
+
         port.postMessage(result);
 
         setTimeout(() => {
-          ctx.log.info(`Thread ${taskId} has been finished and terminated`);
+          ctx.log
+            .child('sub_processor')
+            .info(
+              `::::: SUB PROCESSOR :::::: Thread ${taskId} has been finished and terminated`
+            );
           globRes();
-        }, 1000);
+        }, 500);
 
-        await new Promise<void>((res) => setTimeout(() => res(), 2000));
+        await sleepTo(1000);
       }
     );
   });

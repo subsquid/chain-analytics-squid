@@ -12,10 +12,19 @@ const { MessageChannel, MessagePort } = require('worker_threads');
 export class TreadsPool {
   private static instance: TreadsPool;
   private prometheusPost: number = 3001;
+  private isInstanceHealthy: boolean = false;
 
   private pool: Piscina;
   private poolOptions = {
-    filename: path.resolve(__dirname, './subProcessorCore')
+    filename: path.resolve(__dirname, './subProcessorCore'),
+    minThreads: 5,
+    maxThreads: 20,
+    idleTimeout: 1000 * 120,
+    stackSizeMb: 300,
+    maxOldGenerationSizeMb: 300,
+    maxYoungGenerationSizeMb: 300,
+    codeRangeSizeMb: 300,
+    env: { CHAIN: process.env.CHAIN }
   };
   /**
    * List of taskIds which shows order of evoked tasks from root thread. It's
@@ -43,13 +52,26 @@ export class TreadsPool {
   private resultsStackCache: Map<string, Map<string, SubProcessorTaskResult>> =
     new Map();
 
+  private resultsBuffer: Map<string, Map<string, SubProcessorTaskResult>> =
+    new Map();
+
   private constructor(private context: Ctx) {
     this.pool = new Piscina(this.poolOptions);
+    this.pool.on('error', (e) => {
+      this.context.log.warn(
+        '=============== RUNNER ERROR ON ===================='
+      );
+      console.dir(e, { depth: null });
+    });
   }
 
   private ensureResultsStackCacheContainer(taskName: string) {
     if (!this.resultsStackCache.has(taskName))
       this.resultsStackCache.set(taskName, new Map());
+  }
+  private ensureResultsListsScopeContainer(taskName: string) {
+    if (!this._resultsListsScope.has(taskName))
+      this._resultsListsScope.set(taskName, []);
   }
 
   static getInstance(ctx: Ctx) {
@@ -63,26 +85,51 @@ export class TreadsPool {
     return this._resultsListsScope.get(taskName) || [];
   }
 
+  private async addTaskResultsToTmpBuffer(resData: SubProcessorTaskResult) {
+    if (!this.resultsBuffer.has(resData.taskName))
+      this.resultsBuffer.set(resData.taskName, new Map());
+
+    this.resultsBuffer.get(resData.taskName)!.set(resData.taskId, resData);
+  }
+
   private async addTaskResultsToStack(resData: SubProcessorTaskResult) {
     this.ensureResultsStackCacheContainer(resData.taskName);
-
-    if (!this._resultsListsScope.has(resData.taskName))
-      this._resultsListsScope.set(resData.taskName, []);
 
     this.resultsStackCache.get(resData.taskName)!.set(resData.taskId, resData);
 
     /**
      * Save result and task status in SubProcessorTask entity
      */
-    const taskEntity = await this.context.store.get(
+    let taskEntity = await this.context.store.get(
       SubProcessorTask,
       resData.taskId,
       false
     );
-    if (!taskEntity)
-      throw Error(
+    if (!taskEntity) {
+      // throw Error(
+      //   `SubProcessorTask entity with id ${resData.taskId} can not be found.`
+      // );
+      this.context.log.warn(
         `SubProcessorTask entity with id ${resData.taskId} can not be found.`
       );
+      return;
+    }
+    // if (!taskEntity) {
+    //   /**
+    //    * We need create new entity here in case worker returned result at the
+    //    * moment when entities still are not fetched from DB (between start of
+    //    * batch and store.load() function)
+    //    */
+    //   taskEntity = new SubProcessorTask({
+    //     id: resData.taskId,
+    //     taskName: resData.taskName,
+    //     blockHash: resData.blockHash,
+    //     blockHeight: resData.blockHeight,
+    //     timestamp: resData.timestamp.toString(),
+    //     status: SubProcessorTaskStatus.completed,
+    //     tasksQueueIndex: resData.tasksQueueIndex
+    //   });
+    // }
     taskEntity.status = SubProcessorTaskStatus.completed;
     taskEntity.result = resData.result;
     this.context.store.deferredUpsert(taskEntity);
@@ -95,6 +142,14 @@ export class TreadsPool {
   }
 
   private moveTaskResultToResultsList(taskName: string) {
+    // console.log('this.tasksQueue');
+    // console.dir(this.tasksQueue, { depth: null });
+    // console.log('resultsStackCache');
+    // console.dir(this.resultsStackCache, { depth: null });
+
+    this.ensureResultsStackCacheContainer(taskName);
+    this.ensureResultsListsScopeContainer(taskName);
+
     const currentTaskResCache = this.resultsStackCache.get(taskName)!;
     const currentTaskQueue = this.tasksQueue.get(taskName)!;
     const currentResultsList = this._resultsListsScope.get(taskName)!;
@@ -121,6 +176,20 @@ export class TreadsPool {
     /**
      * Update task indexes in SubProcessorTask entities
      */
+    await this.updateTasksIndexes(taskName);
+
+    const resItemsForDelete = [
+      ...(this._resultsListsScope.get(taskName) || [])
+    ];
+    this.context.store.deferredRemove(
+      SubProcessorTask,
+      resItemsForDelete.map((t) => t.taskId)
+    );
+
+    this._resultsListsScope.delete(taskName);
+  }
+
+  private async updateTasksIndexes(taskName: string) {
     const queueList = this.tasksQueue.get(taskName) || [];
     for (let i = 0; i < queueList.length; i++) {
       const entity = await this.context.store.get(
@@ -133,30 +202,30 @@ export class TreadsPool {
           `SubProcessorTask entity with id ${queueList[i]} can not be found.`
         );
       entity.tasksQueueIndex = i;
+      this.context.store.deferredUpsert(entity);
     }
-    const resItemsForDelete = [
-      ...(this._resultsListsScope.get(taskName) || [])
-    ];
-    this.context.store.deferredRemove(
-      SubProcessorTask,
-      resItemsForDelete.map((t) => t.taskId)
-    );
-
-    this._resultsListsScope.delete(taskName);
   }
 
-  setTask(taskPayload: SubProcessorTaskPayload) {
+  setTask(
+    taskPayload: SubProcessorTaskPayload,
+    customTasksQueueIndex?: number | undefined
+  ) {
     const channel = new MessageChannel();
     const { taskId, taskName, blockHash, blockHeight, timestamp } = taskPayload;
+    let tasksQueueIndex = customTasksQueueIndex;
 
-    if (!this.tasksQueue.has(taskPayload.taskName))
-      this.tasksQueue.set(taskPayload.taskName, []);
+    this.isInstanceHealthy = true;
 
-    const tasksQueueIndex = this.tasksQueue.get(taskPayload.taskName)!.length;
-    this.tasksQueue.get(taskPayload.taskName)!.push(taskId);
+    if (tasksQueueIndex === undefined) {
+      if (!this.tasksQueue.has(taskPayload.taskName))
+        this.tasksQueue.set(taskPayload.taskName, []);
+
+      tasksQueueIndex = this.tasksQueue.get(taskPayload.taskName)!.length;
+      this.tasksQueue.get(taskPayload.taskName)!.push(taskId);
+    }
 
     channel.port2.addEventListener('message', async (message: any) => {
-      await this.addTaskResultsToStack({
+      await this.addTaskResultsToTmpBuffer({
         ...taskPayload,
         result: message.data
       });
@@ -178,36 +247,68 @@ export class TreadsPool {
           transferList: [channel.port1]
         }
       )
-      .catch();
+      .then((res) => {
+        console.log(
+          `::: RUN.then ::: Task ${taskId} has been provided response - ${res}`
+        );
+      })
+      .catch(async (e) => this.handleRunErrorCatch(taskPayload, e)); // TODO add retry logic for failed tasks
+
+    console.log(`::: setTask ::: Task ${taskId} has been added to pool`);
+
     this.context.store.deferredUpsert(
       new SubProcessorTask({
         id: taskId,
         taskName: taskName,
         blockHash: blockHash,
         blockHeight: blockHeight,
-        timestamp: timestamp,
+        timestamp: timestamp.toString(),
         status: SubProcessorTaskStatus.processing,
         tasksQueueIndex
       })
     );
   }
 
-  ensureTasksQueue() {
-    const existingSavedTasks = [...this.context.store.values(SubProcessorTask)];
-    // TODO if tasks and results cache is empty it' means that squid has been crashed and we need restore previous results and rerun tasks
-    let isCacheEmpty = true;
+  private async handleRunErrorCatch(
+    taskPayload: SubProcessorTaskPayload,
+    error: unknown
+  ) {
+    this.context.log.warn('=============== RUNNER ERROR ====================');
+    console.dir(taskPayload, { depth: null });
+    console.dir(error, { depth: null });
 
-    this.tasksQueue.forEach((taskIds, taskName) => {
-      if (taskIds.length > 0) isCacheEmpty = false;
-    });
+    this.tasksQueue.set(
+      taskPayload.taskName,
+      this.tasksQueue
+        .get(taskPayload.taskName)!
+        .filter((t) => t !== taskPayload.taskId)
+    );
+    this.context.store.deferredRemove(SubProcessorTask, taskPayload.taskId);
+    await this.updateTasksIndexes(taskPayload.taskName);
+    this.context.log.warn(
+      `Task ${taskPayload.taskId} has been finished with error - ${error}`
+    );
+  }
+
+  async ensureTasksQueue() {
+    const existingSavedTasks = [...this.context.store.values(SubProcessorTask)];
+
+    for (const [taskName, results] of [...this.resultsBuffer.entries()]) {
+      for (const res of [...results.values()]) {
+        await this.addTaskResultsToStack(res);
+      }
+    }
+    this.resultsBuffer.clear();
 
     if (
       existingSavedTasks.length === 0 ||
-      (existingSavedTasks.length > 0 && !isCacheEmpty)
+      (existingSavedTasks.length > 0 && this.isInstanceHealthy)
     )
       return;
 
-    const tasksCompletedByTaskName: Map<
+    console.log('::: ENSURE/RESTORE TASKS :::');
+
+    const tasksInProgressByTaskName: Map<
       string,
       Map<number, SubProcessorTask>
     > = new Map();
@@ -217,7 +318,19 @@ export class TreadsPool {
       Map<number, SubProcessorTask>
     > = new Map();
 
+    const savedTasksIndexed: Map<
+      string,
+      Map<number, SubProcessorTask>
+    > = new Map();
+
     for (const savedTask of existingSavedTasks) {
+      if (!savedTasksIndexed.has(savedTask.taskName))
+        savedTasksIndexed.set(savedTask.taskName, new Map());
+
+      savedTasksIndexed
+        .get(savedTask.taskName)!
+        .set(savedTask.tasksQueueIndex, savedTask);
+
       if (savedTask.status === SubProcessorTaskStatus.completed) {
         this.ensureResultsStackCacheContainer(savedTask.taskName);
 
@@ -226,23 +339,23 @@ export class TreadsPool {
           taskName: savedTask.taskName,
           blockHash: savedTask.blockHash,
           blockHeight: savedTask.blockHeight,
-          timestamp: savedTask.timestamp,
+          timestamp: Number.parseInt(savedTask.timestamp),
           result: savedTask.result
         });
 
-        if (!tasksCompletedByTaskName.has(savedTask.taskName))
-          tasksCompletedByTaskName.set(savedTask.taskName, new Map());
-
-        tasksCompletedByTaskName
-          .get(savedTask.taskName)!
-          .set(savedTask.tasksQueueIndex, savedTask);
+        // if (!tasksCompletedByTaskName.has(savedTask.taskName))
+        //   tasksCompletedByTaskName.set(savedTask.taskName, new Map());
+        //
+        // tasksCompletedByTaskName
+        //   .get(savedTask.taskName)!
+        //   .set(savedTask.tasksQueueIndex, savedTask);
       }
 
       if (savedTask.status === SubProcessorTaskStatus.processing) {
-        if (!proxyTasksQueue.has(savedTask.taskName))
-          proxyTasksQueue.set(savedTask.taskName, new Map());
+        if (!tasksInProgressByTaskName.has(savedTask.taskName))
+          tasksInProgressByTaskName.set(savedTask.taskName, new Map());
 
-        proxyTasksQueue
+        tasksInProgressByTaskName
           .get(savedTask.taskName)!
           .set(savedTask.tasksQueueIndex, savedTask);
       }
@@ -251,33 +364,58 @@ export class TreadsPool {
     /**
      * Restore task queue
      */
-    proxyTasksQueue.forEach((tasks, taskName) => {
+    savedTasksIndexed.forEach((tasks, taskName) => {
       const orderedTasks = getOrderEntitiesListByIndex(tasks);
 
-      orderedTasks.forEach((task) =>
-        this.setTask({
-          taskId: task.id,
-          taskName: task.taskName,
-          blockHash: task.blockHash,
-          blockHeight: task.blockHeight,
-          timestamp: task.timestamp
-        })
-      );
+      if (!this.tasksQueue.has(taskName)) this.tasksQueue.set(taskName, []);
+
+      this.tasksQueue.get(taskName)!.push(...orderedTasks.map((i) => i.id));
+
+      orderedTasks
+        .filter((t) => t.status === SubProcessorTaskStatus.processing)
+        .forEach((task) =>
+          this.setTask(
+            {
+              taskId: task.id,
+              taskName: task.taskName,
+              blockHash: task.blockHash,
+              blockHeight: task.blockHeight,
+              timestamp: Number.parseInt(task.timestamp)
+            },
+            task.tasksQueueIndex
+          )
+        );
+
+      // orderedTasks.forEach((task) =>
+      //   this.setTask({
+      //     taskId: task.id,
+      //     taskName: task.taskName,
+      //     blockHash: task.blockHash,
+      //     blockHeight: task.blockHeight,
+      //     timestamp: Number.parseInt(task.timestamp)
+      //   })
+      // );
 
       /**
        * Add all completed taskIds to tasksQueue for correct migration of results
        * from cache to results list
        */
-      const completedTasksOrdered = getOrderEntitiesListByIndex(
-        tasksCompletedByTaskName.get(taskName) ||
-          new Map<number, SubProcessorTask>()
-      );
-      this.tasksQueue
-        .get(taskName)!
-        .push(...completedTasksOrdered.map((i) => i.id));
+      // const completedTasksOrdered = getOrderEntitiesListByIndex(
+      //   tasksCompletedByTaskName.get(taskName) ||
+      //     new Map<number, SubProcessorTask>()
+      // );
+      // this.tasksQueue
+      //   .get(taskName)!
+      //   .push(...completedTasksOrdered.map((i) => i.id));
+
+      // const tasksOrdered = getOrderEntitiesListByIndex(
+      //   savedTasksIndexed.get(taskName) || new Map<number, SubProcessorTask>()
+      // );
+      // this.tasksQueue.get(taskName)!.push(...tasksOrdered.map((i) => i.id));
 
       this.moveTaskResultToResultsList(taskName);
     });
+
   }
 }
 
@@ -285,6 +423,6 @@ function getOrderEntitiesListByIndex(
   entitiesMap: Map<number, SubProcessorTask>
 ) {
   return [...entitiesMap.entries()]
-    .sort((a, b) => (a[0] > b[0] ? -1 : b[0] > a[0] ? 1 : 0))
+    .sort((a, b) => (a[0] < b[0] ? -1 : b[0] < a[0] ? 1 : 0))
     .map((item) => item[1]);
 }

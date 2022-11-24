@@ -13,23 +13,20 @@ import { TreadsPool } from '../subProcessor';
 
 export async function handleChainHolders(ctx: Ctx, block: Block) {
   const histDataMeta = await getOrCreateHistoricalDataMeta(ctx);
-  const treadsPoolInst = TreadsPool.getInstance();
-
-  await storage.system.countKeys(ctx, block)
+  const treadsPoolInst = TreadsPool.getInstance(ctx);
 
   const tasksResults = treadsPoolInst.getResultsListByTaskName(
     SubProcessorTask.GET_HOLDERS_KEYS_COUNT
   );
   if (tasksResults && tasksResults.length > 0) {
-
-    treadsPoolInst.clearTaskResultsListByTaskName(
+    await treadsPoolInst.clearTaskResultsListByTaskName(
       SubProcessorTask.GET_HOLDERS_KEYS_COUNT
     );
     for (const resItem of tasksResults as SubProcessorTaskResult[]) {
       if (resItem.result !== undefined) {
         const newHoldersStat = new Holders({
           id: resItem.blockHeight.toString(),
-          amount: resItem.result,
+          amount: resItem.result ?? 0,
           timestamp: new Date(resItem.timestamp),
           blockHash: resItem.blockHash
         });
@@ -38,7 +35,7 @@ export async function handleChainHolders(ctx: Ctx, block: Block) {
 
         const totals = await getOrCreateTotals(ctx);
 
-        totals.holders = resItem.result;
+        totals.holders = resItem.result ?? 0;
 
         ctx.store.deferredUpsert(totals);
       }

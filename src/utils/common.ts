@@ -63,3 +63,7 @@ export function isCheckPoint(
     chainConfig.intervalsConfig.get(checkPointKey)!
   );
 }
+
+export async function sleepTo(delay: number = 0) {
+  await new Promise<void>((res) => setTimeout(() => res(), delay));
+}

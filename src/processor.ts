@@ -57,7 +57,7 @@ processor.run(new TypeormDatabase(), async (ctx) => {
   ctx.store.deferredLoad(SubProcessorTask);
   await ctx.store.load();
 
-  TreadsPool.getInstance(ctx).ensureTasksQueue()
+  await TreadsPool.getInstance(ctx).ensureTasksQueue()
 
   for (let block of ctx.blocks) {
     await handleFinalizedBlock(ctx, block);
@@ -66,7 +66,6 @@ processor.run(new TypeormDatabase(), async (ctx) => {
     await handleTotalIssuance(ctx, block);
     await handleStakeAmount(ctx, block);
   }
-
   await handleTransfers(
     ctx,
     parsedEvents.getBySection<BalancesTransferEventData>(

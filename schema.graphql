@@ -9,9 +9,8 @@ type SubProcessorTask @entity {
   taskName: String!
   blockHash: String!
   blockHeight: Int!
-  timestamp: Int!
+  timestamp: String!
   result: Int
-  resultsIndex: Int!
   tasksQueueIndex: Int!
   status: SubProcessorTaskStatus!
 }
