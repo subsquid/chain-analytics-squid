@@ -24,7 +24,6 @@ module.exports = async ({
   port: MessagePort;
 }) => {
   await new Promise<void>(async (globRes) => {
-    await sleepTo(1000);
     console.log(
       `::::: SUB PROCESSOR :::::: Thread ${taskId} has been initialized [at: ${new Date().toISOString()}]`
     );
@@ -36,7 +35,7 @@ module.exports = async ({
         }),
         chain: chainConfig.srcConfig.dataSource.chain
       })
-      .setBlockRange({ from: blockHeight })
+      .setBlockRange({ from: blockHeight, to: blockHeight })
       .includeAllBlocks();
     console.log(
       `::::: SUB PROCESSOR :::::: Thread ${taskId}: processor has been initialized for chain - ${
@@ -62,22 +61,22 @@ module.exports = async ({
           taskId
         );
 
+        await sleepTo(2000);
+
         console.log(
           `::::: SUB PROCESSOR :::::: Thread ${taskId} has been FINISHED with result - ${result} [at: ${new Date().toISOString()}]`
         );
 
-        port.postMessage(result);
-
-        setTimeout(() => {
-          ctx.log
-            .child('sub_processor')
-            .info(
-              `::::: SUB PROCESSOR :::::: Thread ${taskId} has been finished and terminated`
-            );
-          globRes();
-        }, 500);
+        port.postMessage(result ?? 0);
 
         await sleepTo(1000);
+
+        ctx.log
+          .child('sub_processor')
+          .info(
+            `::::: SUB PROCESSOR :::::: Thread ${taskId} has been finished and terminated`
+          );
+        globRes();
       }
     );
   });

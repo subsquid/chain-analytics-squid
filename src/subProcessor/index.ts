@@ -6,6 +6,7 @@ import {
 } from '../utils/types';
 import { Ctx } from '../processor';
 import { SubProcessorTask, SubProcessorTaskStatus } from '../model';
+import { sleepTo } from '../utils/common';
 
 const { MessageChannel, MessagePort } = require('worker_threads');
 
@@ -18,7 +19,7 @@ export class TreadsPool {
   private poolOptions = {
     filename: path.resolve(__dirname, './subProcessorCore'),
     minThreads: 1,
-    // maxThreads: 10,
+    maxThreads: 20,
     idleTimeout: 1000 * 120,
     stackSizeMb: 300,
     maxOldGenerationSizeMb: 300,
@@ -53,6 +54,8 @@ export class TreadsPool {
 
   private resultsBuffer: Map<string, Map<string, SubProcessorTaskResult>> =
     new Map();
+
+  private forceTerminationIntervals: Map<string, unknown> = new Map();
 
   private constructor(private context: Ctx) {
     this.pool = new Piscina(this.poolOptions);
@@ -113,22 +116,6 @@ export class TreadsPool {
       );
       return;
     }
-    // if (!taskEntity) {
-    //   /**
-    //    * We need create new entity here in case worker returned result at the
-    //    * moment when entities still are not fetched from DB (between start of
-    //    * batch and store.load() function)
-    //    */
-    //   taskEntity = new SubProcessorTask({
-    //     id: resData.taskId,
-    //     taskName: resData.taskName,
-    //     blockHash: resData.blockHash,
-    //     blockHeight: resData.blockHeight,
-    //     timestamp: resData.timestamp.toString(),
-    //     status: SubProcessorTaskStatus.completed,
-    //     tasksQueueIndex: resData.tasksQueueIndex
-    //   });
-    // }
     taskEntity.status = SubProcessorTaskStatus.completed;
     taskEntity.result = resData.result;
     this.context.store.deferredUpsert(taskEntity);
@@ -141,11 +128,6 @@ export class TreadsPool {
   }
 
   private moveTaskResultToResultsList(taskName: string) {
-    // console.log('this.tasksQueue');
-    // console.dir(this.tasksQueue, { depth: null });
-    // console.log('resultsStackCache');
-    // console.dir(this.resultsStackCache, { depth: null });
-
     this.ensureResultsStackCacheContainer(taskName);
     this.ensureResultsListsScopeContainer(taskName);
 
@@ -172,6 +154,7 @@ export class TreadsPool {
    * @param taskName
    */
   async clearTaskResultsListByTaskName(taskName: string) {
+    console.log('clearTaskResultsListByTaskName');
     /**
      * Update task indexes in SubProcessorTask entities
      */
@@ -266,6 +249,23 @@ export class TreadsPool {
         tasksQueueIndex
       })
     );
+    const startTime = Date.now();
+    const terminationTimeout = setInterval(async () => {
+      const currentTime = Date.now();
+      if (currentTime - startTime > 1000 * 60 * 10) {
+        await this.addTaskResultsToTmpBuffer({
+          ...taskPayload,
+          result: 0
+        });
+        // @ts-ignore
+        clearInterval(this.forceTerminationIntervals.get(taskId)!);
+
+        this.context.log.warn(
+          `::::: SUB PROCESSOR MANAGER :::::: Thread ${taskId} has been terminated by timeout limit`
+        );
+      }
+    }, 1000);
+    this.forceTerminationIntervals.set(taskId, terminationTimeout);
   }
 
   private async handleRunErrorCatch(
@@ -341,13 +341,6 @@ export class TreadsPool {
           timestamp: Number.parseInt(savedTask.timestamp),
           result: savedTask.result
         });
-
-        // if (!tasksCompletedByTaskName.has(savedTask.taskName))
-        //   tasksCompletedByTaskName.set(savedTask.taskName, new Map());
-        //
-        // tasksCompletedByTaskName
-        //   .get(savedTask.taskName)!
-        //   .set(savedTask.tasksQueueIndex, savedTask);
       }
 
       if (savedTask.status === SubProcessorTaskStatus.processing) {
@@ -384,34 +377,6 @@ export class TreadsPool {
             task.tasksQueueIndex
           )
         );
-
-      // orderedTasks.forEach((task) =>
-      //   this.setTask({
-      //     taskId: task.id,
-      //     taskName: task.taskName,
-      //     blockHash: task.blockHash,
-      //     blockHeight: task.blockHeight,
-      //     timestamp: Number.parseInt(task.timestamp)
-      //   })
-      // );
-
-      /**
-       * Add all completed taskIds to tasksQueue for correct migration of results
-       * from cache to results list
-       */
-      // const completedTasksOrdered = getOrderEntitiesListByIndex(
-      //   tasksCompletedByTaskName.get(taskName) ||
-      //     new Map<number, SubProcessorTask>()
-      // );
-      // this.tasksQueue
-      //   .get(taskName)!
-      //   .push(...completedTasksOrdered.map((i) => i.id));
-
-      // const tasksOrdered = getOrderEntitiesListByIndex(
-      //   savedTasksIndexed.get(taskName) || new Map<number, SubProcessorTask>()
-      // );
-      // this.tasksQueue.get(taskName)!.push(...tasksOrdered.map((i) => i.id));
-
       this.moveTaskResultToResultsList(taskName);
     });
   }
