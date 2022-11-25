@@ -19,14 +19,14 @@ export class TreadsPool {
   private poolOptions = {
     filename: path.resolve(__dirname, './subProcessorCore'),
     concurrentTasksPerWorker: 10,
-    minThreads: 2,
-    maxThreads: 10,
-    idleTimeout: 1000 * 180,
+    minThreads: 25,
+    maxThreads: 25,
+    idleTimeout: 1000 * 600,
     resourceLimits: {
-      stackSizeMb: 800,
-      maxOldGenerationSizeMb: 800,
-      maxYoungGenerationSizeMb: 800,
-      codeRangeSizeMb: 800
+      stackSizeMb: 1000,
+      maxOldGenerationSizeMb: 1000,
+      maxYoungGenerationSizeMb: 1000,
+      codeRangeSizeMb: 1000
     }
   };
   /**
@@ -138,6 +138,8 @@ export class TreadsPool {
           `Can not clear termination interval for task -${resData.taskId}`
         );
       }
+    } else {
+      this.context.store.deferredRemove(SubProcessorTask, resData.taskId);
     }
 
     /**
@@ -262,7 +264,9 @@ export class TreadsPool {
     this.context.log.info(
       `::: setTask ::: Task ${taskId} has been added to pool. Pool queue size - ${
         this.pool.queueSize
-      }. Pool size - ${this.pool.threads ? this.pool.threads.length : 0}`
+      }. Pool size - ${
+        this.pool.threads ? this.pool.threads.length : 0
+      }`
     );
 
     this.context.store.deferredUpsert(

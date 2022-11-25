@@ -43,14 +43,18 @@ module.exports = async ({
       } [at: ${new Date().toISOString()}]`
     );
     processor.run(
-      new TypeormDatabase({ stateSchema: taskId, disableAutoFlush: true }),
+      new TypeormDatabase({
+        stateSchema: `${taskId}_${Date.now()}`,
+        disableAutoFlush: true
+      }),
       async (ctx) => {
-        const storageFunc = taskName.split('_');
-        if (!storageFunc[0] || !storageFunc[1]) return;
-
         console.log(
           `::::: SUB PROCESSOR :::::: Thread ${taskId} has been STARTED [at: ${new Date().toISOString()}]`
         );
+
+        const storageFunc = taskName.split('_');
+        if (!storageFunc[0] || !storageFunc[1]) return;
+
         // @ts-ignore
         const result = await storage[storageFunc[0]][storageFunc[1]](
           ctx,

@@ -99,7 +99,7 @@ export async function getHoldersKeys(
 
   let fetched = false;
   while (!fetched) {
-    await sleepTo(1000);
+    await sleepTo(1500);
     let intermArray = await ctx._chain.client.call('state_getKeysPaged', [
       getStorageHash('System', 'Account'),
       1000,
