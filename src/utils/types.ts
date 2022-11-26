@@ -50,12 +50,14 @@ export type ParsedEventsDataMap = Map<
 >;
 
 export type SubProcessorTaskPayload = {
-  taskId: string;
+  id: string;
   taskName: string;
   blockHash: string;
   blockHeight: number;
-  timestamp: number;
-  terminated?: boolean;
+  timestamp: string;
+  queueIndex: number;
+  queueSubIndex: number;
+  terminated?: boolean
 };
 
 export type SubProcessorTaskResult = SubProcessorTaskPayload & {

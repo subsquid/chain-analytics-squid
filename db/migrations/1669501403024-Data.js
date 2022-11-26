@@ -1,8 +1,8 @@
-module.exports = class Data1669301999019 {
-  name = 'Data1669301999019'
+module.exports = class Data1669501403024 {
+  name = 'Data1669501403024'
 
   async up(db) {
-    await db.query(`CREATE TABLE "sub_processor_task" ("id" character varying NOT NULL, "task_name" text NOT NULL, "block_hash" text NOT NULL, "block_height" integer NOT NULL, "timestamp" text NOT NULL, "result" integer, "tasks_queue_index" integer NOT NULL, "status" character varying(10) NOT NULL, CONSTRAINT "PK_57accaad7b367165b5e165de3f4" PRIMARY KEY ("id"))`)
+    await db.query(`CREATE TABLE "sub_processor_task" ("id" character varying NOT NULL, "task_name" text NOT NULL, "block_hash" text NOT NULL, "block_height" integer NOT NULL, "timestamp" text NOT NULL, "result" integer, "queue_index" integer NOT NULL, "queue_sub_index" integer NOT NULL, "status" character varying(10) NOT NULL, CONSTRAINT "PK_57accaad7b367165b5e165de3f4" PRIMARY KEY ("id"))`)
     await db.query(`CREATE TABLE "totals" ("id" character varying NOT NULL, "finalized_blocks" numeric NOT NULL, "total_issuance" numeric NOT NULL, "signed_extrinsics" numeric NOT NULL, "transfers_count" numeric NOT NULL, "holders" integer NOT NULL, "validators_ideal_count" integer NOT NULL, "validators_count" integer NOT NULL, "staked_value_total" numeric NOT NULL, "staked_value_validator" numeric, "staked_value_nominator" numeric, "inflation_rate" numeric NOT NULL, CONSTRAINT "PK_3480b9650b4eb64138649f2a416" PRIMARY KEY ("id"))`)
     await db.query(`CREATE INDEX "IDX_f91ccd19975caf90fdfcc52b73" ON "totals" ("staked_value_validator") `)
     await db.query(`CREATE INDEX "IDX_f029512b4386124e1a3786d647" ON "totals" ("staked_value_nominator") `)

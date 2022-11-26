@@ -9,23 +9,23 @@ import { sleepTo } from '../utils/common';
 const chainConfig = getConfig();
 
 module.exports = async ({
-  taskId,
+  id,
   taskName,
   promPort,
   blockHash,
   blockHeight,
   port
 }: {
-  taskId: string;
+  id: string;
   taskName: string;
   blockHash: string;
   blockHeight: number;
   promPort: number;
   port: MessagePort;
 }) => {
-  await new Promise<void>(async (globRes) => {
+  return new Promise<void>(async (globRes) => {
     console.log(
-      `::::: SUB PROCESSOR :::::: Thread ${taskId} has been initialized [at: ${new Date().toISOString()}]`
+      `::::: SUB PROCESSOR :::::: Thread ${id} has been initialized [at: ${new Date().toISOString()}]`
     );
     const processor = new SubstrateBatchProcessor()
       .setPrometheusPort(promPort)
@@ -38,18 +38,18 @@ module.exports = async ({
       .setBlockRange({ from: blockHeight, to: blockHeight })
       .includeAllBlocks();
     console.log(
-      `::::: SUB PROCESSOR :::::: Thread ${taskId}: processor has been initialized for chain - ${
+      `::::: SUB PROCESSOR :::::: Thread ${id}: processor has been initialized for chain - ${
         chainConfig.srcConfig.dataSource.chain
       } [at: ${new Date().toISOString()}]`
     );
     processor.run(
       new TypeormDatabase({
-        stateSchema: `${taskId}_${Date.now()}`,
+        stateSchema: `${id}_${Date.now()}`,
         disableAutoFlush: true
       }),
       async (ctx) => {
         console.log(
-          `::::: SUB PROCESSOR :::::: Thread ${taskId} has been STARTED [at: ${new Date().toISOString()}]`
+          `::::: SUB PROCESSOR :::::: Thread ${id} has been STARTED [at: ${new Date().toISOString()}]`
         );
 
         const storageFunc = taskName.split('_');
@@ -61,25 +61,24 @@ module.exports = async ({
           {
             header: { hash: blockHash }
           },
-          taskId
+          id
         );
 
         console.log(
-          `::::: SUB PROCESSOR :::::: Thread ${taskId} has been FINISHED with result - ${result} [at: ${new Date().toISOString()}]`
+          `::::: SUB PROCESSOR :::::: Thread ${id} has been FINISHED with result - ${result} [at: ${new Date().toISOString()}]`
         );
 
         port.postMessage(result ?? 0);
 
-        await sleepTo(500);
+        await sleepTo(100);
 
         ctx.log
           .child('sub_processor')
           .info(
-            `::::: SUB PROCESSOR :::::: Thread ${taskId} has been finished and terminated`
+            `::::: SUB PROCESSOR :::::: Thread ${id} has been finished and terminated`
           );
         globRes();
       }
     );
   });
-  return 0;
 };
