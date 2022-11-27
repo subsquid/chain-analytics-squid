@@ -201,7 +201,7 @@ export class TreadsPool {
     );
     console.log('tasksList.processing');
     console.dir(tasksList, { depth: null });
-    await sleepTo(2000);
+    await sleepTo(5000);
 
     if (orderedTasks.length === 0) return;
 
