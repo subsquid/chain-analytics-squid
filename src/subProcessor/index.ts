@@ -21,7 +21,7 @@ export class TreadsPool {
     filename: path.resolve(__dirname, './subProcessorCore'),
     concurrentTasksPerWorker: 100,
     // minThreads: 2,
-    // maxThreads: 15,
+    maxThreads: 1,
     // idleTimeout: 1000 * 600,
     resourceLimits: {
       stackSizeMb: 2000,
