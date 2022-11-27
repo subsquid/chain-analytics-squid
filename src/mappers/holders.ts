@@ -24,22 +24,20 @@ export async function handleChainHolders(ctx: Ctx, block: Block) {
       SubProcessorTask.GET_HOLDERS_KEYS_COUNT
     );
     for (const resItem of tasksResults as SubProcessorTaskResult[]) {
-      if (resItem.result !== undefined) {
-        const newHoldersStat = new Holders({
-          id: resItem.blockHeight.toString(),
-          amount: resItem.result ?? 0,
-          timestamp: new Date(Number.parseInt(resItem.timestamp)),
-          blockHash: resItem.blockHash
-        });
+      const newHoldersStat = new Holders({
+        id: resItem.blockHeight.toString(),
+        amount: resItem.result ?? 0,
+        timestamp: new Date(Number.parseInt(resItem.timestamp)),
+        blockHash: resItem.blockHash
+      });
 
-        ctx.store.deferredUpsert(newHoldersStat);
+      ctx.store.deferredUpsert(newHoldersStat);
 
-        const totals = await getOrCreateTotals(ctx);
+      const totals = await getOrCreateTotals(ctx);
 
-        totals.holders = resItem.result ?? 0;
+      totals.holders = resItem.result ?? 0;
 
-        ctx.store.deferredUpsert(totals);
-      }
+      ctx.store.deferredUpsert(totals);
     }
   }
 

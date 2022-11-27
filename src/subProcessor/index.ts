@@ -7,6 +7,7 @@ import {
 import { Ctx } from '../processor';
 import { SubProcessorTask, SubProcessorTaskStatus } from '../model';
 import { sleepTo } from '../utils/common';
+const { Worker } = require('worker_threads');
 
 const { MessageChannel, MessagePort } = require('worker_threads');
 
@@ -15,21 +16,22 @@ export class TreadsPool {
   private prometheusPost: number = 3001;
   private isInstanceHealthy: boolean = false;
   private resultsProcessingWindowOpen: boolean = false;
+  private workerInstance: typeof Worker | null = null;
 
-  private pool: Piscina;
-  private poolOptions = {
-    filename: path.resolve(__dirname, './subProcessorCore'),
-    concurrentTasksPerWorker: 100,
-    // minThreads: 2,
-    maxThreads: 1,
-    // idleTimeout: 1000 * 600,
-    resourceLimits: {
-      stackSizeMb: 2000,
-      maxOldGenerationSizeMb: 2000,
-      maxYoungGenerationSizeMb: 2000,
-      codeRangeSizeMb: 2000
-    }
-  };
+  // private pool: Piscina;
+  // private poolOptions = {
+  //   filename: path.resolve(__dirname, './subProcessorCore'),
+  //   concurrentTasksPerWorker: 100,
+  //   // minThreads: 2,
+  //   maxThreads: 1,
+  //   // idleTimeout: 1000 * 600,
+  //   resourceLimits: {
+  //     stackSizeMb: 2000,
+  //     maxOldGenerationSizeMb: 2000,
+  //     maxYoungGenerationSizeMb: 2000,
+  //     codeRangeSizeMb: 2000
+  //   }
+  // };
   /**
    * Scope of ordered lists with tasks results. Each list contains results of
    * tasks which are located from the beginning of tasksQueue list.
@@ -45,20 +47,20 @@ export class TreadsPool {
     new Map();
 
   private constructor(private context: Ctx) {
-    this.pool = new Piscina(this.poolOptions);
-    this.pool
-      .on('error', (e) => {
-        this.context.log.warn(
-          '=============== RUNNER ON ERROR  ===================='
-        );
-        console.dir(e, { depth: null });
-      })
-      .on('end', (e) => {
-        this.context.log.info(
-          '=============== RUNNER ON END ===================='
-        );
-        console.dir(e, { depth: null });
-      });
+    // this.pool = new Piscina(this.poolOptions);
+    // this.pool
+    //   .on('error', (e) => {
+    //     this.context.log.warn(
+    //       '=============== RUNNER ON ERROR  ===================='
+    //     );
+    //     console.dir(e, { depth: null });
+    //   })
+    //   .on('end', (e) => {
+    //     this.context.log.info(
+    //       '=============== RUNNER ON END ===================='
+    //     );
+    //     console.dir(e, { depth: null });
+    //   });
   }
 
   private ensureResultsListsScopeContainer(taskName: string) {
@@ -199,66 +201,73 @@ export class TreadsPool {
         (t) => t.status !== SubProcessorTaskStatus.completed
       )
     );
-    // console.log('tasksList.processing');
-    // console.dir(tasksList, { depth: null });
-    await sleepTo(5000);
 
     if (orderedTasks.length === 0) return;
 
-    const channel = new MessageChannel();
+    // const channel = new MessageChannel();
     const newTaskPayload = orderedTasks[0];
 
-    channel.port2.addEventListener('message', async (message: any) => {
-      if (this.resultsProcessingWindowOpen) {
-        this.context.log.warn('WINDOW OPEN');
-        await this.moveTaskResultToResultsList({
-          ...newTaskPayload,
-          result: message.data
-        });
-        await this.processTasksQueue();
-      } else {
-        this.context.log.warn('WINDOW CLOSE');
-        await this.addTaskResultsToTmpBuffer({
-          ...newTaskPayload,
-          result: message.data
-        });
-      }
-    });
-
-    if (this.pool) await this.pool.destroy()
-
-    this.pool = new Piscina(this.poolOptions);
-
     this.prometheusPost++;
-    this.pool
-      .run(
-        {
-          id: newTaskPayload.id,
-          taskName: newTaskPayload.taskName,
-          blockHash: newTaskPayload.blockHash,
-          blockHeight: newTaskPayload.blockHeight,
-          promPort: this.prometheusPost,
-          port: channel.port1
-        },
-        {
-          // @ts-ignore
-          transferList: [channel.port1]
-        }
-      )
-      .then((res) => {
-        this.context.log.info(
-          `::: RUN.then ::: Task ${newTaskPayload.id} has been provided response - ${res}`
-        );
-      })
-      .catch(async (e) => this.handleRunErrorCatch(newTaskPayload, e));
 
-    this.context.log.info(
-      `::: setTask ::: Task ${
-        newTaskPayload.id
-      } has been added to pool. Pool queue size - ${
-        this.pool.queueSize
-      }. Pool size - ${this.pool.threads ? this.pool.threads.length : 0}`
-    );
+    await this.initWorkerInstance();
+    if (this.workerInstance) {
+      this.workerInstance.postMessage({
+        id: newTaskPayload.id,
+        taskName: newTaskPayload.taskName,
+        blockHash: newTaskPayload.blockHash,
+        blockHeight: newTaskPayload.blockHeight,
+        promPort: this.prometheusPost
+        // port: channel.port1
+      });
+
+      this.workerInstance.addListener('message', async (message: unknown) => {
+        if (this.resultsProcessingWindowOpen) {
+          this.context.log.warn('WINDOW OPEN');
+          await this.moveTaskResultToResultsList({
+            ...newTaskPayload,
+            // @ts-ignore
+            result: message.data
+          });
+          await this.processTasksQueue();
+        } else {
+          this.context.log.warn('WINDOW CLOSE');
+          await this.addTaskResultsToTmpBuffer({
+            ...newTaskPayload,
+            // @ts-ignore
+            result: message.data
+          });
+        }
+      });
+    }
+    // this.pool
+    //   .run(
+    //     {
+    //       id: newTaskPayload.id,
+    //       taskName: newTaskPayload.taskName,
+    //       blockHash: newTaskPayload.blockHash,
+    //       blockHeight: newTaskPayload.blockHeight,
+    //       promPort: this.prometheusPost,
+    //       port: channel.port1
+    //     },
+    //     {
+    //       // @ts-ignore
+    //       transferList: [channel.port1]
+    //     }
+    //   )
+    //   .then((res) => {
+    //     this.context.log.info(
+    //       `::: RUN.then ::: Task ${newTaskPayload.id} has been provided response - ${res}`
+    //     );
+    //   })
+    //   .catch(async (e) => this.handleRunErrorCatch(newTaskPayload, e));
+
+    // this.context.log.info(
+    //   `::: setTask ::: Task ${
+    //     newTaskPayload.id
+    //   } has been added to pool. Pool queue size - ${
+    //     this.pool.queueSize
+    //   }. Pool size - ${this.pool.threads ? this.pool.threads.length : 0}`
+    // );
 
     newTaskPayload.status = SubProcessorTaskStatus.processing;
     this.context.store.deferredUpsert(newTaskPayload);
@@ -309,6 +318,20 @@ export class TreadsPool {
       this.context.store.deferredUpsert(existingSavedTasks[i]);
     }
     await this.processTasksQueue();
+  }
+
+  private async initWorkerInstance() {
+    await this.terminateWorkerInstance();
+    this.workerInstance = new Worker(
+      path.resolve(__dirname, './subProcessorCore')
+    );
+    this.context.log.info('Worker has been started');
+  }
+  private async terminateWorkerInstance() {
+    if (this.workerInstance) {
+      await this.workerInstance.terminate();
+      this.context.log.info('Worker has been terminated');
+    }
   }
 }
 
