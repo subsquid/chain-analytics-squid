@@ -199,8 +199,8 @@ export class TreadsPool {
         (t) => t.status !== SubProcessorTaskStatus.completed
       )
     );
-    console.log('tasksList.processing');
-    console.dir(tasksList, { depth: null });
+    // console.log('tasksList.processing');
+    // console.dir(tasksList, { depth: null });
     await sleepTo(5000);
 
     if (orderedTasks.length === 0) return;
