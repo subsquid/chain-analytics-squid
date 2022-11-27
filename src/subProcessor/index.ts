@@ -201,6 +201,7 @@ export class TreadsPool {
     );
     console.log('tasksList.processing');
     console.dir(tasksList, { depth: null });
+    await sleepTo(2000);
 
     if (orderedTasks.length === 0) return;
 
@@ -214,7 +215,6 @@ export class TreadsPool {
           ...newTaskPayload,
           result: message.data
         });
-        await sleepTo(1500);
         await this.processTasksQueue();
       } else {
         this.context.log.warn('WINDOW CLOSE');
