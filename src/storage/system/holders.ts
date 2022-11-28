@@ -1,23 +1,9 @@
-import { UnknownVersionError } from '../../utils/errors';
-import { encodeAccount, getStorageHash, sleepTo } from '../../utils/common';
-import {
-  SessionValidatorsStorage,
-  SystemAccountStorage
-} from '../../types/generated/storage';
+import { getStorageHash, sleepTo } from '../../utils/common';
+import { SystemAccountStorage } from '../../types/generated/storage';
 
 import { Ctx, Block } from '../../processor';
 import { Chain as ProcessorChain } from '@subsquid/substrate-processor/lib/chain';
 import { ResilientRpcClient } from '@subsquid/rpc-client/lib/resilient';
-
-type StorageData = Uint8Array[];
-
-// async function getStorageData(
-//   ctx: Ctx,
-//   block: Block
-// ): Promise<StorageData | undefined> {
-//   const storage = new SystemAccountStorage(ctx, block.header);
-//   if (!storage.isExists) return undefined;
-// }
 
 type HolderKeys = string[];
 
@@ -72,7 +58,6 @@ export async function getHoldersKeys(
   const storage = new SystemAccountStorage(ctx, block.header);
   if (!storage.isExists) return undefined;
 
-  // console.log(`>>> ${threadId} :::  start  - ${new Date().toISOString()}`);
   let keyArray = await ctx._chain.client.call('state_getKeysPaged', [
     getStorageHash('System', 'Account'),
     1000,
@@ -85,12 +70,6 @@ export async function getHoldersKeys(
       getStorageHash('System', 'Account'),
       block.header.hash
     ]);
-
-    // console.log(
-    //   `>>> ${threadId} :::  finish  - ${new Date().toISOString()} - ${
-    //     keys ? keys.length : 0
-    //   }`
-    // );
 
     if (!keys) return undefined;
 
@@ -112,12 +91,6 @@ export async function getHoldersKeys(
       keyArray.push(...intermArray);
     }
   }
-
-  // console.log(
-  //   `>>> ${threadId} :::  finish  - ${new Date().toISOString()} - ${
-  //     keyArray ? keyArray.length : 0
-  //   }`
-  // );
 
   return keyArray;
 }
