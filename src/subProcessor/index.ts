@@ -219,6 +219,8 @@ export class TreadsPool {
       return;
     }
 
+    this.context.log.info('TASKS QUEUE ENSURE');
+
     existingSavedTasks.forEach(
       (t) => (t.status = SubProcessorTaskStatus.waiting)
     );
