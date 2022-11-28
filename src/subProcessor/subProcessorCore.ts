@@ -1,4 +1,4 @@
-import { MessagePort, parentPort } from 'worker_threads';
+import { parentPort } from 'worker_threads';
 
 import { SubstrateBatchProcessor } from '@subsquid/substrate-processor';
 import { lookupArchive } from '@subsquid/archive-registry';
@@ -19,8 +19,6 @@ type WorkerPayload = {
 
 if (parentPort) {
   parentPort.on('message', async (workerPayload: WorkerPayload) => {
-    console.log('workerPayload >>> ');
-    console.dir(workerPayload, { depth: null });
     const { id, taskName, promPort, blockHash, blockHeight } = workerPayload;
     await new Promise<void>(async (globRes) => {
       console.log(

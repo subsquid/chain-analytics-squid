@@ -1,4 +1,3 @@
-import Piscina from 'piscina';
 import path from 'path';
 import {
   SubProcessorTaskPayload,
@@ -6,10 +5,7 @@ import {
 } from '../utils/types';
 import { Ctx } from '../processor';
 import { SubProcessorTask, SubProcessorTaskStatus } from '../model';
-import { sleepTo } from '../utils/common';
 const { Worker } = require('worker_threads');
-
-const { MessageChannel, MessagePort } = require('worker_threads');
 
 export class TreadsPool {
   private static instance: TreadsPool;
@@ -17,21 +13,6 @@ export class TreadsPool {
   private isInstanceHealthy: boolean = false;
   private resultsProcessingWindowOpen: boolean = false;
   private workerInstance: typeof Worker | null = null;
-
-  // private pool: Piscina;
-  // private poolOptions = {
-  //   filename: path.resolve(__dirname, './subProcessorCore'),
-  //   concurrentTasksPerWorker: 100,
-  //   // minThreads: 2,
-  //   maxThreads: 1,
-  //   // idleTimeout: 1000 * 600,
-  //   resourceLimits: {
-  //     stackSizeMb: 2000,
-  //     maxOldGenerationSizeMb: 2000,
-  //     maxYoungGenerationSizeMb: 2000,
-  //     codeRangeSizeMb: 2000
-  //   }
-  // };
   /**
    * Scope of ordered lists with tasks results. Each list contains results of
    * tasks which are located from the beginning of tasksQueue list.
@@ -46,22 +27,7 @@ export class TreadsPool {
   private resultsBuffer: Map<string, Map<string, SubProcessorTaskResult>> =
     new Map();
 
-  private constructor(private context: Ctx) {
-    // this.pool = new Piscina(this.poolOptions);
-    // this.pool
-    //   .on('error', (e) => {
-    //     this.context.log.warn(
-    //       '=============== RUNNER ON ERROR  ===================='
-    //     );
-    //     console.dir(e, { depth: null });
-    //   })
-    //   .on('end', (e) => {
-    //     this.context.log.info(
-    //       '=============== RUNNER ON END ===================='
-    //     );
-    //     console.dir(e, { depth: null });
-    //   });
-  }
+  private constructor(private context: Ctx) {}
 
   private ensureResultsListsScopeContainer(taskName: string) {
     if (!this._resultsListsScope.has(taskName))
@@ -116,9 +82,6 @@ export class TreadsPool {
         false
       );
       if (!taskEntity) {
-        // throw Error(
-        //   `SubProcessorTask entity with id ${resData.taskId} can not be found.`
-        // );
         this.context.log.warn(
           `SubProcessorTask entity with id ${resData.id} can not be found.`
         );
@@ -126,7 +89,6 @@ export class TreadsPool {
       }
 
       taskEntity.status = SubProcessorTaskStatus.completed;
-      // taskEntity.result = resData.result;
       this.context.store.deferredUpsert(taskEntity);
     } else {
       this.context.store.deferredRemove(SubProcessorTask, resData.id);
@@ -152,10 +114,7 @@ export class TreadsPool {
     this._resultsListsScope.delete(taskName);
   }
 
-  async addTask(
-    taskPayload: SubProcessorTaskPayload,
-    customTasksQueueIndex?: number | undefined
-  ) {
+  async addTask(taskPayload: SubProcessorTaskPayload) {
     const {
       id,
       taskName,
@@ -165,8 +124,6 @@ export class TreadsPool {
       queueIndex,
       queueSubIndex
     } = taskPayload;
-
-    this.isInstanceHealthy = true;
 
     this.context.store.deferredUpsert(
       new SubProcessorTask({
@@ -185,6 +142,8 @@ export class TreadsPool {
   }
 
   async processTasksQueue() {
+    this.isInstanceHealthy = true;
+
     const tasksList = [...this.context.store.values(SubProcessorTask)];
     const tasksInProcessing = tasksList.filter(
       (t) => t.status === SubProcessorTaskStatus.processing
@@ -204,7 +163,6 @@ export class TreadsPool {
 
     if (orderedTasks.length === 0) return;
 
-    // const channel = new MessageChannel();
     const newTaskPayload = orderedTasks[0];
 
     this.prometheusPost++;
@@ -217,7 +175,6 @@ export class TreadsPool {
         blockHash: newTaskPayload.blockHash,
         blockHeight: newTaskPayload.blockHeight,
         promPort: this.prometheusPost
-        // port: channel.port1
       });
 
       this.workerInstance.addListener('message', async (message: unknown) => {
@@ -226,7 +183,7 @@ export class TreadsPool {
           await this.moveTaskResultToResultsList({
             ...newTaskPayload,
             // @ts-ignore
-            result: message.data
+            result: message
           });
           await this.processTasksQueue();
         } else {
@@ -234,59 +191,14 @@ export class TreadsPool {
           await this.addTaskResultsToTmpBuffer({
             ...newTaskPayload,
             // @ts-ignore
-            result: message.data
+            result: message
           });
         }
       });
     }
-    // this.pool
-    //   .run(
-    //     {
-    //       id: newTaskPayload.id,
-    //       taskName: newTaskPayload.taskName,
-    //       blockHash: newTaskPayload.blockHash,
-    //       blockHeight: newTaskPayload.blockHeight,
-    //       promPort: this.prometheusPost,
-    //       port: channel.port1
-    //     },
-    //     {
-    //       // @ts-ignore
-    //       transferList: [channel.port1]
-    //     }
-    //   )
-    //   .then((res) => {
-    //     this.context.log.info(
-    //       `::: RUN.then ::: Task ${newTaskPayload.id} has been provided response - ${res}`
-    //     );
-    //   })
-    //   .catch(async (e) => this.handleRunErrorCatch(newTaskPayload, e));
-
-    // this.context.log.info(
-    //   `::: setTask ::: Task ${
-    //     newTaskPayload.id
-    //   } has been added to pool. Pool queue size - ${
-    //     this.pool.queueSize
-    //   }. Pool size - ${this.pool.threads ? this.pool.threads.length : 0}`
-    // );
 
     newTaskPayload.status = SubProcessorTaskStatus.processing;
     this.context.store.deferredUpsert(newTaskPayload);
-  }
-
-  private async handleRunErrorCatch(
-    taskPayload: SubProcessorTaskPayload,
-    error: unknown
-  ) {
-    this.context.log.warn('=============== RUNNER ERROR ====================');
-    console.dir(taskPayload, { depth: null });
-    console.dir(error, { depth: null });
-
-    // TODO add retry logic
-
-    this.context.store.deferredRemove(SubProcessorTask, taskPayload.id);
-    this.context.log.warn(
-      `Task ${taskPayload.id} has been finished with error - ${error}`
-    );
   }
 
   async ensureTasksQueue() {
@@ -306,8 +218,6 @@ export class TreadsPool {
       await this.processTasksQueue();
       return;
     }
-
-    console.log('::: ENSURE/RESTORE TASKS :::');
 
     existingSavedTasks.forEach(
       (t) => (t.status = SubProcessorTaskStatus.waiting)
