@@ -13,6 +13,9 @@ export class SubProcessorTask {
   @PrimaryColumn_()
   id!: string
 
+  @Column_("text", {nullable: true})
+  workerId!: string | undefined | null
+
   @Column_("text", {nullable: false})
   taskName!: string
 

@@ -7,6 +7,7 @@ enum SubProcessorTaskStatus {
 type SubProcessorTask @entity {
   "taskId"
   id: ID!
+  workerId: String
   taskName: String!
   blockHash: String!
   blockHeight: Int!

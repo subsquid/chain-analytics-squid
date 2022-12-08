@@ -5,10 +5,18 @@ import {
 } from '../utils/types';
 import { Ctx } from '../processor';
 import { SubProcessorTask, SubProcessorTaskStatus } from '../model';
+import { WorkersPool } from './workersPool';
 const { Worker } = require('worker_threads');
 
 export class TreadsPool {
   private static instance: TreadsPool;
+
+  private workersPool: WorkersPool;
+  private poolOptions = {
+    filename: path.resolve(__dirname, './subProcessorCore'),
+    maxThreads: 5
+  };
+
   private prometheusPost: number = 3001;
   private isInstanceHealthy: boolean = false;
   private resultsProcessingWindowOpen: boolean = false;
@@ -27,7 +35,9 @@ export class TreadsPool {
   private resultsBuffer: Map<string, Map<string, SubProcessorTaskResult>> =
     new Map();
 
-  private constructor(private context: Ctx) {}
+  private constructor(private context: Ctx) {
+    this.workersPool = new WorkersPool(this.poolOptions);
+  }
 
   private ensureResultsListsScopeContainer(taskName: string) {
     if (!this._resultsListsScope.has(taskName))
@@ -144,20 +154,15 @@ export class TreadsPool {
   async processTasksQueue() {
     this.isInstanceHealthy = true;
 
-    const tasksList = [...this.context.store.values(SubProcessorTask)];
-    const tasksInProcessing = tasksList.filter(
-      (t) => t.status === SubProcessorTaskStatus.processing
-    );
-    if (tasksInProcessing && tasksInProcessing.length > 1) {
-      throw Error(
-        `Tasks queue contains more than one task in processing. Actual count - ${tasksInProcessing}`
-      );
-    }
-    if (tasksInProcessing && tasksInProcessing.length === 1) return;
+    console.log('workersList - ', this.workersPool.workersList.length);
+
+    if (!this.workersPool.isFreeSlotAvailable()) return;
 
     const orderedTasks = getOrderTasksListByIndexAndSubIndex(
       [...this.context.store.values(SubProcessorTask)].filter(
-        (t) => t.status !== SubProcessorTaskStatus.completed
+        (t) =>
+          t.status !== SubProcessorTaskStatus.completed &&
+          t.status !== SubProcessorTaskStatus.processing
       )
     );
 
@@ -167,17 +172,15 @@ export class TreadsPool {
 
     this.prometheusPost++;
 
-    await this.initWorkerInstance();
-    if (this.workerInstance) {
-      this.workerInstance.postMessage({
+    const workerId = await this.workersPool.run(
+      {
         id: newTaskPayload.id,
         taskName: newTaskPayload.taskName,
         blockHash: newTaskPayload.blockHash,
         blockHeight: newTaskPayload.blockHeight,
         promPort: this.prometheusPost
-      });
-
-      this.workerInstance.addListener('message', async (message: unknown) => {
+      },
+      async (message: unknown) => {
         if (this.resultsProcessingWindowOpen) {
           this.context.log.warn('WINDOW OPEN');
           await this.moveTaskResultToResultsList({
@@ -194,9 +197,10 @@ export class TreadsPool {
             result: message
           });
         }
-      });
-    }
+      }
+    );
 
+    newTaskPayload.workerId = workerId;
     newTaskPayload.status = SubProcessorTaskStatus.processing;
     this.context.store.deferredUpsert(newTaskPayload);
   }
@@ -230,20 +234,6 @@ export class TreadsPool {
       this.context.store.deferredUpsert(existingSavedTasks[i]);
     }
     await this.processTasksQueue();
-  }
-
-  private async initWorkerInstance() {
-    await this.terminateWorkerInstance();
-    this.workerInstance = new Worker(
-      path.resolve(__dirname, './subProcessorCore')
-    );
-    this.context.log.info('Worker has been started');
-  }
-  private async terminateWorkerInstance() {
-    if (this.workerInstance) {
-      await this.workerInstance.terminate();
-      this.context.log.info('Worker has been terminated');
-    }
   }
 }
 

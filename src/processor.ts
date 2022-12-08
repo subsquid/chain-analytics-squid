@@ -34,7 +34,7 @@ const processor = new SubstrateBatchProcessor()
     }),
     chain: chainConfig.srcConfig.dataSource.chain
   })
-  // .setBlockRange({ from: 1400000 })
+  .setBlockRange({ from: 3400000 })
   .includeAllBlocks()
   .addEvent('Balances.Transfer', {
     data: { event: { extrinsic: true, args: true } }
