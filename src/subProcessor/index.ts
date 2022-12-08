@@ -6,7 +6,6 @@ import {
 import { Ctx } from '../processor';
 import { SubProcessorTask, SubProcessorTaskStatus } from '../model';
 import { WorkersPool } from './workersPool';
-const { Worker } = require('worker_threads');
 
 export class TreadsPool {
   private static instance: TreadsPool;
@@ -14,13 +13,12 @@ export class TreadsPool {
   private workersPool: WorkersPool;
   private poolOptions = {
     filename: path.resolve(__dirname, './subProcessorCore'),
-    maxThreads: 5
+    maxThreads: 15
   };
 
   private prometheusPost: number = 3001;
   private isInstanceHealthy: boolean = false;
   private resultsProcessingWindowOpen: boolean = false;
-  private workerInstance: typeof Worker | null = null;
   /**
    * Scope of ordered lists with tasks results. Each list contains results of
    * tasks which are located from the beginning of tasksQueue list.
@@ -30,6 +28,14 @@ export class TreadsPool {
    * )
    */
   private _resultsListsScope: Map<string, Array<SubProcessorTaskResult>> =
+    new Map();
+
+  /**
+   * Cache of completed tasks results which are already completed but cannot be
+   * provided to client as task in previous position in tasksQueue still is
+   * in processing.
+   */
+  private resultsStackCache: Map<string, Map<string, SubProcessorTaskResult>> =
     new Map();
 
   private resultsBuffer: Map<string, Map<string, SubProcessorTaskResult>> =
@@ -43,6 +49,10 @@ export class TreadsPool {
     if (!this._resultsListsScope.has(taskName))
       this._resultsListsScope.set(taskName, []);
   }
+  private ensureResultsStackCacheContainer(taskName: string) {
+    if (!this.resultsStackCache.has(taskName))
+      this.resultsStackCache.set(taskName, new Map());
+  }
 
   static getInstance(ctx: Ctx) {
     if (!TreadsPool.instance) {
@@ -51,6 +61,11 @@ export class TreadsPool {
     return TreadsPool.instance;
   }
 
+  /**
+   * Set marker when all entities are fetched and available in store
+   * cache and batch processing flow is not completed.
+   * @param status
+   */
   setResultsProcessingWindow(status: boolean) {
     this.resultsProcessingWindowOpen = status;
   }
@@ -66,44 +81,101 @@ export class TreadsPool {
     this.resultsBuffer.get(resData.taskName)!.set(resData.id, resData);
   }
 
-  private async moveTaskResultToResultsList(resData: SubProcessorTaskResult) {
-    this.ensureResultsListsScopeContainer(resData.taskName);
+  private async addTaskResultsToStack(resData: SubProcessorTaskResult) {
+    this.ensureResultsStackCacheContainer(resData.taskName);
+    this.resultsStackCache.get(resData.taskName)!.set(resData.id, resData);
 
-    console.log(
-      `================ Result added to res list ${resData.id} / ${resData.result}`
+    let taskEntity = await this.context.store.get(
+      SubProcessorTask,
+      resData.id,
+      false
+    );
+    if (!taskEntity) {
+      throw Error(
+        `SubProcessorTask entity with id ${resData.id} can not be found.`
+      );
+      // this.context.log.warn(
+      //   `SubProcessorTask entity with id ${resData.taskId} can not be found.`
+      // );
+      // return;
+    }
+    taskEntity.status = SubProcessorTaskStatus.completed;
+    taskEntity.result = resData.result;
+    this.context.store.deferredUpsert(taskEntity);
+
+    /**
+     * Run process of migration results from cache to results list for access by
+     * final user/function.
+     */
+    this.moveTaskResultToResultsList(resData.taskName);
+  }
+
+  private moveTaskResultToResultsList(taskName: string) {
+    this.ensureResultsStackCacheContainer(taskName);
+    this.ensureResultsListsScopeContainer(taskName);
+
+    const currentTaskQueue = getOrderTasksListByIndexAndSubIndex(
+      [...this.context.store.values(SubProcessorTask)].filter(
+        (t) => t.taskName === taskName
+      )
     );
 
-    const currentResultsList = this._resultsListsScope.get(resData.taskName)!;
+    const currentTaskResCache = this.resultsStackCache.get(taskName)!;
+    const currentResultsList = this._resultsListsScope.get(taskName)!;
 
-    currentResultsList.push(resData);
-
+    for (const i of currentTaskQueue) {
+      if (currentTaskResCache.has(currentTaskQueue[0].id)) {
+        const task = currentTaskQueue.shift() as SubProcessorTaskResult;
+        currentResultsList.push(currentTaskResCache.get(task.id)!);
+        currentTaskResCache.delete(task.id);
+        this.context.store.deferredRemove(task);
+      }
+    }
+    this.resultsStackCache.set(taskName, currentTaskResCache);
     this._resultsListsScope.set(
-      resData.taskName,
+      taskName,
       currentResultsList.filter((r) => !r.terminated)
     );
-
-    if (!resData.terminated) {
-      /**
-       * Save result and task status in SubProcessorTask entity
-       */
-      let taskEntity = await this.context.store.get(
-        SubProcessorTask,
-        resData.id,
-        false
-      );
-      if (!taskEntity) {
-        this.context.log.warn(
-          `SubProcessorTask entity with id ${resData.id} can not be found.`
-        );
-        return;
-      }
-
-      taskEntity.status = SubProcessorTaskStatus.completed;
-      this.context.store.deferredUpsert(taskEntity);
-    } else {
-      this.context.store.deferredRemove(SubProcessorTask, resData.id);
-    }
   }
+
+  // private async moveTaskResultToResultsList(resData: SubProcessorTaskResult) {
+  //   this.ensureResultsListsScopeContainer(resData.taskName);
+  //
+  //   console.log(
+  //     `================ Result added to res list ${resData.id} / ${resData.result}`
+  //   );
+  //
+  //   const currentResultsList = this._resultsListsScope.get(resData.taskName)!;
+  //
+  //   currentResultsList.push(resData);
+  //
+  //   this._resultsListsScope.set(
+  //     resData.taskName,
+  //     currentResultsList.filter((r) => !r.terminated)
+  //   );
+  //
+  //   if (!resData.terminated) {
+  //     /**
+  //      * Save result and task status in SubProcessorTask entity
+  //      */
+  //     let taskEntity = await this.context.store.get(
+  //       SubProcessorTask,
+  //       resData.id,
+  //       false
+  //     );
+  //     if (!taskEntity) {
+  //       this.context.log.warn(
+  //         `SubProcessorTask entity with id ${resData.id} can not be found.`
+  //       );
+  //       return;
+  //     }
+  //
+  //     taskEntity.status = SubProcessorTaskStatus.completed;
+  //     this.context.store.deferredUpsert(taskEntity);
+  //   } else {
+  //     this.context.store.deferredRemove(SubProcessorTask, resData.id);
+  //   }
+  // }
 
   /**
    * Clear results list for specific task name after user ingested this data
@@ -111,15 +183,15 @@ export class TreadsPool {
    * @param taskName
    */
   async clearTaskResultsListByTaskName(taskName: string) {
-    const resItemsForDelete = [
-      ...([...this.context.store.values(SubProcessorTask)].filter(
-        (t) => t.status === SubProcessorTaskStatus.completed
-      ) || [])
-    ];
-    this.context.store.deferredRemove(
-      SubProcessorTask,
-      resItemsForDelete.map((t) => t.id)
-    );
+    // const resItemsForDelete = [
+    //   ...([...this.context.store.values(SubProcessorTask)].filter(
+    //     (t) => t.status === SubProcessorTaskStatus.completed
+    //   ) || [])
+    // ];
+    // this.context.store.deferredRemove(
+    //   SubProcessorTask,
+    //   resItemsForDelete.map((t) => t.id)
+    // );
 
     this._resultsListsScope.delete(taskName);
   }
@@ -156,13 +228,11 @@ export class TreadsPool {
 
     console.log('workersList - ', this.workersPool.workersList.length);
 
-    if (!this.workersPool.isFreeSlotAvailable()) return;
+    if (!this.workersPool.isFreeWorkerAvailable()) return;
 
     const orderedTasks = getOrderTasksListByIndexAndSubIndex(
       [...this.context.store.values(SubProcessorTask)].filter(
-        (t) =>
-          t.status !== SubProcessorTaskStatus.completed &&
-          t.status !== SubProcessorTaskStatus.processing
+        (t) => t.status === SubProcessorTaskStatus.waiting
       )
     );
 
@@ -183,7 +253,8 @@ export class TreadsPool {
       async (message: unknown) => {
         if (this.resultsProcessingWindowOpen) {
           this.context.log.warn('WINDOW OPEN');
-          await this.moveTaskResultToResultsList({
+          // await this.moveTaskResultToResultsList({
+          await this.addTaskResultsToStack({
             ...newTaskPayload,
             // @ts-ignore
             result: message
@@ -203,6 +274,8 @@ export class TreadsPool {
     newTaskPayload.workerId = workerId;
     newTaskPayload.status = SubProcessorTaskStatus.processing;
     this.context.store.deferredUpsert(newTaskPayload);
+
+    await this.processTasksQueue();
   }
 
   async ensureTasksQueue() {
@@ -210,7 +283,7 @@ export class TreadsPool {
 
     for (const [taskName, results] of [...this.resultsBuffer.entries()]) {
       for (const res of [...results.values()]) {
-        await this.moveTaskResultToResultsList(res);
+        await this.addTaskResultsToStack(res);
       }
     }
     this.resultsBuffer.clear();
@@ -225,14 +298,40 @@ export class TreadsPool {
 
     this.context.log.info('TASKS QUEUE ENSURE');
 
-    existingSavedTasks.forEach(
-      (t) => (t.status = SubProcessorTaskStatus.waiting)
-    );
+    // existingSavedTasks.forEach(
+    //   (t) => (t.status = SubProcessorTaskStatus.waiting)
+    // );
+
+    const availableTaskNames = new Set<string>();
 
     for (let i = 0; i < existingSavedTasks.length; i++) {
-      existingSavedTasks[i].status = SubProcessorTaskStatus.waiting;
-      this.context.store.deferredUpsert(existingSavedTasks[i]);
+      availableTaskNames.add(existingSavedTasks[i].taskName);
+      if (existingSavedTasks[i].status === SubProcessorTaskStatus.processing) {
+        existingSavedTasks[i].status = SubProcessorTaskStatus.waiting;
+        this.context.store.deferredUpsert(existingSavedTasks[i]);
+      } else if (
+        existingSavedTasks[i].status === SubProcessorTaskStatus.completed
+      ) {
+        this.ensureResultsStackCacheContainer(existingSavedTasks[i].taskName);
+        this.resultsStackCache
+          .get(existingSavedTasks[i].taskName)!
+          .set(existingSavedTasks[i].id, {
+            id: existingSavedTasks[i].id,
+            taskName: existingSavedTasks[i].taskName,
+            blockHash: existingSavedTasks[i].blockHash,
+            blockHeight: existingSavedTasks[i].blockHeight,
+            timestamp: existingSavedTasks[i].timestamp,
+            result: existingSavedTasks[i].result,
+            queueIndex: existingSavedTasks[i].queueIndex,
+            queueSubIndex: existingSavedTasks[i].queueSubIndex
+          });
+      }
     }
+
+    availableTaskNames.forEach((taskName) =>
+      this.moveTaskResultToResultsList(taskName)
+    );
+
     await this.processTasksQueue();
   }
 }

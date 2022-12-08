@@ -22,7 +22,7 @@ export class WorkersPool {
     this.filename = filename;
   }
 
-  isFreeSlotAvailable(): boolean {
+  isFreeWorkerAvailable(): boolean {
     return this.workers.size < this.maxThreads;
   }
 
