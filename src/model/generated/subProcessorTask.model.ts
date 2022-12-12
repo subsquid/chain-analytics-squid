@@ -13,6 +13,9 @@ export class SubProcessorTask {
   @PrimaryColumn_()
   id!: string
 
+  @Column_("text", {nullable: true})
+  workerId!: string | undefined | null
+
   @Column_("text", {nullable: false})
   taskName!: string
 
@@ -29,7 +32,10 @@ export class SubProcessorTask {
   result!: number | undefined | null
 
   @Column_("int4", {nullable: false})
-  tasksQueueIndex!: number
+  queueIndex!: number
+
+  @Column_("int4", {nullable: false})
+  queueSubIndex!: number
 
   @Column_("varchar", {length: 10, nullable: false})
   status!: SubProcessorTaskStatus

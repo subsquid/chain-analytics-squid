@@ -34,7 +34,7 @@ const processor = new SubstrateBatchProcessor()
     }),
     chain: chainConfig.srcConfig.dataSource.chain
   })
-  // .setBlockRange({ from: 1400000 })
+  // .setBlockRange({ from: 3400000 })
   .includeAllBlocks()
   .addEvent('Balances.Transfer', {
     data: { event: { extrinsic: true, args: true } }
@@ -51,13 +51,14 @@ export type Ctx = BatchContext<Store, Item>;
 export type Block = BatchBlock<Item>;
 
 processor.run(new TypeormDatabase(), async (ctx) => {
+  const tasksPool = TreadsPool.getInstance(ctx);
   const parsedEvents = getParsedEventsData(ctx);
   ctx.store.deferredLoad(Totals, '1');
   ctx.store.deferredLoad(HistoricalDataMeta, '1');
   ctx.store.deferredLoad(SubProcessorTask);
   await ctx.store.load();
-
-  await TreadsPool.getInstance(ctx).ensureTasksQueue()
+  tasksPool.setResultsProcessingWindow(true);
+  await tasksPool.ensureTasksQueue();
 
   for (let block of ctx.blocks) {
     await handleFinalizedBlock(ctx, block);
@@ -78,4 +79,5 @@ processor.run(new TypeormDatabase(), async (ctx) => {
       BlockEventName.SIGNED_EXTRINSIC
     )
   );
+  tasksPool.setResultsProcessingWindow(false);
 });

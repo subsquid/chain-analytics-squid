@@ -1,17 +1,20 @@
 enum SubProcessorTaskStatus {
   completed
   processing
+  waiting
 }
 
 type SubProcessorTask @entity {
   "taskId"
   id: ID!
+  workerId: String
   taskName: String!
   blockHash: String!
   blockHeight: Int!
   timestamp: String!
   result: Int
-  tasksQueueIndex: Int!
+  queueIndex: Int!
+  queueSubIndex: Int!
   status: SubProcessorTaskStatus!
 }
 
