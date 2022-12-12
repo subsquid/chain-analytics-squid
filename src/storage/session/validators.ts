@@ -45,7 +45,7 @@ export async function getValidators(ctx: Ctx, block: Block): Promise<Validators 
         const data = await getStorageDataValidators(ctx, block)
         if (!data) return undefined
 
-        storageCache.value = data.map((id) => encodeAccount(id))
+        storageCache.value = data.map((id) => encodeAccount(id)) // TODO add implementation
     }
 
     return storageCache.value

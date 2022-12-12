@@ -11,16 +11,17 @@
     "db:soft-reset": ". ./scripts/soft-reset-db.sh",
     "processor:start": "node lib/processor.js",
     "query-node:start": "squid-graphql-server --subscriptions --max-response-size 10000",
-    "watch": "yarn chokidar \"src/**/*\" \"typegen\" -c 'yarn build'"
+    "watch": "yarn chokidar \"src/**/*\" \"typegen\" -c 'yarn build'",
+    "update": "npx npm-check-updates --filter /subsquid/ --upgrade && npm i -f"
   },
   "dependencies": {
-    "@subsquid/archive-registry": "^1.0.14",
-    "@subsquid/graphql-server": "^3.2.0",
+    "@subsquid/archive-registry": "^1.0.17",
+    "@subsquid/graphql-server": "^3.2.4",
     "@subsquid/processor-tools": "github:mckrava/processor-tools",
     "@subsquid/ss58": "^0.1.2",
-    "@subsquid/substrate-processor": "^2.0.0",
-    "@subsquid/typeorm-migration": "^0.1.2",
-    "@subsquid/typeorm-store": "^0.1.4",
+    "@subsquid/substrate-processor": "^2.1.0",
+    "@subsquid/typeorm-migration": "^0.1.4",
+    "@subsquid/typeorm-store": "^0.1.5",
     "dotenv": "^10.0.0",
     "pg": "8.8.0",
     "piscina": "^3.2.0",
@@ -30,9 +31,9 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@subsquid/substrate-metadata-explorer": "^1.0.7",
-    "@subsquid/substrate-typegen": "^1.4.1",
-    "@subsquid/typeorm-codegen": "^0.2.1",
+    "@subsquid/substrate-metadata-explorer": "^1.0.9",
+    "@subsquid/substrate-typegen": "^2.0.0",
+    "@subsquid/typeorm-codegen": "^0.3.1",
     "@types/blake2b": "^2.1.0",
     "@types/node": "16.11.56",
     "@types/uuid": "^9.0.0",

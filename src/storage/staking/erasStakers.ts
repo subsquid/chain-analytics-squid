@@ -59,9 +59,9 @@ async function queryStorageFunction(
 
   const eraStakers: [number, Uint8Array][] = keys.map((k) => [
     k[1] || 0,
-    decodeAccount(k[0])
+    decodeAccount(k[0])// TODO add implementation
   ]);
-  const stakers: Uint8Array[] = keys.map((k) => decodeAccount(k[0]));
+  const stakers: Uint8Array[] = keys.map((k) => decodeAccount(k[0])); // TODO add implementation
 
   const data =
     (await getErasStakersData(ctx, block, eraStakers)) ||
@@ -72,7 +72,7 @@ async function queryStorageFunction(
     total: v.total,
     own: v.own,
     nominators: v.others.map((n) => ({
-      id: encodeAccount(n.who),
+      id: encodeAccount(n.who), // TODO add implementation
       vote: n.value
     }))
   }));

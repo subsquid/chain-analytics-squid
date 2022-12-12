@@ -7,14 +7,12 @@ import {
 import * as sto from '@subsquid/substrate-processor/lib/util/storage';
 
 import * as ss58 from '@subsquid/ss58';
-import { decodeHex } from '@subsquid/util-internal-hex';
-import { getConfig } from '../config';
+import { decodeHex, toHex } from '@subsquid/util-internal-hex';
+import { getChain } from '../chains';
 import { Block } from '../processor';
 import { HistoricalDataMeta } from '../model';
 
-const chainConfig = getConfig();
-
-const ss58codec = ss58.codec(chainConfig.srcConfig.prefix);
+const chainConfig = getChain();
 
 export class ParsedEventsDataScope {
   private scope: ParsedEventsDataMap;
@@ -39,12 +37,15 @@ export function getStorageHash(prefix: string, name: string) {
   return sto.getNameHash(prefix) + sto.getNameHash(name).slice(2);
 }
 
-export function encodeAccount(id: Uint8Array) {
-  return ss58codec.encode(typeof id === 'string' ? decodeHex(id) : id);
+export function encodeAccount(
+  id: Uint8Array,
+  prefix: string | number | undefined
+) {
+  return prefix != null ? ss58.codec(prefix).encode(id) : toHex(id);
 }
 
-export function decodeAccount(id: string) {
-  return ss58codec.decode(id);
+export function decodeAccount(id: string, prefix: string | number | undefined) {
+  return prefix != null ? ss58.codec(prefix).decode(id) : decodeHex(id);
 }
 
 export function isCheckPoint(
@@ -52,7 +53,7 @@ export function isCheckPoint(
   histDataMeta: HistoricalDataMeta,
   block: Block
 ) {
-  if (!chainConfig.intervalsConfig.has(checkPointKey))
+  if (!chainConfig.config.intervals.has(checkPointKey))
     throw Error(`Unknown checkPointKey - "${checkPointKey}"`);
 
   return (
@@ -60,7 +61,7 @@ export function isCheckPoint(
       (histDataMeta[`${checkPointKey}LatestTime`]
         ? histDataMeta[`${checkPointKey}LatestTime`]!.getTime()
         : 0) >
-    chainConfig.intervalsConfig.get(checkPointKey)!
+    chainConfig.config.intervals.get(checkPointKey)!
   );
 }
 

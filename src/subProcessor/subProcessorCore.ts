@@ -1,13 +1,13 @@
 import { parentPort } from 'worker_threads';
 
 import { SubstrateBatchProcessor } from '@subsquid/substrate-processor';
-import { lookupArchive } from '@subsquid/archive-registry';
-import { getConfig } from '../config';
+import { KnownArchives, lookupArchive } from '@subsquid/archive-registry';
+import { getChain} from '../chains';
 import { TypeormDatabase } from '@subsquid/processor-tools';
 import storage from '../storage';
 import { sleepTo } from '../utils/common';
 
-const chainConfig = getConfig();
+const chainConfig = getChain();
 
 type WorkerPayload = {
   id: string;
@@ -27,16 +27,16 @@ if (parentPort) {
       const processor = new SubstrateBatchProcessor()
         .setPrometheusPort(promPort)
         .setDataSource({
-          archive: lookupArchive(chainConfig.srcConfig.chainName, {
+          archive: lookupArchive(chainConfig.config.chainName as KnownArchives, {
             release: 'FireSquid'
           }),
-          chain: chainConfig.srcConfig.dataSource.chain
+          chain: chainConfig.config.dataSource.chain
         })
         .setBlockRange({ from: blockHeight, to: blockHeight })
         .includeAllBlocks();
       console.log(
         `::::: SUB PROCESSOR :::::: Thread ${id}: processor has been initialized for chain - ${
-          chainConfig.srcConfig.dataSource.chain
+          chainConfig.config.dataSource.chain
         } [at: ${new Date().toISOString()}]`
       );
       processor.run(

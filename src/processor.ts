@@ -1,4 +1,4 @@
-import { lookupArchive } from '@subsquid/archive-registry';
+import { lookupArchive, KnownArchives } from '@subsquid/archive-registry';
 import {
   BatchContext,
   BatchProcessorItem,
@@ -22,17 +22,17 @@ import {
   CallSignedExtrinsicData
 } from './utils/types';
 import { handleExtrinsics } from './mappers/extrinsics';
-import { getConfig } from './config';
+import { getChain } from './chains';
 import { TreadsPool } from './subProcessor';
 
-const chainConfig = getConfig();
+const chainConfig = getChain();
 
 const processor = new SubstrateBatchProcessor()
   .setDataSource({
-    archive: lookupArchive(chainConfig.srcConfig.chainName, {
+    archive: lookupArchive(chainConfig.config.chainName as KnownArchives, {
       release: 'FireSquid'
     }),
-    chain: chainConfig.srcConfig.dataSource.chain
+    chain: chainConfig.config.dataSource.chain
   })
   // .setBlockRange({ from: 3400000 })
   .includeAllBlocks()

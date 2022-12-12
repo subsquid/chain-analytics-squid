@@ -25,11 +25,8 @@ codegen:
 	@npx squid-typeorm-codegen
 
 
-typegen-bifrost:
-	@npx squid-substrate-typegen ./typegen/bifrost.json
-
-typegen-kusama:
-	@npx squid-substrate-typegen ./typegen/kusama.json
+typegen:
+	@sh ./scripts/typegen.sh
 
 
 up:
