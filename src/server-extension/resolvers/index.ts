@@ -2,4 +2,5 @@ import 'reflect-metadata';
 
 import { TransferChartResolver } from './chartTransfer';
 import { SignedExtrinsicsChartResolver } from './chartSignedExtrinsics';
-export { TransferChartResolver, SignedExtrinsicsChartResolver };
+import { ChainInfoResolver } from './chainInfo';
+export { TransferChartResolver, SignedExtrinsicsChartResolver, ChainInfoResolver };
