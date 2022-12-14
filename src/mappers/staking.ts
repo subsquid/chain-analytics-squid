@@ -3,17 +3,27 @@ import { StakedValue } from '../model';
 import { getOrCreateHistoricalDataMeta } from './histiricalDataMeta';
 import { getOrCreateTotals } from './totals';
 import { isCheckPoint } from '../utils/common';
-
-import storage from '../storage';
 import { CheckPointsKeys } from '../utils/types';
+import { getChain } from '../chains';
+const { api: storageApi } = getChain();
 
 export async function handleStakeAmount(ctx: Ctx, block: Block) {
   const histDataMeta = await getOrCreateHistoricalDataMeta(ctx);
 
   if (!isCheckPoint(CheckPointsKeys.staking, histDataMeta, block)) return;
 
-  const activeEraData = await storage.staking.getActiveEra(ctx, block);
-  const currentEraData = await storage.staking.getCurrentEra(ctx, block);
+  const blockForStorage = {
+    hash: block.header.hash
+  };
+
+  const activeEraData = await storageApi.storage.getActiveEra(
+    ctx,
+    blockForStorage
+  );
+  const currentEraData = await storageApi.storage.getCurrentEra(
+    ctx,
+    blockForStorage
+  );
   const saveStakingCheckMarker = () => {
     histDataMeta.stakingLatestBlockNumber = BigInt(block.header.height);
     histDataMeta.stakingLatestTime = new Date(block.header.timestamp);
@@ -24,27 +34,30 @@ export async function handleStakeAmount(ctx: Ctx, block: Block) {
   /**
    * Preferred to use ActiveEra because CurrentEra can return next planed era
    */
-  const storageEraData = activeEraData || currentEraData;
+  const storageEra = activeEraData?.index || currentEraData;
 
-  if (!storageEraData || storageEraData?.index == null) {
+  if (storageEra == null || storageEra == undefined) {
     saveStakingCheckMarker();
     return ctx.log.warn(`Unknown era`);
   }
 
-  const validatorIds = await storage.session.getValidators(ctx, block);
+  const validatorIds = await storageApi.storage.getValidators(
+    ctx,
+    blockForStorage
+  );
   if (!validatorIds) {
     saveStakingCheckMarker();
-    return ctx.log.warn(`Validators for era ${storageEraData} not found`);
+    return ctx.log.warn(`Validators for era ${storageEra} not found`);
   }
 
-  const validatorsData = await storage.staking.getEraStakersData(
+  const validatorsData = await storageApi.storage.getEraStakersData(
     ctx,
-    block,
-    validatorIds.map((id) => [id, storageEraData.index] as [string, number])
+    blockForStorage,
+    validatorIds.map((id) => [id, storageEra] as [Uint8Array, number])
   );
   if (!validatorsData) {
     saveStakingCheckMarker();
-    return ctx.log.warn(`Missing info for validators in era ${storageEraData}`);
+    return ctx.log.warn(`Missing info for validators in era ${storageEra}`);
   }
 
   let totalValidatorsStake = 0n;

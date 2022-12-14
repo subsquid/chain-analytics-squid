@@ -2,7 +2,6 @@ import { Ctx, Block } from '../processor';
 import { Holders } from '../model';
 import { getOrCreateHistoricalDataMeta } from './histiricalDataMeta';
 import { getOrCreateTotals } from './totals';
-import storage from '../storage';
 import { isCheckPoint } from '../utils/common';
 import {
   CheckPointsKeys,

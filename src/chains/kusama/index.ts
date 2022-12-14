@@ -1,4 +1,4 @@
-import {api} from './api'
-import {config} from './config'
+import { api } from './api';
+import { config } from './config';
 
-export {config, api}
+export { config, api };

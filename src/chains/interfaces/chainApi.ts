@@ -1,28 +1,34 @@
-import {Block, ChainContext, Event} from '../kusama/types/support'
+import { Block, ChainContext, Event } from '../kusama/types/support';
+import { ActiveEraInfo } from '../kusama/types/v1050';
 
 export type ChainApi = {
-    events: {
-        getBalanceSetAccount: EventGetter<Uint8Array>
-        getTransferAccounts: EventGetter<[Uint8Array, Uint8Array]>
-        getEndowedAccount: EventGetter<Uint8Array>
-        getDepositAccount: EventGetter<Uint8Array>
-        getReservedAccount: EventGetter<Uint8Array>
-        getUnreservedAccount: EventGetter<Uint8Array>
-        getWithdrawAccount: EventGetter<Uint8Array>
-        getSlashedAccount: EventGetter<Uint8Array>
-        getReserveRepatriatedAccounts: EventGetter<[Uint8Array, Uint8Array]>
-    }
-    storage: {
-        getBalancesAccountBalances: StorageGetter<[Uint8Array[]], BalanceData[] | undefined>
-        getSystemAccountBalances: StorageGetter<[Uint8Array[]], BalanceData[] | undefined>
-        getCouncilMembersCount: StorageGetter<[], number | undefined>
-        getCouncilProposalsCount: StorageGetter<[], number | undefined>
-        getDemocracyProposalsCount: StorageGetter<[], number | undefined>
-        getTotalIssuance: StorageGetter<[], bigint | undefined>
-    }
+  events: {
+    getTransferValue: EventGetter<bigint>;
+  };
+  storage: {
+    getTotalIssuance: StorageGetter<[], bigint | undefined>;
+    getTotalHoldersCount: StorageGetter<[], number | undefined>;
+    getActiveEra: StorageGetter<[], ActiveEraInfo | undefined>;
+    getCurrentEra: StorageGetter<[], number | undefined>;
+    getValidators: StorageGetter<[], Uint8Array[] | undefined>;
+    getIdealValidatorsCount: StorageGetter<[], number | undefined>;
+    getEraStakersData: StorageGetter<[ErasStakersArgs[]], (EraStaker | undefined)[] | undefined>;
+  };
+};
+
+type BalanceData = { free: bigint; reserved: bigint };
+
+type EventGetter<R> = (ctx: ChainContext, event: Event) => R;
+type StorageGetter<T extends Array<any>, R> = (
+  ctx: ChainContext,
+  block: Block,
+  ...args: T
+) => Promise<R>;
+
+export interface EraStaker {
+  total: bigint;
+  own: bigint;
+  nominators: { id: string; vote: bigint }[];
 }
 
-type BalanceData = {free: bigint; reserved: bigint}
-
-type EventGetter<R> = (ctx: ChainContext, event: Event) => R
-type StorageGetter<T extends Array<any>, R> = (ctx: ChainContext, block: Block, ...args: T) => Promise<R>
+export type ErasStakersArgs = [account: Uint8Array, era?: number];

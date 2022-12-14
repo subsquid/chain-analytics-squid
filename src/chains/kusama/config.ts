@@ -11,7 +11,7 @@ export const config: ProcessorConfig = {
   //     from: 7567700,
   // },
   intervals: new Map([
-    ['holders', 1000 * 60 * 60 * 24],
+    ['holders', 1000 * 60 * 60 * 1],
     ['issuance', 1000 * 60 * 60],
     ['staking', 1000 * 60 * 60],
     ['validators', 1000 * 60 * 60]

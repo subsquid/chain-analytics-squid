@@ -1,7 +1,6 @@
-import { getHoldersKeysCount } from '../storage/system';
 
 export enum SubProcessorTask {
-  GET_HOLDERS_KEYS_COUNT = 'system_getHoldersKeysCount'
+  GET_HOLDERS_KEYS_COUNT = 'getTotalHoldersCount'
 }
 
 export enum BlockEventName {

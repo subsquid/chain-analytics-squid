@@ -2,9 +2,8 @@ import { parentPort } from 'worker_threads';
 
 import { SubstrateBatchProcessor } from '@subsquid/substrate-processor';
 import { KnownArchives, lookupArchive } from '@subsquid/archive-registry';
-import { getChain} from '../chains';
+import { getChain } from '../chains';
 import { TypeormDatabase } from '@subsquid/processor-tools';
-import storage from '../storage';
 import { sleepTo } from '../utils/common';
 
 const chainConfig = getChain();
@@ -27,9 +26,12 @@ if (parentPort) {
       const processor = new SubstrateBatchProcessor()
         .setPrometheusPort(promPort)
         .setDataSource({
-          archive: lookupArchive(chainConfig.config.chainName as KnownArchives, {
-            release: 'FireSquid'
-          }),
+          archive: lookupArchive(
+            chainConfig.config.chainName as KnownArchives,
+            {
+              release: 'FireSquid'
+            }
+          ),
           chain: chainConfig.config.dataSource.chain
         })
         .setBlockRange({ from: blockHeight, to: blockHeight })
@@ -49,11 +51,19 @@ if (parentPort) {
             `::::: SUB PROCESSOR :::::: Thread ${id} has been STARTED [at: ${new Date().toISOString()}]`
           );
 
-          const storageFunc = taskName.split('_');
-          if (!storageFunc[0] || !storageFunc[1]) return;
-
+          if (!(taskName in chainConfig.api.storage)) {
+            if (parentPort) {
+              parentPort.postMessage(null);
+              globRes();
+              return;
+            } else {
+              ctx.log.warn('parentPort is not available');
+              globRes();
+              return;
+            }
+          }
           // @ts-ignore
-          const result = await storage[storageFunc[0]][storageFunc[1]](
+          const result = await chainConfig.api.storage[taskName](
             ctx,
             {
               header: { hash: blockHash }

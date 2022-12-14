@@ -4,17 +4,23 @@ import { getOrCreateHistoricalDataMeta } from './histiricalDataMeta';
 import { getOrCreateTotals } from './totals';
 import { isCheckPoint } from '../utils/common';
 import { CheckPointsKeys } from '../utils/types';
-import storage from '../storage';
+import { getChain } from '../chains';
+const { api: storageApi } = getChain();
+
 
 export async function handleValidators(ctx: Ctx, block: Block) {
   const histDataMeta = await getOrCreateHistoricalDataMeta(ctx);
 
   if (!isCheckPoint(CheckPointsKeys.validators, histDataMeta, block)) return;
 
-  const idealCount =
-    (await storage.session.getIdealValidatorsCount(ctx, block)) || 0;
+  const blockForStorage = {
+    hash: block.header.hash
+  };
 
-  const currentCount = (await storage.session.getValidators(ctx, block)) || [];
+  const idealCount =
+    (await storageApi.storage.getIdealValidatorsCount(ctx, blockForStorage)) || 0;
+
+  const currentCount = (await storageApi.storage.getValidators(ctx, blockForStorage)) || [];
 
   const newValidatorStat = new Validator({
     id: block.header.height.toString(),
