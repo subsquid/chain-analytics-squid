@@ -16,13 +16,16 @@ type WorkerPayload = {
   promPort: number;
 };
 
+function subProcessorLog(msg: string) {
+  console.log(`${new Date().toISOString()} :: SUB PROCESSOR :: ${msg}`);
+}
+
+// TODO Sub-processor should be improved (add errors handling, improve stability, add fallbacks)
+
 if (parentPort) {
   parentPort.on('message', async (workerPayload: WorkerPayload) => {
     const { id, taskName, promPort, blockHash, blockHeight } = workerPayload;
     await new Promise<void>(async (globRes) => {
-      console.log(
-        `::::: SUB PROCESSOR :::::: Thread ${id} has been initialized [at: ${new Date().toISOString()}]`
-      );
       const processor = new SubstrateBatchProcessor()
         .setPrometheusPort(promPort)
         .setDataSource({
@@ -36,10 +39,8 @@ if (parentPort) {
         })
         .setBlockRange({ from: blockHeight, to: blockHeight })
         .includeAllBlocks();
-      console.log(
-        `::::: SUB PROCESSOR :::::: Thread ${id}: processor has been initialized for chain - ${
-          chainConfig.config.dataSource.chain
-        } [at: ${new Date().toISOString()}]`
+      subProcessorLog(
+        `Thread ${id}: processor has been initialized for chain - ${chainConfig.config.dataSource.chain}`
       );
       processor.run(
         new TypeormDatabase({
@@ -47,9 +48,7 @@ if (parentPort) {
           disableAutoFlush: true
         }),
         async (ctx) => {
-          console.log(
-            `::::: SUB PROCESSOR :::::: Thread ${id} has been STARTED [at: ${new Date().toISOString()}]`
-          );
+          subProcessorLog(`Thread ${id}: processor has been STARTED`);
 
           if (!(taskName in chainConfig.api.storage)) {
             if (parentPort) {
@@ -57,7 +56,9 @@ if (parentPort) {
               globRes();
               return;
             } else {
-              ctx.log.warn('parentPort is not available');
+              subProcessorLog(
+                `ERROR :: Thread ${id}: parentPort is not available`
+              );
               globRes();
               return;
             }
@@ -70,24 +71,18 @@ if (parentPort) {
             },
             id
           );
-
-          console.log(
-            `::::: SUB PROCESSOR :::::: Thread ${id} has been FINISHED with result - ${result} [at: ${new Date().toISOString()}]`
+          subProcessorLog(
+            `Thread ${id} has been FINISHED with result - ${result}`
           );
 
           if (parentPort) {
             parentPort.postMessage(result ?? 0);
           } else {
-            ctx.log.warn('parentPort is not available');
+            console.log('parentPort is not available');
           }
 
           await sleepTo(100);
-
-          ctx.log
-            .child('sub_processor')
-            .info(
-              `::::: SUB PROCESSOR :::::: Thread ${id} has been finished and terminated`
-            );
+          subProcessorLog(`Thread ${id} has been finished and terminated`);
           globRes();
         }
       );

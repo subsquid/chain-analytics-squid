@@ -16,7 +16,7 @@ export class TreadsPool {
     maxThreads: 15
   };
 
-  private prometheusPost: number = 3001;
+  private prometheusPost: number = 3005;
   private isInstanceHealthy: boolean = false;
   private resultsProcessingWindowOpen: boolean = false;
   /**
@@ -138,61 +138,12 @@ export class TreadsPool {
     );
   }
 
-  // private async moveTaskResultToResultsList(resData: SubProcessorTaskResult) {
-  //   this.ensureResultsListsScopeContainer(resData.taskName);
-  //
-  //   console.log(
-  //     `================ Result added to res list ${resData.id} / ${resData.result}`
-  //   );
-  //
-  //   const currentResultsList = this._resultsListsScope.get(resData.taskName)!;
-  //
-  //   currentResultsList.push(resData);
-  //
-  //   this._resultsListsScope.set(
-  //     resData.taskName,
-  //     currentResultsList.filter((r) => !r.terminated)
-  //   );
-  //
-  //   if (!resData.terminated) {
-  //     /**
-  //      * Save result and task status in SubProcessorTask entity
-  //      */
-  //     let taskEntity = await this.context.store.get(
-  //       SubProcessorTask,
-  //       resData.id,
-  //       false
-  //     );
-  //     if (!taskEntity) {
-  //       this.context.log.warn(
-  //         `SubProcessorTask entity with id ${resData.id} can not be found.`
-  //       );
-  //       return;
-  //     }
-  //
-  //     taskEntity.status = SubProcessorTaskStatus.completed;
-  //     this.context.store.deferredUpsert(taskEntity);
-  //   } else {
-  //     this.context.store.deferredRemove(SubProcessorTask, resData.id);
-  //   }
-  // }
-
   /**
    * Clear results list for specific task name after user ingested this data
    * for further processing.
    * @param taskName
    */
   async clearTaskResultsListByTaskName(taskName: string) {
-    // const resItemsForDelete = [
-    //   ...([...this.context.store.values(SubProcessorTask)].filter(
-    //     (t) => t.status === SubProcessorTaskStatus.completed
-    //   ) || [])
-    // ];
-    // this.context.store.deferredRemove(
-    //   SubProcessorTask,
-    //   resItemsForDelete.map((t) => t.id)
-    // );
-
     this._resultsListsScope.delete(taskName);
   }
 
@@ -226,7 +177,11 @@ export class TreadsPool {
   async processTasksQueue() {
     this.isInstanceHealthy = true;
 
-    console.log('workersList - ', this.workersPool.workersList.length);
+    this.context.log
+      .child('sub-processors manager')
+      .info(
+        `Number of workers in use - ${this.workersPool.workersList.length}`
+      );
 
     if (!this.workersPool.isFreeWorkerAvailable()) return;
 
@@ -240,19 +195,19 @@ export class TreadsPool {
 
     const newTaskPayload = orderedTasks[0];
 
-    this.prometheusPost++;
-
     const workerId = await this.workersPool.run(
       {
         id: newTaskPayload.id,
         taskName: newTaskPayload.taskName,
         blockHash: newTaskPayload.blockHash,
         blockHeight: newTaskPayload.blockHeight,
-        promPort: this.prometheusPost
+        promPort: this.getPrometheusPort()
       },
       async (message: unknown) => {
         if (this.resultsProcessingWindowOpen) {
-          this.context.log.warn('WINDOW OPEN');
+          this.context.log
+            .child('sub-processors manager')
+            .info('Store availability WINDOW OPEN');
           // await this.moveTaskResultToResultsList({
           await this.addTaskResultsToStack({
             ...newTaskPayload,
@@ -261,7 +216,9 @@ export class TreadsPool {
           });
           await this.processTasksQueue();
         } else {
-          this.context.log.warn('WINDOW CLOSE');
+          this.context.log
+            .child('sub-processors manager')
+            .warn('Store availability WINDOW CLOSE');
           await this.addTaskResultsToTmpBuffer({
             ...newTaskPayload,
             // @ts-ignore
@@ -296,11 +253,7 @@ export class TreadsPool {
       return;
     }
 
-    this.context.log.info('TASKS QUEUE ENSURE');
-
-    // existingSavedTasks.forEach(
-    //   (t) => (t.status = SubProcessorTaskStatus.waiting)
-    // );
+    this.context.log.child('sub-processors manager').info('TASKS QUEUE ENSURE');
 
     const availableTaskNames = new Set<string>();
 
@@ -333,6 +286,15 @@ export class TreadsPool {
     );
 
     await this.processTasksQueue();
+  }
+
+  private getPrometheusPort(): number {
+    // TODO add port availability detection
+
+    if (this.prometheusPost < 3999) return this.prometheusPost++;
+
+    this.prometheusPost = 3001;
+    return this.prometheusPost;
   }
 }
 
