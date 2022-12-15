@@ -64,13 +64,9 @@ if (parentPort) {
             }
           }
           // @ts-ignore
-          const result = await chainConfig.api.storage[taskName](
-            ctx,
-            {
-              header: { hash: blockHash }
-            },
-            id
-          );
+          const result = await chainConfig.api.storage[taskName](ctx, {
+            header: { hash: blockHash }
+          });
           subProcessorLog(
             `Thread ${id} has been FINISHED with result - ${result}`
           );

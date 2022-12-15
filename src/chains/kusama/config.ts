@@ -8,7 +8,7 @@ export const config: ProcessorConfig = {
     chain: 'wss://kusama-rpc.polkadot.io'
   },
   // blockRange: {
-  //     from: 7567700,
+  //   from: 7567700
   // },
   intervals: new Map([
     ['holders', 1000 * 60 * 60 * 12],

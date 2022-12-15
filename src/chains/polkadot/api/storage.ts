@@ -12,6 +12,7 @@ import { UnknownVersionError } from '../../../utils/errors';
 import { decodeAccount, encodeAccount } from '../../../utils/common';
 import { getChain } from '../../index';
 import { EraStaker, ErasStakersArgs } from '../../interfaces/chainApi';
+import { getKeysCountAll } from '../../utils'
 
 export async function getTotalIssuance(ctx: ChainContext, block: Block) {
   const storage = new BalancesTotalIssuanceStorage(ctx, block);
@@ -85,13 +86,13 @@ export async function getTotalHoldersCount(ctx: ChainContext, block: Block) {
   if (!storage.isExists) return undefined;
 
   if (storage.isV0) {
-    return await getKeysCountAll(storage.asV0.getKeysPaged.bind(storage));
+    return await getKeysCountAll(storage.asV0.getKeysPaged(1000));
   } else if (storage.isV25) {
-    return await getKeysCountAll(storage.asV25.getKeysPaged.bind(storage));
+    return await getKeysCountAll(storage.asV25.getKeysPaged(1000));
   } else if (storage.isV28) {
-    return await getKeysCountAll(storage.asV28.getKeysPaged.bind(storage));
+    return await getKeysCountAll(storage.asV28.getKeysPaged(1000));
   } else if (storage.isV30) {
-    return await getKeysCountAll(storage.asV30.getKeysPaged.bind(storage));
+    return await getKeysCountAll(storage.asV30.getKeysPaged(1000));
   } else {
     throw new UnknownVersionError(storage.constructor.name);
   }
@@ -121,23 +122,3 @@ export async function getEraStakersData(
   })) as EraStaker[];
 }
 
-async function getKeysCountAll(
-  getKeysPagedFunc: (
-    pageSize: number,
-    key?: Uint8Array
-  ) => AsyncIterable<Uint8Array[]>
-) {
-  try {
-    let getIterable = getKeysPagedFunc(1000);
-    const keys = [];
-
-    for await (const keysPack of getIterable) {
-      keys.push(keysPack);
-    }
-
-    return keys.length;
-  } catch (e) {
-    console.log(e);
-    return undefined;
-  }
-}
