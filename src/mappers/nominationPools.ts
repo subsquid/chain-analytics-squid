@@ -21,7 +21,6 @@ export async function handleNominationPools(ctx: Ctx, block: Block) {
     hash: block.header.hash
   });
 
-  console.dir(nominationPoolsTotals, {depth: null})
   if (nominationPoolsTotals !== undefined) {
     const { totalPoolsCount, totalPoolsMembers, totalPoolsStake } =
       nominationPoolsTotals;
