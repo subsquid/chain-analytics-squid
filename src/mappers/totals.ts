@@ -19,7 +19,6 @@ export async function getOrCreateTotals(ctx: Ctx) {
     stakedValueTotal: 0n,
     stakedValueValidator: 0n,
     stakedValueNominator: 0n,
-    inflationRate: 0n
   });
 
   return totalsEntity;

@@ -1,5 +1,6 @@
 import { Block, ChainContext, Event } from '../kusama/types/support';
 import { ActiveEraInfo } from '../kusama/types/v1050';
+import { NominationPoolsData, EraStaker, ErasStakersArgs } from '../../utils/types';
 
 export type ChainApi = {
   events: {
@@ -13,6 +14,7 @@ export type ChainApi = {
     getValidators: StorageGetter<[], Uint8Array[] | undefined>;
     getIdealValidatorsCount: StorageGetter<[], number | undefined>;
     getEraStakersData: StorageGetter<[ErasStakersArgs[]], (EraStaker | undefined)[] | undefined>;
+    getNominationPoolsData?: StorageGetter<[], NominationPoolsData | undefined>;
   };
 };
 
@@ -25,10 +27,4 @@ type StorageGetter<T extends Array<any>, R> = (
   ...args: T
 ) => Promise<R>;
 
-export interface EraStaker {
-  total: bigint;
-  own: bigint;
-  nominators: { id: string; vote: bigint }[];
-}
 
-export type ErasStakersArgs = [account: Uint8Array, era?: number];

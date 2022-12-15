@@ -11,8 +11,9 @@ import {
 import { UnknownVersionError } from '../../../utils/errors';
 import { decodeAccount, encodeAccount } from '../../../utils/common';
 import { getChain } from '../../index';
-import { EraStaker, ErasStakersArgs } from '../../interfaces/chainApi';
-import { getKeysCountAll } from '../../utils'
+import { EraStaker, ErasStakersArgs, NominationPoolsData } from '../../../utils/types';
+import { getKeysCountAll } from '../../utils';
+import { NominationPoolsBondedPoolsStorage } from '../../kusama/types/storage';
 
 export async function getTotalIssuance(ctx: ChainContext, block: Block) {
   const storage = new BalancesTotalIssuanceStorage(ctx, block);
@@ -81,6 +82,38 @@ export async function getIdealValidatorsCount(ctx: ChainContext, block: Block) {
   throw new UnknownVersionError(storage.constructor.name);
 }
 
+export async function getNominationPoolsData(ctx: ChainContext, block: Block) {
+  const storage = new NominationPoolsBondedPoolsStorage(ctx, block);
+  if (!storage.isExists) return undefined;
+
+  const res: NominationPoolsData = {
+    totalPoolsStake: 0n,
+    totalPoolsMembers: 0,
+    totalPoolsCount: 0
+  };
+
+  if (storage.isV9220) {
+    for (const poolDetails of (await storage.asV9220.getAll()).filter(
+      (p) => p.state.__kind === 'Open'
+    )) {
+      res.totalPoolsCount++;
+      res.totalPoolsMembers += poolDetails.memberCounter;
+      res.totalPoolsStake += poolDetails.points;
+    }
+  } else if (storage.isV9230) {
+    for (const poolDetails of (await storage.asV9230.getAll()).filter(
+      (p) => p.state.__kind === 'Open'
+    )) {
+      res.totalPoolsCount++;
+      res.totalPoolsMembers += poolDetails.memberCounter;
+      res.totalPoolsStake += poolDetails.points;
+    }
+  } else {
+    throw new UnknownVersionError(storage.constructor.name);
+  }
+  return res;
+}
+
 export async function getTotalHoldersCount(ctx: ChainContext, block: Block) {
   const storage = new SystemAccountStorage(ctx, block);
   if (!storage.isExists) return undefined;
@@ -121,4 +154,3 @@ export async function getEraStakersData(
     }))
   })) as EraStaker[];
 }
-

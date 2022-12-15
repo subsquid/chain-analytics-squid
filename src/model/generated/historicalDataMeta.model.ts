@@ -41,4 +41,12 @@ export class HistoricalDataMeta {
     @Index_()
     @Column_("timestamp with time zone", {nullable: true})
     stakingLatestTime!: Date | undefined | null
+
+    @Index_()
+    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
+    nominationPoolsLatestBlockNumber!: bigint
+
+    @Index_()
+    @Column_("timestamp with time zone", {nullable: true})
+    nominationPoolsLatestTime!: Date | undefined | null
 }

@@ -9,11 +9,21 @@ export enum BlockEventName {
   SIGNED_EXTRINSIC = 'SIGNED_EXTRINSIC'
 }
 
+export enum TrackingMetrics {
+  holders = 'holders',
+  issuance = 'issuance',
+  validators = 'validators',
+  staking = 'staking',
+  nominationPools = 'nominationPools',
+  transfers = 'transfers',
+}
+
 export enum CheckPointsKeys {
   holders = 'holders',
   issuance = 'issuance',
   validators = 'validators',
-  staking = 'staking'
+  staking = 'staking',
+  nominationPools = 'nominationPools',
 }
 
 export interface BalancesTransferEventData {
@@ -62,3 +72,17 @@ export type SubProcessorTaskPayload = {
 export type SubProcessorTaskResult = SubProcessorTaskPayload & {
   result: number | undefined | null;
 };
+
+export type NominationPoolsData = {
+  totalPoolsCount: number;
+  totalPoolsMembers: number;
+  totalPoolsStake: bigint;
+}
+
+export interface EraStaker {
+  total: bigint;
+  own: bigint;
+  nominators: { id: string; vote: bigint }[];
+}
+
+export type ErasStakersArgs = [account: Uint8Array, era?: number];

@@ -24,6 +24,7 @@ import {
 import { handleExtrinsics } from './mappers/extrinsics';
 import { getChain } from './chains';
 import { TreadsPool } from './subProcessor';
+import { handleNominationPools } from './mappers/nominationPools';
 
 const chainConfig = getChain();
 
@@ -66,6 +67,7 @@ processor.run(new TypeormDatabase(), async (ctx) => {
     await handleChainHolders(ctx, block);
     await handleTotalIssuance(ctx, block);
     await handleStakeAmount(ctx, block);
+    await handleNominationPools(ctx, block);
   }
   await handleTransfers(
     ctx,

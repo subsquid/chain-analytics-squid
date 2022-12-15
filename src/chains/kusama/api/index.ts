@@ -7,7 +7,8 @@ import {
   getCurrentEra,
   getValidators,
   getEraStakersData,
-  getIdealValidatorsCount
+  getIdealValidatorsCount,
+  getNominationPoolsData
 } from './storage';
 
 export const api: ChainApi = {
@@ -21,6 +22,7 @@ export const api: ChainApi = {
     getCurrentEra,
     getValidators,
     getEraStakersData,
-    getIdealValidatorsCount
+    getIdealValidatorsCount,
+    getNominationPoolsData
   }
 };

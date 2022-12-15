@@ -2,7 +2,8 @@ import {
   ParsedEventsDataMap,
   BlockEventName,
   ParsedEventsData,
-  CheckPointsKeys
+  CheckPointsKeys,
+  TrackingMetrics
 } from './types';
 import * as sto from '@subsquid/substrate-processor/lib/util/storage';
 
@@ -63,6 +64,10 @@ export function isCheckPoint(
         : 0) >
     chainConfig.config.intervals.get(checkPointKey)!
   );
+}
+
+export function isMetricTrackable(metricKey: TrackingMetrics) {
+  return chainConfig.config.trackingMetrics.has(metricKey);
 }
 
 export async function sleepTo(delay: number = 0) {

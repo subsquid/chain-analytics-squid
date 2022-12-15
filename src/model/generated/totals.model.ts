@@ -25,14 +25,14 @@ export class Totals {
     @Column_("int4", {nullable: false})
     holders!: number
 
-    @Column_("int4", {nullable: false})
-    validatorsIdealCount!: number
+    @Column_("int4", {nullable: true})
+    validatorsIdealCount!: number | undefined | null
 
-    @Column_("int4", {nullable: false})
-    validatorsCount!: number
+    @Column_("int4", {nullable: true})
+    validatorsCount!: number | undefined | null
 
-    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-    stakedValueTotal!: bigint
+    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})
+    stakedValueTotal!: bigint | undefined | null
 
     @Index_()
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})
@@ -42,6 +42,15 @@ export class Totals {
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})
     stakedValueNominator!: bigint | undefined | null
 
-    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-    inflationRate!: bigint
+    @Index_()
+    @Column_("int4", {nullable: true})
+    nominationPoolsCountMembers!: number | undefined | null
+
+    @Index_()
+    @Column_("int4", {nullable: true})
+    nominationPoolsCountPools!: number | undefined | null
+
+    @Index_()
+    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})
+    nominationPoolsTotalStake!: bigint | undefined | null
 }
