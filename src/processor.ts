@@ -13,7 +13,7 @@ import { handleChainHolders } from './mappers/holders';
 import { BatchBlock } from '@subsquid/substrate-processor/src/processor/batchProcessor';
 import { handleTotalIssuance } from './mappers/issuance';
 import { handleFinalizedBlock } from './mappers/finalizedBlocks';
-import { handleValidators } from './mappers/validator';
+import { handleValidatorsCollators } from './mappers/validatorsCollators';
 import { handleStakeAmount } from './mappers/staking';
 import { handleTransfers } from './mappers/transfers';
 import {
@@ -63,7 +63,7 @@ processor.run(new TypeormDatabase(), async (ctx) => {
 
   for (let block of ctx.blocks) {
     await handleFinalizedBlock(ctx, block);
-    await handleValidators(ctx, block);
+    await handleValidatorsCollators(ctx, block);
     await handleChainHolders(ctx, block);
     await handleTotalIssuance(ctx, block);
     await handleStakeAmount(ctx, block);

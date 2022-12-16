@@ -12,8 +12,8 @@ export async function handleNominationPools(ctx: Ctx, block: Block) {
   const histDataMeta = await getOrCreateHistoricalDataMeta(ctx);
 
   if (
-    !isCheckPoint(CheckPointsKeys.nominationPools, histDataMeta, block) ||
-    !isMetricTrackable(TrackingMetrics.nominationPools)
+    !isMetricTrackable(TrackingMetrics.nominationPools) ||
+    !isCheckPoint(CheckPointsKeys.nominationPools, histDataMeta, block)
   )
     return;
 

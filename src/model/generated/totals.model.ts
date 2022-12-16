@@ -26,10 +26,22 @@ export class Totals {
     holders!: number
 
     @Column_("int4", {nullable: true})
+    collatorsIdealCount!: number | undefined | null
+
+    @Column_("int4", {nullable: true})
+    collatorsCount!: number | undefined | null
+
+    @Column_("int4", {nullable: true})
     validatorsIdealCount!: number | undefined | null
 
     @Column_("int4", {nullable: true})
     validatorsCount!: number | undefined | null
+
+    @Column_("int4", {nullable: true})
+    currentEra!: number | undefined | null
+
+    @Column_("int4", {nullable: true})
+    currentRound!: number | undefined | null
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})
     stakedValueTotal!: bigint | undefined | null
@@ -37,6 +49,10 @@ export class Totals {
     @Index_()
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})
     stakedValueValidator!: bigint | undefined | null
+
+    @Index_()
+    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})
+    stakedValueCollator!: bigint | undefined | null
 
     @Index_()
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})

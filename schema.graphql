@@ -25,15 +25,23 @@ type Totals @entity {
   signedExtrinsics: BigInt!
   transfersCount: BigInt!
   holders: Int!
+
+  collatorsIdealCount: Int
+  collatorsCount: Int
   validatorsIdealCount: Int
   validatorsCount: Int
+
+  currentEra: Int
+  currentRound: Int
   stakedValueTotal: BigInt
   stakedValueValidator: BigInt @index
+  stakedValueCollator: BigInt @index
   stakedValueNominator: BigInt @index
+
   nominationPoolsCountMembers: Int @index
   nominationPoolsCountPools: Int @index
   nominationPoolsTotalStake: BigInt @index
-#  inflationRate: BigInt!
+  #  inflationRate: BigInt!
 }
 
 type HistoricalDataMeta @entity {
@@ -80,7 +88,7 @@ type NominationPools @entity {
   blockHash: String! @index
 }
 
-type Validator @entity {
+type ValidatorCollator @entity {
   "Block number"
   id: ID!
   timestamp: DateTime! @index
@@ -92,9 +100,15 @@ type Validator @entity {
 type StakedValue @entity {
   "Block number"
   id: ID!
+  currentEra: Int @index
+  currentRound: Int @index
+  collatorsCount: Int @index
+  validatorsCount: Int @index
   timestamp: DateTime! @index
   totalStake: BigInt! @index
-  validatorStake: BigInt! @index
+  totalStakeStorage: BigInt @index
+  validatorStake: BigInt @index
+  collatorStake: BigInt @index
   nominatorStake: BigInt! @index
   blockHash: String! @index
 }

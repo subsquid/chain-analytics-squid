@@ -14,10 +14,8 @@ export async function getOrCreateTotals(ctx: Ctx) {
     signedExtrinsics: 0n,
     transfersCount: 0n,
     holders: 0,
-    validatorsIdealCount: 0,
-    validatorsCount: 0,
+
     stakedValueTotal: 0n,
-    stakedValueValidator: 0n,
     stakedValueNominator: 0n,
   });
 

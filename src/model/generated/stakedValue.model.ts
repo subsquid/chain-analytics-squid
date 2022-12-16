@@ -14,6 +14,22 @@ export class StakedValue {
     id!: string
 
     @Index_()
+    @Column_("int4", {nullable: true})
+    currentEra!: number | undefined | null
+
+    @Index_()
+    @Column_("int4", {nullable: true})
+    currentRound!: number | undefined | null
+
+    @Index_()
+    @Column_("int4", {nullable: true})
+    collatorsCount!: number | undefined | null
+
+    @Index_()
+    @Column_("int4", {nullable: true})
+    validatorsCount!: number | undefined | null
+
+    @Index_()
     @Column_("timestamp with time zone", {nullable: false})
     timestamp!: Date
 
@@ -22,8 +38,16 @@ export class StakedValue {
     totalStake!: bigint
 
     @Index_()
-    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-    validatorStake!: bigint
+    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})
+    totalStakeStorage!: bigint | undefined | null
+
+    @Index_()
+    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})
+    validatorStake!: bigint | undefined | null
+
+    @Index_()
+    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})
+    collatorStake!: bigint | undefined | null
 
     @Index_()
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})

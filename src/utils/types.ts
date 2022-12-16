@@ -1,4 +1,3 @@
-
 export enum SubProcessorTask {
   GET_HOLDERS_KEYS_COUNT = 'getTotalHoldersCount'
 }
@@ -15,7 +14,7 @@ export enum TrackingMetrics {
   validators = 'validators',
   staking = 'staking',
   nominationPools = 'nominationPools',
-  transfers = 'transfers',
+  transfers = 'transfers'
 }
 
 export enum CheckPointsKeys {
@@ -23,7 +22,7 @@ export enum CheckPointsKeys {
   issuance = 'issuance',
   validators = 'validators',
   staking = 'staking',
-  nominationPools = 'nominationPools',
+  nominationPools = 'nominationPools'
 }
 
 export interface BalancesTransferEventData {
@@ -66,7 +65,7 @@ export type SubProcessorTaskPayload = {
   timestamp: string;
   queueIndex: number;
   queueSubIndex: number;
-  terminated?: boolean
+  terminated?: boolean;
 };
 
 export type SubProcessorTaskResult = SubProcessorTaskPayload & {
@@ -77,7 +76,7 @@ export type NominationPoolsData = {
   totalPoolsCount: number;
   totalPoolsMembers: number;
   totalPoolsStake: bigint;
-}
+};
 
 export interface EraStaker {
   total: bigint;
@@ -86,3 +85,13 @@ export interface EraStaker {
 }
 
 export type ErasStakersArgs = [account: Uint8Array, era?: number];
+
+export type CollatorInfoShort = {
+  bond: bigint;
+  totalCounted: bigint;
+};
+
+export type DelegatorInfoShort = {
+  id: Uint8Array;
+  totalStake: bigint;
+};

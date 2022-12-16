@@ -11,7 +11,11 @@ import {
 import { UnknownVersionError } from '../../../utils/errors';
 import { decodeAccount, encodeAccount } from '../../../utils/common';
 import { getChain } from '../../index';
-import { EraStaker, ErasStakersArgs, NominationPoolsData } from '../../../utils/types';
+import {
+  EraStaker,
+  ErasStakersArgs,
+  NominationPoolsData
+} from '../../../utils/types';
 import { getKeysCountAll } from '../../utils';
 import { NominationPoolsBondedPoolsStorage } from '../../kusama/types/storage';
 
@@ -56,6 +60,16 @@ export async function getValidators(ctx: ChainContext, block: Block) {
 
   throw new UnknownVersionError(storage.constructor.name);
 }
+
+export async function getValidatorsCount(
+  ctx: ChainContext,
+  block: Block
+) {
+  const list = await getValidators(ctx, block);
+  if (!list) return undefined;
+  return list.length;
+}
+
 export async function getErasStakersData(
   ctx: ChainContext,
   block: Block,

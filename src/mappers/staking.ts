@@ -5,25 +5,13 @@ import { getOrCreateTotals } from './totals';
 import { isCheckPoint } from '../utils/common';
 import { CheckPointsKeys } from '../utils/types';
 import { getChain } from '../chains';
-const { api: storageApi } = getChain();
+const { config: chainConfig, getApiDecorated } = getChain();
 
 export async function handleStakeAmount(ctx: Ctx, block: Block) {
   const histDataMeta = await getOrCreateHistoricalDataMeta(ctx);
 
   if (!isCheckPoint(CheckPointsKeys.staking, histDataMeta, block)) return;
 
-  const blockForStorage = {
-    hash: block.header.hash
-  };
-
-  const activeEraData = await storageApi.storage.getActiveEra(
-    ctx,
-    blockForStorage
-  );
-  const currentEraData = await storageApi.storage.getCurrentEra(
-    ctx,
-    blockForStorage
-  );
   const saveStakingCheckMarker = () => {
     histDataMeta.stakingLatestBlockNumber = BigInt(block.header.height);
     histDataMeta.stakingLatestTime = new Date(block.header.timestamp);
@@ -31,32 +19,64 @@ export async function handleStakeAmount(ctx: Ctx, block: Block) {
     ctx.store.deferredUpsert(histDataMeta);
   };
 
+  switch (chainConfig.chainName) {
+    case 'kusama':
+    case 'polkadot':
+      await handleStakingPallet(ctx, block, saveStakingCheckMarker);
+      break;
+    case 'moonbeam':
+    case 'moonriver':
+      await handleParachainStakingPallet(ctx, block, saveStakingCheckMarker);
+      break;
+    default:
+  }
+}
+
+async function handleStakingPallet(
+  ctx: Ctx,
+  block: Block,
+  saveCheckMarker: () => void
+) {
+  const blockForStorage = {
+    hash: block.header.hash
+  };
+
+  const apiDecorated = getApiDecorated('polkadot');
+
+  const activeEraData = await apiDecorated.storage.getActiveEra(
+    ctx,
+    blockForStorage
+  );
+  const currentEraData = await apiDecorated.storage.getCurrentEra(
+    ctx,
+    blockForStorage
+  );
   /**
    * Preferred to use ActiveEra because CurrentEra can return next planed era
    */
   const storageEra = activeEraData?.index || currentEraData;
 
   if (storageEra == null || storageEra == undefined) {
-    saveStakingCheckMarker();
+    saveCheckMarker();
     return ctx.log.warn(`Unknown era`);
   }
 
-  const validatorIds = await storageApi.storage.getValidators(
+  const validatorIds = await apiDecorated.storage.getValidators(
     ctx,
     blockForStorage
   );
   if (!validatorIds) {
-    saveStakingCheckMarker();
+    saveCheckMarker();
     return ctx.log.warn(`Validators for era ${storageEra} not found`);
   }
 
-  const validatorsData = await storageApi.storage.getEraStakersData(
+  const validatorsData = await apiDecorated.storage.getEraStakersData(
     ctx,
     blockForStorage,
     validatorIds.map((id) => [id, storageEra] as [Uint8Array, number])
   );
   if (!validatorsData) {
-    saveStakingCheckMarker();
+    saveCheckMarker();
     return ctx.log.warn(`Missing info for validators in era ${storageEra}`);
   }
 
@@ -74,17 +94,98 @@ export async function handleStakeAmount(ctx: Ctx, block: Block) {
     blockHash: block.header.hash,
     totalStake: totalValidatorsStake + totalNominatorsStake,
     validatorStake: totalValidatorsStake,
-    nominatorStake: totalNominatorsStake
+    nominatorStake: totalNominatorsStake,
+    currentEra: storageEra ?? null,
+    validatorsCount: validatorIds.length
   });
 
   ctx.store.deferredUpsert(newStakedValueStat);
 
-  saveStakingCheckMarker();
+  saveCheckMarker();
 
   const totals = await getOrCreateTotals(ctx);
 
+  totals.currentEra = newStakedValueStat.currentEra;
   totals.stakedValueTotal = newStakedValueStat.totalStake;
   totals.stakedValueValidator = newStakedValueStat.validatorStake;
+  totals.stakedValueNominator = newStakedValueStat.nominatorStake;
+
+  ctx.store.deferredUpsert(totals);
+}
+
+async function handleParachainStakingPallet(
+  ctx: Ctx,
+  block: Block,
+  saveCheckMarker: () => void
+) {
+  const blockForStorage = {
+    hash: block.header.hash
+  };
+  const apiDecorated = getApiDecorated('moonbeam');
+
+  const currentRound = await apiDecorated.storage.getRoundNumber(
+    ctx,
+    blockForStorage
+  );
+
+  const collatorIds = await apiDecorated.storage.getSelectedCollators(
+    ctx,
+    blockForStorage
+  );
+  if (!collatorIds) return;
+
+  const collatorsData = await apiDecorated.storage.getCollatorsDataShort(
+    ctx,
+    blockForStorage,
+    collatorIds
+  );
+
+  if (!collatorsData) return;
+
+  const nominatorsAllData =
+    await apiDecorated.storage.getStakingDelegatorsAllDataShort(
+      ctx,
+      blockForStorage
+    );
+
+  if (!nominatorsAllData) return;
+
+  const totalCollatorsStake = [...collatorsData.values()].reduce(
+    (total, collator) => total + (collator ? collator.bond : 0n),
+    0n
+  );
+
+  const totalNominatorsStake = nominatorsAllData.reduce(
+    (total, nominator) => total + nominator.totalStake,
+    0n
+  );
+
+  const totalStake = await apiDecorated.storage.getTotalStake(
+    ctx,
+    blockForStorage
+  );
+
+  const newStakedValueStat = new StakedValue({
+    id: block.header.height.toString(),
+    timestamp: new Date(block.header.timestamp),
+    blockHash: block.header.hash,
+    totalStake: totalCollatorsStake + totalNominatorsStake,
+    totalStakeStorage: totalStake,
+    collatorStake: totalCollatorsStake,
+    nominatorStake: totalNominatorsStake,
+    currentRound: currentRound ?? null,
+    collatorsCount: collatorIds.length
+  });
+
+  ctx.store.deferredUpsert(newStakedValueStat);
+
+  saveCheckMarker();
+
+  const totals = await getOrCreateTotals(ctx);
+
+  totals.currentRound = newStakedValueStat.currentRound;
+  totals.stakedValueTotal = newStakedValueStat.totalStake;
+  totals.stakedValueCollator = newStakedValueStat.collatorStake;
   totals.stakedValueNominator = newStakedValueStat.nominatorStake;
 
   ctx.store.deferredUpsert(totals);

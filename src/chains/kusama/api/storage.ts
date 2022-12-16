@@ -63,6 +63,15 @@ export async function getValidators(ctx: ChainContext, block: Block) {
 
   throw new UnknownVersionError(storage.constructor.name);
 }
+export async function getValidatorsCount(
+  ctx: ChainContext,
+  block: Block
+) {
+  const list = await getValidators(ctx, block);
+  if (!list) return undefined;
+  return list.length;
+}
+
 export async function getErasStakersData(
   ctx: ChainContext,
   block: Block,

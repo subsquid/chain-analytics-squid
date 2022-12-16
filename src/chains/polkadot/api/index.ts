@@ -6,6 +6,7 @@ import {
   getTotalHoldersCount,
   getCurrentEra,
   getValidators,
+  getValidatorsCount,
   getEraStakersData,
   getIdealValidatorsCount,
   getNominationPoolsData
@@ -21,6 +22,7 @@ export const api: ChainApi = {
     getActiveEra,
     getCurrentEra,
     getValidators,
+    getValidatorsCount,
     getEraStakersData,
     getIdealValidatorsCount,
     getNominationPoolsData

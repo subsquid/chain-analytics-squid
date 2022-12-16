@@ -18,7 +18,10 @@ export async function getOrCreateHistoricalDataMeta(ctx: Ctx) {
     validatorsLatestTime: null,
 
     stakingLatestBlockNumber: 0n,
-    stakingLatestTime: null
+    stakingLatestTime: null,
+
+    nominationPoolsLatestBlockNumber: 0n,
+    nominationPoolsLatestTime: null
   });
 
   return histMetaEntity;

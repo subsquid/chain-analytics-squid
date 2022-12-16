@@ -63,6 +63,7 @@ if (parentPort) {
               return;
             }
           }
+          // TODO improve type security
           // @ts-ignore
           const result = await chainConfig.api.storage[taskName](ctx, {
             header: { hash: blockHash }

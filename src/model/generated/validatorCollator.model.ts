@@ -1,8 +1,8 @@
 import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, Index as Index_} from "typeorm"
 
 @Entity_()
-export class Validator {
-    constructor(props?: Partial<Validator>) {
+export class ValidatorCollator {
+    constructor(props?: Partial<ValidatorCollator>) {
         Object.assign(this, props)
     }
 
