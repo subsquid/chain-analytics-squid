@@ -1,5 +1,7 @@
 import { ProcessorConfig } from '../interfaces/processorConfig';
 import { TrackingMetrics } from '../../utils/types';
+import * as dotenv from 'dotenv';
+dotenv.config({ path: `${__dirname}/../../../.env.local` });
 
 /**
  * Circulating Supply: all tokens that are held in accounts outside of the non-circulating Moonbeam addresses and Protocol-controlled addresses.
@@ -62,7 +64,7 @@ export const config: ProcessorConfig = {
   dataSource: {
     archive: 'https://moonriver.archive.subsquid.io/graphql',
     chain:
-      'wss://rpc.pinknode.io/moonriver/72a24bb9-7b9d-4309-b952-f5dd5ef2878c'
+    process.env.PINKNODE_MOONRIVER_NODE
   },
   // blockRange: {
   //   from: 2220000

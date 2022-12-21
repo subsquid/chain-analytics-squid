@@ -1,12 +1,14 @@
 import { ProcessorConfig } from '../interfaces/processorConfig';
 import { TrackingMetrics } from '../../utils/types';
+import * as dotenv from 'dotenv';
+dotenv.config({ path: `${__dirname}/../../../.env.local` });
 
 export const config: ProcessorConfig = {
   chainName: 'polkadot',
   prefix: 'polkadot',
   dataSource: {
     archive: 'https://polkadot.archive.subsquid.io/graphql',
-    chain: 'wss://rpc.polkadot.io'
+    chain: process.env.PINKNODE_POLKADOT_NODE
   },
   intervals: new Map([
     ['holders', 1000 * 60 * 60 * 12],

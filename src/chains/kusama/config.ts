@@ -1,12 +1,14 @@
 import { ProcessorConfig } from '../interfaces/processorConfig';
 import { TrackingMetrics } from '../../utils/types';
+import * as dotenv from 'dotenv';
+dotenv.config({ path: `${__dirname}/../../../.env.local` });
 
 export const config: ProcessorConfig = {
   chainName: 'kusama',
   prefix: 'kusama',
   dataSource: {
     archive: 'https://kusama.archive.subsquid.io/graphql',
-    chain: 'wss://kusama-rpc.polkadot.io'
+    chain: process.env.PINKNODE_KUSAMA_NODE
   },
   // blockRange: {
   //   from: 14067700
