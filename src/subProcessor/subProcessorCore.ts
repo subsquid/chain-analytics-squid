@@ -80,6 +80,7 @@ if (parentPort) {
             }
           } catch (e) {
             subProcessorLog(`Thread ${id} has been FINISHED with ERROR - ${e}`);
+            console.dir(e, {depth: null})
 
             if (parentPort) {
               parentPort.postMessage(null);

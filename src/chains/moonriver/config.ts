@@ -64,13 +64,13 @@ export const config: ProcessorConfig = {
   dataSource: {
     archive: 'https://moonriver.archive.subsquid.io/graphql',
     chain:
-    process.env.PINKNODE_MOONRIVER_NODE
+    process.env.MOONRIVER_NODE || 'wss://wss.api.moonriver.moonbeam.network'
   },
   // blockRange: {
   //   from: 2220000
   // },
   intervals: new Map([
-    ['holders', 1000 * 60 * 60 * 12],
+    ['holders', 1000 * 60 * 60 * 24],
     ['issuance', 1000 * 60 * 60],
     ['staking', 1000 * 60 * 60],
     ['validators', 1000 * 60 * 60]

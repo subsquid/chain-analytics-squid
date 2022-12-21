@@ -15,8 +15,8 @@
     "update": "npx npm-check-updates --filter /subsquid/ --upgrade && npm i -f"
   },
   "dependencies": {
-    "@subsquid/archive-registry": "^1.0.17",
-    "@subsquid/graphql-server": "^3.2.4",
+    "@subsquid/archive-registry": "^1.0.18",
+    "@subsquid/graphql-server": "^3.3.0",
     "@subsquid/processor-tools": "github:mckrava/processor-tools",
     "@subsquid/ss58": "^0.1.2",
     "@subsquid/substrate-processor": "^2.1.0",

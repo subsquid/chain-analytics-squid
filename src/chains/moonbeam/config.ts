@@ -86,13 +86,13 @@ export const config: ProcessorConfig = {
   chainName: 'moonbeam',
   dataSource: {
     archive: 'https://moonbeam.archive.subsquid.io/graphql',
-    chain: process.env.PINKNODE_MOONBEAM_NODE
+    chain: process.env.MOONBEAM_NODE || 'wss://wss.api.moonbeam.network'
   },
   // blockRange: {
   //   from: 1800000
   // },
   intervals: new Map([
-    ['holders', 1000 * 60 * 60 * 12],
+    ['holders', 1000 * 60 * 60 * 24],
     ['issuance', 1000 * 60 * 60],
     ['staking', 1000 * 60 * 60],
     ['validators', 1000 * 60 * 60]
