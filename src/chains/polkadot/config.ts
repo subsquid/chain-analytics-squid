@@ -24,6 +24,6 @@ export const config: ProcessorConfig = {
     TrackingMetrics.nominationPools
   ]),
   subProcessor: {
-    maxThreads: 15
+    maxThreads: 20
   }
 };
