@@ -1,5 +1,6 @@
 export enum SubProcessorTask {
-  GET_HOLDERS_KEYS_COUNT = 'getTotalHoldersCount'
+  // GET_HOLDERS_KEYS_COUNT = 'getTotalHoldersCount'
+  GET_HOLDERS_TOTALS = 'getHoldersTotals'
 }
 
 export enum BlockEventName {
@@ -68,9 +69,17 @@ export type SubProcessorTaskPayload = {
   terminated?: boolean;
 };
 
-export type SubProcessorTaskResult = SubProcessorTaskPayload & {
-  result: number | undefined | null;
+export type HoldersTotals = {
+  totalHoldersCount: number | null;
+  totalFreeBalance: bigint | null;
 };
+
+type SubProcessorTaskResultValue<T> =
+  T extends SubProcessorTask.GET_HOLDERS_TOTALS ? HoldersTotals : never;
+
+export interface SubProcessorTaskResult<T> extends SubProcessorTaskPayload {
+  result: SubProcessorTaskResultValue<T> | null;
+}
 
 export type NominationPoolsData = {
   totalPoolsCount: number;

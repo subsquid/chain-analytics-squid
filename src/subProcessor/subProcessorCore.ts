@@ -73,7 +73,7 @@ if (parentPort) {
           );
 
           if (parentPort) {
-            parentPort.postMessage(result ?? 0);
+            parentPort.postMessage(result ?? null);
           } else {
             console.log('parentPort is not available');
           }

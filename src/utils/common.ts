@@ -40,12 +40,12 @@ export function getStorageHash(prefix: string, name: string) {
 
 export function encodeAccount(
   id: Uint8Array,
-  prefix: string | number | undefined
+  prefix?: string | number | undefined
 ) {
   return prefix != null ? ss58.codec(prefix).encode(id) : toHex(id);
 }
 
-export function decodeAccount(id: string, prefix: string | number | undefined) {
+export function decodeAccount(id: string, prefix?: string | number | undefined) {
   return prefix != null ? ss58.codec(prefix).decode(id) : decodeHex(id);
 }
 
@@ -72,4 +72,17 @@ export function isMetricTrackable(metricKey: TrackingMetrics) {
 
 export async function sleepTo(delay: number = 0) {
   await new Promise<void>((res) => setTimeout(() => res(), delay));
+}
+
+export function* splitIntoBatches<T>(list: T[], maxBatchSize: number): Generator<T[]> {
+  if (list.length <= maxBatchSize) {
+    yield list;
+  } else {
+    let offset = 0;
+    while (list.length - offset > maxBatchSize) {
+      yield list.slice(offset, offset + maxBatchSize);
+      offset += maxBatchSize;
+    }
+    yield list.slice(offset);
+  }
 }

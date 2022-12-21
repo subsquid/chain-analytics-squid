@@ -1,9 +1,9 @@
-module.exports = class Data1671222936872 {
-    name = 'Data1671222936872'
+module.exports = class Data1671579523203 {
+    name = 'Data1671579523203'
 
     async up(db) {
-        await db.query(`CREATE TABLE "sub_processor_task" ("id" character varying NOT NULL, "worker_id" text, "task_name" text NOT NULL, "block_hash" text NOT NULL, "block_height" integer NOT NULL, "timestamp" text NOT NULL, "result" integer, "queue_index" integer NOT NULL, "queue_sub_index" integer NOT NULL, "status" character varying(10) NOT NULL, CONSTRAINT "PK_57accaad7b367165b5e165de3f4" PRIMARY KEY ("id"))`)
-        await db.query(`CREATE TABLE "totals" ("id" character varying NOT NULL, "finalized_blocks" numeric NOT NULL, "total_issuance" numeric NOT NULL, "signed_extrinsics" numeric NOT NULL, "transfers_count" numeric NOT NULL, "holders" integer NOT NULL, "collators_ideal_count" integer, "collators_count" integer, "validators_ideal_count" integer, "validators_count" integer, "current_era" integer, "current_round" integer, "staked_value_total" numeric, "staked_value_validator" numeric, "staked_value_collator" numeric, "staked_value_nominator" numeric, "nomination_pools_count_members" integer, "nomination_pools_count_pools" integer, "nomination_pools_total_stake" numeric, CONSTRAINT "PK_3480b9650b4eb64138649f2a416" PRIMARY KEY ("id"))`)
+        await db.query(`CREATE TABLE "sub_processor_task" ("id" character varying NOT NULL, "worker_id" text, "task_name" text NOT NULL, "block_hash" text NOT NULL, "block_height" integer NOT NULL, "timestamp" text NOT NULL, "result" jsonb, "queue_index" integer NOT NULL, "queue_sub_index" integer NOT NULL, "status" character varying(10) NOT NULL, CONSTRAINT "PK_57accaad7b367165b5e165de3f4" PRIMARY KEY ("id"))`)
+        await db.query(`CREATE TABLE "totals" ("id" character varying NOT NULL, "finalized_blocks" numeric NOT NULL, "total_issuance" numeric NOT NULL, "signed_extrinsics" numeric NOT NULL, "transfers_count" numeric NOT NULL, "holders" integer NOT NULL, "collators_ideal_count" integer, "collators_count" integer, "validators_ideal_count" integer, "validators_count" integer, "current_era" integer, "current_round" integer, "circulating_assets_total" numeric, "staked_value_total" numeric, "staked_value_validator" numeric, "staked_value_collator" numeric, "staked_value_nominator" numeric, "nomination_pools_count_members" integer, "nomination_pools_count_pools" integer, "nomination_pools_total_stake" numeric, CONSTRAINT "PK_3480b9650b4eb64138649f2a416" PRIMARY KEY ("id"))`)
         await db.query(`CREATE INDEX "IDX_f91ccd19975caf90fdfcc52b73" ON "totals" ("staked_value_validator") `)
         await db.query(`CREATE INDEX "IDX_9d5f71a71a34fffe3d827f9a6b" ON "totals" ("staked_value_collator") `)
         await db.query(`CREATE INDEX "IDX_f029512b4386124e1a3786d647" ON "totals" ("staked_value_nominator") `)
@@ -21,8 +21,9 @@ module.exports = class Data1671222936872 {
         await db.query(`CREATE INDEX "IDX_387409712a008b9b1e0263eba3" ON "historical_data_meta" ("staking_latest_time") `)
         await db.query(`CREATE INDEX "IDX_17cae1ce86ad03a9a598d49401" ON "historical_data_meta" ("nomination_pools_latest_block_number") `)
         await db.query(`CREATE INDEX "IDX_88f1efc28c9c512617d4657101" ON "historical_data_meta" ("nomination_pools_latest_time") `)
-        await db.query(`CREATE TABLE "holders" ("id" character varying NOT NULL, "amount" integer NOT NULL, "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, "block_hash" text NOT NULL, CONSTRAINT "PK_db78e78aa79aa06fd917151e37f" PRIMARY KEY ("id"))`)
+        await db.query(`CREATE TABLE "holders" ("id" character varying NOT NULL, "amount" integer NOT NULL, "total_free_balance" numeric NOT NULL, "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, "block_hash" text NOT NULL, CONSTRAINT "PK_db78e78aa79aa06fd917151e37f" PRIMARY KEY ("id"))`)
         await db.query(`CREATE INDEX "IDX_5acf8ee6a2f31d656fa1492393" ON "holders" ("amount") `)
+        await db.query(`CREATE INDEX "IDX_97209a6defe3f6d0202b6c2120" ON "holders" ("total_free_balance") `)
         await db.query(`CREATE INDEX "IDX_e427844cfb263424dd925e6143" ON "holders" ("timestamp") `)
         await db.query(`CREATE INDEX "IDX_0e6587e225862e447a0bc704c4" ON "holders" ("block_hash") `)
         await db.query(`CREATE TABLE "issuance" ("id" character varying NOT NULL, "volume" numeric NOT NULL, "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, "block_hash" text NOT NULL, CONSTRAINT "PK_bb07b4f10059d7d7890e247f1af" PRIMARY KEY ("id"))`)
@@ -85,6 +86,7 @@ module.exports = class Data1671222936872 {
         await db.query(`DROP INDEX "public"."IDX_88f1efc28c9c512617d4657101"`)
         await db.query(`DROP TABLE "holders"`)
         await db.query(`DROP INDEX "public"."IDX_5acf8ee6a2f31d656fa1492393"`)
+        await db.query(`DROP INDEX "public"."IDX_97209a6defe3f6d0202b6c2120"`)
         await db.query(`DROP INDEX "public"."IDX_e427844cfb263424dd925e6143"`)
         await db.query(`DROP INDEX "public"."IDX_0e6587e225862e447a0bc704c4"`)
         await db.query(`DROP TABLE "issuance"`)

@@ -12,10 +12,15 @@ type SubProcessorTask @entity {
   blockHash: String!
   blockHeight: Int!
   timestamp: String!
-  result: Int
+  result: TaskResult
   queueIndex: Int!
   queueSubIndex: Int!
   status: SubProcessorTaskStatus!
+}
+
+type TaskResult {
+  totalHoldersCount: Int
+  totalFreeBalance: BigInt
 }
 
 type Totals @entity {
@@ -33,6 +38,7 @@ type Totals @entity {
 
   currentEra: Int
   currentRound: Int
+  circulatingAssetsTotal: BigInt
   stakedValueTotal: BigInt
   stakedValueValidator: BigInt @index
   stakedValueCollator: BigInt @index
@@ -66,6 +72,7 @@ type Holders @entity {
   "Block number"
   id: ID!
   amount: Int! @index
+  totalFreeBalance: BigInt! @index
   timestamp: DateTime! @index
   blockHash: String! @index
 }

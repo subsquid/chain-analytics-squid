@@ -4,8 +4,11 @@ import {
   SubProcessorTaskResult
 } from '../utils/types';
 import { Ctx } from '../processor';
-import { SubProcessorTask, SubProcessorTaskStatus } from '../model';
+import { SubProcessorTask, SubProcessorTaskStatus, TaskResult } from '../model';
 import { WorkersPool } from './workersPool';
+import { getChain } from '../chains';
+
+const { config: chainConfig } = getChain();
 
 export class TreadsPool {
   private static instance: TreadsPool;
@@ -13,7 +16,9 @@ export class TreadsPool {
   private workersPool: WorkersPool;
   private poolOptions = {
     filename: path.resolve(__dirname, './subProcessorCore'),
-    maxThreads: 15
+    maxThreads: chainConfig.subProcessor
+      ? chainConfig.subProcessor.maxThreads
+      : 10
   };
 
   private prometheusPost: number = 3005;
@@ -27,7 +32,7 @@ export class TreadsPool {
    *    - case #2: tasksQueue = [t#1, t#2, t#3], resultsStackCache = {res_t#1, res_t#2}, _resultsListsScope = [res_t#1, res_t#2]
    * )
    */
-  private _resultsListsScope: Map<string, Array<SubProcessorTaskResult>> =
+  private _resultsListsScope: Map<string, Array<SubProcessorTaskResult<''>>> =
     new Map();
 
   /**
@@ -35,10 +40,12 @@ export class TreadsPool {
    * provided to client as task in previous position in tasksQueue still is
    * in processing.
    */
-  private resultsStackCache: Map<string, Map<string, SubProcessorTaskResult>> =
-    new Map();
+  private resultsStackCache: Map<
+    string,
+    Map<string, SubProcessorTaskResult<''>>
+  > = new Map();
 
-  private resultsBuffer: Map<string, Map<string, SubProcessorTaskResult>> =
+  private resultsBuffer: Map<string, Map<string, SubProcessorTaskResult<''>>> =
     new Map();
 
   private constructor(private context: Ctx) {
@@ -74,14 +81,14 @@ export class TreadsPool {
     return this._resultsListsScope.get(taskName) || [];
   }
 
-  private async addTaskResultsToTmpBuffer(resData: SubProcessorTaskResult) {
+  private async addTaskResultsToTmpBuffer(resData: SubProcessorTaskResult<''>) {
     if (!this.resultsBuffer.has(resData.taskName))
       this.resultsBuffer.set(resData.taskName, new Map());
 
     this.resultsBuffer.get(resData.taskName)!.set(resData.id, resData);
   }
 
-  private async addTaskResultsToStack(resData: SubProcessorTaskResult) {
+  private async addTaskResultsToStack(resData: SubProcessorTaskResult<''>) {
     this.ensureResultsStackCacheContainer(resData.taskName);
     this.resultsStackCache.get(resData.taskName)!.set(resData.id, resData);
 
@@ -94,13 +101,16 @@ export class TreadsPool {
       throw Error(
         `SubProcessorTask entity with id ${resData.id} can not be found.`
       );
-      // this.context.log.warn(
-      //   `SubProcessorTask entity with id ${resData.taskId} can not be found.`
-      // );
-      // return;
     }
     taskEntity.status = SubProcessorTaskStatus.completed;
-    taskEntity.result = resData.result;
+    taskEntity.result = resData.result
+      ? new TaskResult({
+          // @ts-ignore
+          totalHoldersCount: resData.result.totalHoldersCount ?? null,
+          // @ts-ignore
+          totalFreeBalance: resData.result.totalFreeBalance ?? null
+        })
+      : null;
     this.context.store.deferredUpsert(taskEntity);
 
     /**
@@ -125,7 +135,7 @@ export class TreadsPool {
 
     for (const i of currentTaskQueue) {
       if (currentTaskResCache.has(currentTaskQueue[0].id)) {
-        const task = currentTaskQueue.shift() as SubProcessorTaskResult;
+        const task = currentTaskQueue.shift() as SubProcessorTaskResult<''>;
         currentResultsList.push(currentTaskResCache.get(task.id)!);
         currentTaskResCache.delete(task.id);
         this.context.store.deferredRemove(task);
@@ -274,7 +284,8 @@ export class TreadsPool {
             blockHash: existingSavedTasks[i].blockHash,
             blockHeight: existingSavedTasks[i].blockHeight,
             timestamp: existingSavedTasks[i].timestamp,
-            result: existingSavedTasks[i].result,
+            // @ts-ignore
+            result: existingSavedTasks[i].result ?? null,
             queueIndex: existingSavedTasks[i].queueIndex,
             queueSubIndex: existingSavedTasks[i].queueSubIndex
           });

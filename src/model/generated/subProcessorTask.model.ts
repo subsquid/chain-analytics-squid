@@ -1,4 +1,6 @@
 import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_} from "typeorm"
+import * as marshal from "./marshal"
+import {TaskResult} from "./_taskResult"
 import {SubProcessorTaskStatus} from "./_subProcessorTaskStatus"
 
 @Entity_()
@@ -28,8 +30,8 @@ export class SubProcessorTask {
     @Column_("text", {nullable: false})
     timestamp!: string
 
-    @Column_("int4", {nullable: true})
-    result!: number | undefined | null
+    @Column_("jsonb", {transformer: {to: obj => obj == null ? undefined : obj.toJSON(), from: obj => obj == null ? undefined : new TaskResult(undefined, obj)}, nullable: true})
+    result!: TaskResult | undefined | null
 
     @Column_("int4", {nullable: false})
     queueIndex!: number

@@ -15,17 +15,20 @@ export async function handleChainHolders(ctx: Ctx, block: Block) {
   const treadsPoolInst = TreadsPool.getInstance(ctx);
 
   const tasksResults = treadsPoolInst.getResultsListByTaskName(
-    SubProcessorTask.GET_HOLDERS_KEYS_COUNT
+    SubProcessorTask.GET_HOLDERS_TOTALS
   );
 
   if (tasksResults && tasksResults.length > 0) {
     await treadsPoolInst.clearTaskResultsListByTaskName(
-      SubProcessorTask.GET_HOLDERS_KEYS_COUNT
+      SubProcessorTask.GET_HOLDERS_TOTALS
     );
-    for (const resItem of tasksResults as SubProcessorTaskResult[]) {
+    for (const resItem of tasksResults as SubProcessorTaskResult<SubProcessorTask.GET_HOLDERS_TOTALS>[]) {
+      if (!resItem || !resItem.result) continue;
+      const { totalHoldersCount, totalFreeBalance } = resItem.result;
       const newHoldersStat = new Holders({
         id: resItem.blockHeight.toString(),
-        amount: resItem.result ?? 0,
+        amount: totalHoldersCount ?? 0,
+        totalFreeBalance: totalFreeBalance ?? 0n,
         timestamp: new Date(Number.parseInt(resItem.timestamp)),
         blockHash: resItem.blockHash
       });
@@ -34,7 +37,9 @@ export async function handleChainHolders(ctx: Ctx, block: Block) {
 
       const totals = await getOrCreateTotals(ctx);
 
-      totals.holders = resItem.result ?? 0;
+      if (totalHoldersCount !== null) totals.holders = totalHoldersCount;
+      if (totalFreeBalance !== null)
+        totals.circulatingAssetsTotal = totalFreeBalance;
 
       ctx.store.deferredUpsert(totals);
     }
@@ -43,8 +48,8 @@ export async function handleChainHolders(ctx: Ctx, block: Block) {
   if (!isCheckPoint(CheckPointsKeys.holders, histDataMeta, block)) return;
 
   await treadsPoolInst.addTask({
-    id: `${block.header.height}_${SubProcessorTask.GET_HOLDERS_KEYS_COUNT}`,
-    taskName: SubProcessorTask.GET_HOLDERS_KEYS_COUNT,
+    id: `${block.header.height}_${SubProcessorTask.GET_HOLDERS_TOTALS}`,
+    taskName: SubProcessorTask.GET_HOLDERS_TOTALS,
     blockHash: block.header.hash,
     blockHeight: block.header.height,
     timestamp: block.header.timestamp.toString(),

@@ -1,4 +1,5 @@
 export * from "./subProcessorTask.model"
+export * from "./_taskResult"
 export * from "./_subProcessorTaskStatus"
 export * from "./totals.model"
 export * from "./historicalDataMeta.model"

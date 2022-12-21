@@ -1,0 +1,7 @@
+{
+  "outDir": "../src/chains/moonriver/types",
+  "specVersions": "https://moonriver.archive.subsquid.io/graphql",
+  "events": ["Balances.Transfer"],
+  "storage": true,
+  "calls": []
+}

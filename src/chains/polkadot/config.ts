@@ -22,5 +22,8 @@ export const config: ProcessorConfig = {
     TrackingMetrics.transfers,
     TrackingMetrics.validators,
     TrackingMetrics.nominationPools
-  ])
+  ]),
+  subProcessor: {
+    maxThreads: 15
+  }
 };

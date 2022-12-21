@@ -19,6 +19,7 @@ import {
   NominationPoolsData
 } from '../../../utils/types';
 import { getKeysCountAll } from '../../utils';
+import { excludeFromCirculatingAssetsAmountAddresses } from '../../moonriver/config';
 
 export async function getTotalIssuance(ctx: ChainContext, block: Block) {
   const storage = new BalancesTotalIssuanceStorage(ctx, block);
@@ -142,22 +143,60 @@ export async function getNominationPoolsData(ctx: ChainContext, block: Block) {
   }
   return res;
 }
+//
+// export async function getTotalHoldersCount(ctx: ChainContext, block: Block) {
+//   const storage = new SystemAccountStorage(ctx, block);
+//   if (!storage.isExists) return undefined;
+//
+//   if (storage.isV1050) {
+//     return undefined; // This call is not available in this spec version
+//   } else if (storage.isV2025) {
+//     return await getKeysCountAll(storage.asV2025.getKeysPaged(1000));
+//   } else if (storage.isV2028) {
+//     return await getKeysCountAll(storage.asV2028.getKeysPaged(1000));
+//   } else if (storage.isV2030) {
+//     return await getKeysCountAll(storage.asV2030.getKeysPaged(1000));
+//   } else {
+//     throw new UnknownVersionError(storage.constructor.name);
+//   }
+// }
 
-export async function getTotalHoldersCount(ctx: ChainContext, block: Block) {
-  const storage = new SystemAccountStorage(ctx, block);
-  if (!storage.isExists) return undefined;
-
-  if (storage.isV1050) {
-    return undefined; // This call is not available in this spec version
-  } else if (storage.isV2025) {
-    return await getKeysCountAll(storage.asV2025.getKeysPaged(1000));
-  } else if (storage.isV2028) {
-    return await getKeysCountAll(storage.asV2028.getKeysPaged(1000));
-  } else if (storage.isV2030) {
-    return await getKeysCountAll(storage.asV2030.getKeysPaged(1000));
-  } else {
-    throw new UnknownVersionError(storage.constructor.name);
-  }
+export async function getHoldersTotals(ctx: ChainContext, block: Block) {
+  // const storageSysAccount = new SystemAccountStorage(ctx, block);
+  //
+  // if (!storageSysAccount.isExists) return undefined;
+  //
+  // if (storageSysAccount.isV900) {
+  //   const accountsList = [];
+  //   for await (const keysPack of storageSysAccount.asV900.getPairsPaged(1000))
+  //     accountsList.push(...keysPack);
+  //
+  //   let totalFreeBalance = 0n;
+  //   const totalCount = accountsList
+  //     .filter(
+  //       (pair) =>
+  //         !excludeFromCirculatingAssetsAmountAddresses.has(
+  //           encodeAccount(pair[0])
+  //         )
+  //     )
+  //     .filter(([addr, accInfo]) => {
+  //       totalFreeBalance += accInfo.data.free;
+  //       return (
+  //         accInfo.data.free +
+  //         accInfo.data.feeFrozen +
+  //         accInfo.data.miscFrozen +
+  //         accInfo.data.reserved >
+  //         0
+  //       );
+  //     }).length;
+  //
+  //   return {
+  //     totalHoldersCount: totalCount,
+  //     totalFreeBalance: totalFreeBalance
+  //   };
+  // }
+  // throw new UnknownVersionError(storageSysAccount.constructor.name);
+  return undefined
 }
 
 export async function getEraStakersData(

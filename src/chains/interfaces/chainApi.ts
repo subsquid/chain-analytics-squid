@@ -3,9 +3,10 @@ import { ActiveEraInfo } from '../kusama/types/v1050';
 import {
   NominationPoolsData,
   EraStaker,
-  ErasStakersArgs, CollatorInfoShort, DelegatorInfoShort
+  ErasStakersArgs,
+  CollatorInfoShort,
+  DelegatorInfoShort
 } from '../../utils/types';
-import { getTotalStake } from '../moonbeam/api/storage';
 
 export type ChainApi = {
   events: {
@@ -13,7 +14,11 @@ export type ChainApi = {
   };
   storage: {
     getTotalIssuance: StorageGetter<[], bigint | undefined>;
-    getTotalHoldersCount: StorageGetter<[], number | undefined>;
+    // getTotalHoldersCount: StorageGetter<[], number | undefined>;
+    getHoldersTotals: StorageGetter<
+      [],
+      { totalHoldersCount: number; totalFreeBalance: bigint } | undefined
+    >;
 
     getEraStakersData?: StorageGetter<
       [ErasStakersArgs[]],
@@ -25,8 +30,14 @@ export type ChainApi = {
     getSelectedCollators?: StorageGetter<[], Uint8Array[] | undefined>;
     getSelectedCollatorsCount?: StorageGetter<[], number | undefined>;
     getRoundNumber?: StorageGetter<[], number | undefined>;
-    getCollatorsDataShort?: StorageGetter<[Uint8Array[]], Map<Uint8Array, CollatorInfoShort | null> | undefined>;
-    getStakingDelegatorsAllDataShort?: StorageGetter<[], DelegatorInfoShort[] | undefined>;
+    getCollatorsDataShort?: StorageGetter<
+      [Uint8Array[]],
+      Map<Uint8Array, CollatorInfoShort | null> | undefined
+    >;
+    getStakingDelegatorsAllDataShort?: StorageGetter<
+      [],
+      DelegatorInfoShort[] | undefined
+    >;
     getTotalStake?: StorageGetter<[], bigint | undefined>;
 
     getValidators?: StorageGetter<[], Uint8Array[] | undefined>;
@@ -50,7 +61,7 @@ export type ChainName = 'kusama' | 'polkadot' | 'moonbeam' | 'moonriver';
 
 type KusamaPolkadotChainsStorageCalls =
   | 'getTotalIssuance'
-  | 'getTotalHoldersCount'
+  | 'getHoldersTotals'
   | 'getEraStakersData'
   | 'getActiveEra'
   | 'getCurrentEra'
@@ -61,7 +72,7 @@ type KusamaPolkadotChainsStorageCalls =
 
 type MoonChainsStorageCalls =
   | 'getTotalIssuance'
-  | 'getTotalHoldersCount'
+  | 'getHoldersTotals'
   | 'getSelectedCollators'
   | 'getSelectedCollatorsCount'
   | 'getCollatorsDataShort'

@@ -7,20 +7,22 @@ import {
   ParachainStakingRoundStorage,
   ParachainStakingCandidateInfoStorage,
   ParachainStakingDelegatorStateStorage,
-  ParachainStakingTotalStorage
+  ParachainStakingTotalStorage,
+  ProxyProxiesStorage,
+  BalancesAccountStorage
 } from '../types/storage';
 import { UnknownVersionError } from '../../../utils/errors';
 import { getKeysCountAll } from '../../utils';
 import { CollatorInfoShort, DelegatorInfoShort } from '../../../utils/types';
-import { excludeFromCirculatingAssetsAmountAddresses } from '../../moonriver/config';
+import { excludeFromCirculatingAssetsAmountAddresses } from '../config';
 import { encodeAccount } from '../../../utils/common';
 
 export async function getTotalIssuance(ctx: ChainContext, block: Block) {
   const storage = new BalancesTotalIssuanceStorage(ctx, block);
   if (!storage.isExists) return undefined;
 
-  if (storage.isV900) {
-    return await storage.asV900.get();
+  if (storage.isV49) {
+    return await storage.asV49.get();
   }
 
   throw new UnknownVersionError(storage.constructor.name);
@@ -30,8 +32,8 @@ export async function getSelectedCollators(ctx: ChainContext, block: Block) {
   const storage = new ParachainStakingSelectedCandidatesStorage(ctx, block);
   if (!storage.isExists) return undefined;
 
-  if (storage.isV900) {
-    return await storage.asV900.get();
+  if (storage.isV49) {
+    return await storage.asV49.get();
   }
 
   throw new UnknownVersionError(storage.constructor.name);
@@ -44,31 +46,21 @@ export async function getSelectedCollatorsCount(
   const storage = new ParachainStakingTotalSelectedStorage(ctx, block);
   if (!storage.isExists) return undefined;
 
-  if (storage.isV900) {
-    return await storage.asV900.get();
+  if (storage.isV49) {
+    return await storage.asV49.get();
   }
 
   throw new UnknownVersionError(storage.constructor.name);
 }
-
-// export async function getTotalHoldersCount(ctx: ChainContext, block: Block) {
-//   const storage = new SystemAccountStorage(ctx, block);
-//   if (!storage.isExists) return undefined;
-//
-//   if (storage.isV900) {
-//     return await getKeysCountAll(storage.asV900.getKeysPaged(1000));
-//   }
-//   throw new UnknownVersionError(storage.constructor.name);
-// }
 
 export async function getHoldersTotals(ctx: ChainContext, block: Block) {
   const storageSysAccount = new SystemAccountStorage(ctx, block);
 
   if (!storageSysAccount.isExists) return undefined;
 
-  if (storageSysAccount.isV900) {
+  if (storageSysAccount.isV49) {
     const accountsList = [];
-    for await (const keysPack of storageSysAccount.asV900.getPairsPaged(1000))
+    for await (const keysPack of storageSysAccount.asV49.getPairsPaged(1000))
       accountsList.push(...keysPack);
 
     let totalFreeBalance = 0n;
@@ -83,9 +75,9 @@ export async function getHoldersTotals(ctx: ChainContext, block: Block) {
         totalFreeBalance += accInfo.data.free;
         return (
           accInfo.data.free +
-          accInfo.data.feeFrozen +
-          accInfo.data.miscFrozen +
-          accInfo.data.reserved >
+            accInfo.data.feeFrozen +
+            accInfo.data.miscFrozen +
+            accInfo.data.reserved >
           0
         );
       }).length;
@@ -102,8 +94,8 @@ export async function getRoundNumber(ctx: ChainContext, block: Block) {
   const storage = new ParachainStakingRoundStorage(ctx, block);
   if (!storage.isExists) return undefined;
 
-  if (storage.isV900) {
-    return (await storage.asV900.get()).current;
+  if (storage.isV49) {
+    return (await storage.asV49.get()).current;
   }
   throw new UnknownVersionError(storage.constructor.name);
 }
@@ -112,8 +104,8 @@ export async function getTotalStake(ctx: ChainContext, block: Block) {
   const storage = new ParachainStakingTotalStorage(ctx, block);
   if (!storage.isExists) return undefined;
 
-  if (storage.isV900) {
-    return await storage.asV900.get();
+  if (storage.isV49) {
+    return await storage.asV49.get();
   }
   throw new UnknownVersionError(storage.constructor.name);
 }

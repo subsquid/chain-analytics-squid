@@ -44,6 +44,9 @@ export class Totals {
     currentRound!: number | undefined | null
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})
+    circulatingAssetsTotal!: bigint | undefined | null
+
+    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})
     stakedValueTotal!: bigint | undefined | null
 
     @Index_()

@@ -3,7 +3,7 @@ import { getTransferValue } from './events';
 import {
   getTotalIssuance,
   getActiveEra,
-  getTotalHoldersCount,
+  getHoldersTotals,
   getCurrentEra,
   getValidators,
   getValidatorsCount,
@@ -18,7 +18,7 @@ export const api: ChainApi = {
   },
   storage: {
     getTotalIssuance,
-    getTotalHoldersCount,
+    getHoldersTotals,
     getActiveEra,
     getCurrentEra,
     getValidators,
