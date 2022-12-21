@@ -63,19 +63,29 @@ if (parentPort) {
               return;
             }
           }
-          // TODO improve type security
-          // @ts-ignore
-          const result = await chainConfig.api.storage[taskName](ctx, {
-            header: { hash: blockHash }
-          });
-          subProcessorLog(
-            `Thread ${id} has been FINISHED with result - ${result}`
-          );
+          try {
+            // TODO improve type security
+            // @ts-ignore
+            const result = await chainConfig.api.storage[taskName](ctx, {
+              header: { hash: blockHash }
+            });
+            subProcessorLog(
+              `Thread ${id} has been FINISHED with result - ${result}`
+            );
 
-          if (parentPort) {
-            parentPort.postMessage(result ?? null);
-          } else {
-            console.log('parentPort is not available');
+            if (parentPort) {
+              parentPort.postMessage(result ?? null);
+            } else {
+              console.log('parentPort is not available');
+            }
+          } catch (e) {
+            subProcessorLog(`Thread ${id} has been FINISHED with ERROR - ${e}`);
+
+            if (parentPort) {
+              parentPort.postMessage(null);
+            } else {
+              console.log('parentPort is not available');
+            }
           }
 
           await sleepTo(100);
