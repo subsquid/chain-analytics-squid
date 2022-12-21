@@ -16,42 +16,36 @@ export async function handleChainHolders(ctx: Ctx, block: Block) {
   const histDataMeta = await getOrCreateHistoricalDataMeta(ctx);
   const treadsPoolInst = TreadsPool.getInstance(ctx);
 
-  // const tasksResults = treadsPoolInst.getResultsListByTaskName(
-  //   SubProcessorTask.GET_HOLDERS_TOTALS
-  // );
-  //
-  // if (tasksResults && tasksResults.length > 0) {
-  //   await treadsPoolInst.clearTaskResultsListByTaskName(
-  //     SubProcessorTask.GET_HOLDERS_TOTALS
-  //   );
-  //   for (const resItem of tasksResults as SubProcessorTaskResult<SubProcessorTask.GET_HOLDERS_TOTALS>[]) {
-  //     if (!resItem || !resItem.result) continue;
-  //     const { totalHoldersCount, totalFreeBalance } = resItem.result;
-  //     const newHoldersStat = new Holders({
-  //       id: resItem.blockHeight.toString(),
-  //       amount: totalHoldersCount ?? 0,
-  //       totalFreeBalance: totalFreeBalance ?? 0n,
-  //       timestamp: new Date(Number.parseInt(resItem.timestamp)),
-  //       blockHash: resItem.blockHash
-  //     });
-  //
-  //     ctx.store.deferredUpsert(newHoldersStat);
-  //
-  //     const totals = await getOrCreateTotals(ctx);
-  //
-  //     if (totalHoldersCount !== null) totals.holders = totalHoldersCount;
-  //     if (totalFreeBalance !== null)
-  //       totals.circulatingAssetsTotal = totalFreeBalance;
-  //
-  //     ctx.store.deferredUpsert(totals);
-  //   }
-  // }
+  const tasksResults = treadsPoolInst.getResultsListByTaskName(
+    SubProcessorTask.GET_HOLDERS_TOTALS
+  );
 
-  const api = getApiDecorated('kusama');
-  const blockForStorage = {
-    hash: block.header.hash
-  };
-  await api.storage.getHoldersTotals(ctx, blockForStorage);
+  if (tasksResults && tasksResults.length > 0) {
+    await treadsPoolInst.clearTaskResultsListByTaskName(
+      SubProcessorTask.GET_HOLDERS_TOTALS
+    );
+    for (const resItem of tasksResults as SubProcessorTaskResult<SubProcessorTask.GET_HOLDERS_TOTALS>[]) {
+      if (!resItem || !resItem.result) continue;
+      const { totalHoldersCount, totalFreeBalance } = resItem.result;
+      const newHoldersStat = new Holders({
+        id: resItem.blockHeight.toString(),
+        amount: totalHoldersCount ?? 0,
+        totalFreeBalance: totalFreeBalance ?? 0n,
+        timestamp: new Date(Number.parseInt(resItem.timestamp)),
+        blockHash: resItem.blockHash
+      });
+
+      ctx.store.deferredUpsert(newHoldersStat);
+
+      const totals = await getOrCreateTotals(ctx);
+
+      if (totalHoldersCount !== null) totals.holders = totalHoldersCount;
+      if (totalFreeBalance !== null)
+        totals.circulatingAssetsTotal = totalFreeBalance;
+
+      ctx.store.deferredUpsert(totals);
+    }
+  }
 
   if (!isCheckPoint(CheckPointsKeys.holders, histDataMeta, block)) return;
 
