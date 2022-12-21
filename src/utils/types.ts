@@ -69,6 +69,11 @@ export type SubProcessorTaskPayload = {
   terminated?: boolean;
 };
 
+export type AccountBalancesPair = [
+  Uint8Array,
+  { free: bigint; reserved: bigint; miscFrozen: bigint; feeFrozen: bigint }
+];
+
 export type HoldersTotals = {
   totalHoldersCount: number | null;
   totalFreeBalance: bigint | null;

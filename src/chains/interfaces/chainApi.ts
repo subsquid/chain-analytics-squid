@@ -5,7 +5,8 @@ import {
   EraStaker,
   ErasStakersArgs,
   CollatorInfoShort,
-  DelegatorInfoShort
+  DelegatorInfoShort,
+  HoldersTotals
 } from '../../utils/types';
 
 export type ChainApi = {
@@ -15,10 +16,7 @@ export type ChainApi = {
   storage: {
     getTotalIssuance: StorageGetter<[], bigint | undefined>;
     // getTotalHoldersCount: StorageGetter<[], number | undefined>;
-    getHoldersTotals: StorageGetter<
-      [],
-      { totalHoldersCount: number; totalFreeBalance: bigint } | undefined
-    >;
+    getHoldersTotals: StorageGetter<[], HoldersTotals | undefined>;
 
     getEraStakersData?: StorageGetter<
       [ErasStakersArgs[]],

@@ -14,9 +14,10 @@ import { getChain } from '../../index';
 import {
   EraStaker,
   ErasStakersArgs,
-  NominationPoolsData
+  NominationPoolsData,
+  AccountBalancesPair
 } from '../../../utils/types';
-import { getKeysCountAll } from '../../utils';
+import { getKeysCountAll, handleHoldersTotals } from '../../utils';
 import { NominationPoolsBondedPoolsStorage } from '../../kusama/types/storage';
 
 export async function getTotalIssuance(ctx: ChainContext, block: Block) {
@@ -61,10 +62,7 @@ export async function getValidators(ctx: ChainContext, block: Block) {
   throw new UnknownVersionError(storage.constructor.name);
 }
 
-export async function getValidatorsCount(
-  ctx: ChainContext,
-  block: Block
-) {
+export async function getValidatorsCount(ctx: ChainContext, block: Block) {
   const list = await getValidators(ctx, block);
   if (!list) return undefined;
   return list.length;
@@ -146,41 +144,73 @@ export async function getNominationPoolsData(ctx: ChainContext, block: Block) {
 // }
 
 export async function getHoldersTotals(ctx: ChainContext, block: Block) {
-  // const storageSysAccount = new SystemAccountStorage(ctx, block);
-  //
-  // if (!storageSysAccount.isExists) return undefined;
-  //
-  // if (storageSysAccount.isV900) {
-  //   const accountsList = [];
-  //   for await (const keysPack of storageSysAccount.asV900.getPairsPaged(1000))
-  //     accountsList.push(...keysPack);
-  //
-  //   let totalFreeBalance = 0n;
-  //   const totalCount = accountsList
-  //     .filter(
-  //       (pair) =>
-  //         !excludeFromCirculatingAssetsAmountAddresses.has(
-  //           encodeAccount(pair[0])
-  //         )
-  //     )
-  //     .filter(([addr, accInfo]) => {
-  //       totalFreeBalance += accInfo.data.free;
-  //       return (
-  //         accInfo.data.free +
-  //         accInfo.data.feeFrozen +
-  //         accInfo.data.miscFrozen +
-  //         accInfo.data.reserved >
-  //         0
-  //       );
-  //     }).length;
-  //
-  //   return {
-  //     totalHoldersCount: totalCount,
-  //     totalFreeBalance: totalFreeBalance
-  //   };
-  // }
-  // throw new UnknownVersionError(storageSysAccount.constructor.name);
-  return undefined
+  const storageSysAccount = new SystemAccountStorage(ctx, block);
+
+  if (!storageSysAccount.isExists) return undefined;
+
+  const accountsList: AccountBalancesPair[] = [];
+  if (storageSysAccount.isV0) {
+    for await (const keysPack of storageSysAccount.asV0.getPairsPaged(1000))
+      keysPack.forEach((pair) =>
+        accountsList.push([
+          pair[0],
+          {
+            free: pair[1].data.free,
+            reserved: pair[1].data.reserved,
+            miscFrozen: pair[1].data.miscFrozen,
+            feeFrozen: pair[1].data.feeFrozen
+          }
+        ])
+      );
+
+    return handleHoldersTotals(accountsList);
+  } else if (storageSysAccount.asV25) {
+    for await (const keysPack of storageSysAccount.asV25.getPairsPaged(1000))
+      keysPack.forEach((pair) =>
+        accountsList.push([
+          pair[0],
+          {
+            free: pair[1].data.free,
+            reserved: pair[1].data.reserved,
+            miscFrozen: pair[1].data.miscFrozen,
+            feeFrozen: pair[1].data.feeFrozen
+          }
+        ])
+      );
+
+    return handleHoldersTotals(accountsList);
+  } else if (storageSysAccount.isV28) {
+    for await (const keysPack of storageSysAccount.asV28.getPairsPaged(1000))
+      keysPack.forEach((pair) =>
+        accountsList.push([
+          pair[0],
+          {
+            free: pair[1].data.free,
+            reserved: pair[1].data.reserved,
+            miscFrozen: pair[1].data.miscFrozen,
+            feeFrozen: pair[1].data.feeFrozen
+          }
+        ])
+      );
+
+    return handleHoldersTotals(accountsList);
+  } else if (storageSysAccount.isV30) {
+    for await (const keysPack of storageSysAccount.asV30.getPairsPaged(1000))
+      keysPack.forEach((pair) =>
+        accountsList.push([
+          pair[0],
+          {
+            free: pair[1].data.free,
+            reserved: pair[1].data.reserved,
+            miscFrozen: pair[1].data.miscFrozen,
+            feeFrozen: pair[1].data.feeFrozen
+          }
+        ])
+      );
+
+    return handleHoldersTotals(accountsList);
+  }
+  throw new UnknownVersionError(storageSysAccount.constructor.name);
 }
 
 export async function getEraStakersData(

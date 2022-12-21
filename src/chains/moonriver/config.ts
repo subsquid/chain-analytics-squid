@@ -1,6 +1,10 @@
 import { ProcessorConfig } from '../interfaces/processorConfig';
 import { TrackingMetrics } from '../../utils/types';
 
+/**
+ * Circulating Supply: all tokens that are held in accounts outside of the non-circulating Moonbeam addresses and Protocol-controlled addresses.
+ * Requirements from MOVR Transparency Commitment - https://moonbeam.foundation/moonriver-token/transparency/
+ */
 export const excludeFromCirculatingAssetsAmountAddresses = new Set<string>([
   '0xab1949cea95bdc445951b823f21a30e6596364c1',
   '0xe30c476bf8b62fe3eee1a5914eb5f1c10c001454',

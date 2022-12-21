@@ -12,8 +12,8 @@ import {
   BalancesAccountStorage
 } from '../types/storage';
 import { UnknownVersionError } from '../../../utils/errors';
-import { getKeysCountAll } from '../../utils';
-import { CollatorInfoShort, DelegatorInfoShort } from '../../../utils/types';
+import { getKeysCountAll, handleHoldersTotals } from '../../utils';
+import { AccountBalancesPair, CollatorInfoShort, DelegatorInfoShort } from '../../../utils/types';
 import { excludeFromCirculatingAssetsAmountAddresses } from '../config';
 import { encodeAccount } from '../../../utils/common';
 
@@ -59,33 +59,21 @@ export async function getHoldersTotals(ctx: ChainContext, block: Block) {
   if (!storageSysAccount.isExists) return undefined;
 
   if (storageSysAccount.isV49) {
-    const accountsList = [];
+    const accountsList: AccountBalancesPair[] = [];
     for await (const keysPack of storageSysAccount.asV49.getPairsPaged(1000))
-      accountsList.push(...keysPack);
+      keysPack.forEach((pair) =>
+        accountsList.push([
+          pair[0],
+          {
+            free: pair[1].data.free,
+            reserved: pair[1].data.reserved,
+            miscFrozen: pair[1].data.miscFrozen,
+            feeFrozen: pair[1].data.feeFrozen
+          }
+        ])
+      );
 
-    let totalFreeBalance = 0n;
-    const totalCount = accountsList
-      .filter(
-        (pair) =>
-          !excludeFromCirculatingAssetsAmountAddresses.has(
-            encodeAccount(pair[0])
-          )
-      )
-      .filter(([addr, accInfo]) => {
-        totalFreeBalance += accInfo.data.free;
-        return (
-          accInfo.data.free +
-            accInfo.data.feeFrozen +
-            accInfo.data.miscFrozen +
-            accInfo.data.reserved >
-          0
-        );
-      }).length;
-
-    return {
-      totalHoldersCount: totalCount,
-      totalFreeBalance: totalFreeBalance
-    };
+    return handleHoldersTotals(accountsList);
   }
   throw new UnknownVersionError(storageSysAccount.constructor.name);
 }
