@@ -1,5 +1,78 @@
 import type {Result, Option} from './support'
 
+export type DispatchResult = DispatchResult_Ok | DispatchResult_Err
+
+export interface DispatchResult_Ok {
+    __kind: 'Ok'
+}
+
+export interface DispatchResult_Err {
+    __kind: 'Err'
+    value: DispatchError
+}
+
+export type ElectionCompute = ElectionCompute_OnChain | ElectionCompute_Signed | ElectionCompute_Unsigned
+
+export interface ElectionCompute_OnChain {
+    __kind: 'OnChain'
+}
+
+export interface ElectionCompute_Signed {
+    __kind: 'Signed'
+}
+
+export interface ElectionCompute_Unsigned {
+    __kind: 'Unsigned'
+}
+
+export type DispatchError = DispatchError_Other | DispatchError_CannotLookup | DispatchError_BadOrigin | DispatchError_Module | DispatchError_ConsumerRemaining | DispatchError_NoProviders | DispatchError_Token | DispatchError_Arithmetic
+
+export interface DispatchError_Other {
+    __kind: 'Other'
+}
+
+export interface DispatchError_CannotLookup {
+    __kind: 'CannotLookup'
+}
+
+export interface DispatchError_BadOrigin {
+    __kind: 'BadOrigin'
+}
+
+export interface DispatchError_Module {
+    __kind: 'Module'
+    value: DispatchErrorModule
+}
+
+export interface DispatchError_ConsumerRemaining {
+    __kind: 'ConsumerRemaining'
+}
+
+export interface DispatchError_NoProviders {
+    __kind: 'NoProviders'
+}
+
+export interface DispatchError_Token {
+    __kind: 'Token'
+    value: TokenError
+}
+
+export interface DispatchError_Arithmetic {
+    __kind: 'Arithmetic'
+    value: ArithmeticError
+}
+
+export interface DispatchInfo {
+    weight: bigint
+    class: DispatchClass
+    paysFee: boolean
+}
+
+export interface Timepoint {
+    height: number
+    index: number
+}
+
 export type PreimageStatus = PreimageStatus_Missing | PreimageStatus_Available
 
 export interface PreimageStatus_Missing {
@@ -212,6 +285,73 @@ export interface EventRecord {
     phase: Phase
     event: Event
     topics: Uint8Array[]
+}
+
+export interface DispatchErrorModule {
+    index: number
+    error: number
+}
+
+export type TokenError = TokenError_NoFunds | TokenError_WouldDie | TokenError_BelowMinimum | TokenError_CannotCreate | TokenError_UnknownAsset | TokenError_Frozen | TokenError_Underflow | TokenError_Overflow
+
+export interface TokenError_NoFunds {
+    __kind: 'NoFunds'
+}
+
+export interface TokenError_WouldDie {
+    __kind: 'WouldDie'
+}
+
+export interface TokenError_BelowMinimum {
+    __kind: 'BelowMinimum'
+}
+
+export interface TokenError_CannotCreate {
+    __kind: 'CannotCreate'
+}
+
+export interface TokenError_UnknownAsset {
+    __kind: 'UnknownAsset'
+}
+
+export interface TokenError_Frozen {
+    __kind: 'Frozen'
+}
+
+export interface TokenError_Underflow {
+    __kind: 'Underflow'
+}
+
+export interface TokenError_Overflow {
+    __kind: 'Overflow'
+}
+
+export type ArithmeticError = ArithmeticError_Underflow | ArithmeticError_Overflow | ArithmeticError_DivisionByZero
+
+export interface ArithmeticError_Underflow {
+    __kind: 'Underflow'
+}
+
+export interface ArithmeticError_Overflow {
+    __kind: 'Overflow'
+}
+
+export interface ArithmeticError_DivisionByZero {
+    __kind: 'DivisionByZero'
+}
+
+export type DispatchClass = DispatchClass_Normal | DispatchClass_Operational | DispatchClass_Mandatory
+
+export interface DispatchClass_Normal {
+    __kind: 'Normal'
+}
+
+export interface DispatchClass_Operational {
+    __kind: 'Operational'
+}
+
+export interface DispatchClass_Mandatory {
+    __kind: 'Mandatory'
 }
 
 export interface PreimageStatusAvailable {
@@ -3794,20 +3934,6 @@ export interface UnlockChunk {
     era: number
 }
 
-export type ElectionCompute = ElectionCompute_OnChain | ElectionCompute_Signed | ElectionCompute_Unsigned
-
-export interface ElectionCompute_OnChain {
-    __kind: 'OnChain'
-}
-
-export interface ElectionCompute_Signed {
-    __kind: 'Signed'
-}
-
-export interface ElectionCompute_Unsigned {
-    __kind: 'Unsigned'
-}
-
 export interface Exposure {
     total: bigint
     own: bigint
@@ -4072,11 +4198,6 @@ export interface ParaInfo {
     manager: Uint8Array
     deposit: bigint
     locked: boolean
-}
-
-export interface Timepoint {
-    height: number
-    index: number
 }
 
 export interface IdentityInfo {
@@ -5521,49 +5642,6 @@ export interface SigningContext {
     parentHash: Uint8Array
 }
 
-export interface DispatchInfo {
-    weight: bigint
-    class: DispatchClass
-    paysFee: boolean
-}
-
-export type DispatchError = DispatchError_Other | DispatchError_CannotLookup | DispatchError_BadOrigin | DispatchError_Module | DispatchError_ConsumerRemaining | DispatchError_NoProviders | DispatchError_Token | DispatchError_Arithmetic
-
-export interface DispatchError_Other {
-    __kind: 'Other'
-}
-
-export interface DispatchError_CannotLookup {
-    __kind: 'CannotLookup'
-}
-
-export interface DispatchError_BadOrigin {
-    __kind: 'BadOrigin'
-}
-
-export interface DispatchError_Module {
-    __kind: 'Module'
-    value: DispatchErrorModule
-}
-
-export interface DispatchError_ConsumerRemaining {
-    __kind: 'ConsumerRemaining'
-}
-
-export interface DispatchError_NoProviders {
-    __kind: 'NoProviders'
-}
-
-export interface DispatchError_Token {
-    __kind: 'Token'
-    value: TokenError
-}
-
-export interface DispatchError_Arithmetic {
-    __kind: 'Arithmetic'
-    value: ArithmeticError
-}
-
 export type VoteThreshold = VoteThreshold_SuperMajorityApprove | VoteThreshold_SuperMajorityAgainst | VoteThreshold_SimpleMajority
 
 export interface VoteThreshold_SuperMajorityApprove {
@@ -5625,17 +5703,6 @@ export interface SlotRange_ThreeThree {
     __kind: 'ThreeThree'
 }
 
-export type DispatchResult = DispatchResult_Ok | DispatchResult_Err
-
-export interface DispatchResult_Ok {
-    __kind: 'Ok'
-}
-
-export interface DispatchResult_Err {
-    __kind: 'Err'
-    value: DispatchError
-}
-
 export type DigestItem = DigestItem_Other | DigestItem_AuthoritiesChange | DigestItem_ChangesTrieRoot | DigestItem_SealV0 | DigestItem_Consensus | DigestItem_Seal | DigestItem_PreRuntime | DigestItem_ChangesTrieSignal | DigestItem_RuntimeEnvironmentUpdated
 
 export interface DigestItem_Other {
@@ -5689,73 +5756,6 @@ export interface CandidateCommitments {
     headData: Uint8Array
     processedDownwardMessages: number
     hrmpWatermark: number
-}
-
-export type DispatchClass = DispatchClass_Normal | DispatchClass_Operational | DispatchClass_Mandatory
-
-export interface DispatchClass_Normal {
-    __kind: 'Normal'
-}
-
-export interface DispatchClass_Operational {
-    __kind: 'Operational'
-}
-
-export interface DispatchClass_Mandatory {
-    __kind: 'Mandatory'
-}
-
-export interface DispatchErrorModule {
-    index: number
-    error: number
-}
-
-export type TokenError = TokenError_NoFunds | TokenError_WouldDie | TokenError_BelowMinimum | TokenError_CannotCreate | TokenError_UnknownAsset | TokenError_Frozen | TokenError_Underflow | TokenError_Overflow
-
-export interface TokenError_NoFunds {
-    __kind: 'NoFunds'
-}
-
-export interface TokenError_WouldDie {
-    __kind: 'WouldDie'
-}
-
-export interface TokenError_BelowMinimum {
-    __kind: 'BelowMinimum'
-}
-
-export interface TokenError_CannotCreate {
-    __kind: 'CannotCreate'
-}
-
-export interface TokenError_UnknownAsset {
-    __kind: 'UnknownAsset'
-}
-
-export interface TokenError_Frozen {
-    __kind: 'Frozen'
-}
-
-export interface TokenError_Underflow {
-    __kind: 'Underflow'
-}
-
-export interface TokenError_Overflow {
-    __kind: 'Overflow'
-}
-
-export type ArithmeticError = ArithmeticError_Underflow | ArithmeticError_Overflow | ArithmeticError_DivisionByZero
-
-export interface ArithmeticError_Underflow {
-    __kind: 'Underflow'
-}
-
-export interface ArithmeticError_Overflow {
-    __kind: 'Overflow'
-}
-
-export interface ArithmeticError_DivisionByZero {
-    __kind: 'DivisionByZero'
 }
 
 export type ChangesTrieSignal = ChangesTrieSignal_NewConfiguration

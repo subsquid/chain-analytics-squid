@@ -1,5 +1,10 @@
 import type {Result, Option} from './support'
 
+export interface ValidatorPrefs {
+    commission: number
+    blocked: boolean
+}
+
 export interface EventRecord {
     phase: Phase
     event: Event
@@ -2754,11 +2759,6 @@ export interface BalanceStatus_Free {
 
 export interface BalanceStatus_Reserved {
     __kind: 'Reserved'
-}
-
-export interface ValidatorPrefs {
-    commission: number
-    blocked: boolean
 }
 
 export interface Exposure {

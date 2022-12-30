@@ -6,7 +6,8 @@ import {
   StakingCurrentEraStorage,
   SessionValidatorsStorage,
   StakingErasStakersStorage,
-  StakingValidatorCountStorage
+  StakingValidatorCountStorage,
+  BalancesAccountStorage
 } from '../types/storage';
 import { UnknownVersionError } from '../../../utils/errors';
 import { decodeAccount, encodeAccount } from '../../../utils/common';
@@ -15,7 +16,8 @@ import {
   EraStaker,
   ErasStakersArgs,
   NominationPoolsData,
-  AccountBalancesPair
+  AccountBalancesPair,
+  AccountBalanceShort
 } from '../../../utils/types';
 import { getKeysCountAll, handleHoldersTotals } from '../../utils';
 import { NominationPoolsBondedPoolsStorage } from '../../kusama/types/storage';
@@ -235,4 +237,42 @@ export async function getEraStakersData(
       vote: n.value
     }))
   })) as EraStaker[];
+}
+export async function getSystemAccountBalancesByKeys(
+  ctx: ChainContext,
+  block: Block,
+  keys: Uint8Array[]
+): Promise<AccountBalanceShort[] | undefined> {
+  if (keys.length === 0) return undefined;
+  const storageSysAccount = new SystemAccountStorage(ctx, block);
+
+  if (!storageSysAccount.isExists) return undefined;
+
+  const data = await ctx._chain.queryStorage2(
+    block.hash,
+    'System',
+    'Account',
+    keys
+  );
+  return data.map((d) => ({ free: d.data.free, reserved: d.data.reserved }));
+}
+export async function getBalancesAccountBalancesByKeys(
+  ctx: ChainContext,
+  block: Block,
+  keys: Uint8Array[]
+): Promise<AccountBalanceShort[] | undefined> {
+  console.dir(keys, { depth: null });
+  if (keys.length === 0) return undefined;
+  const storageBalAccount = new BalancesAccountStorage(ctx, block);
+
+  if (!storageBalAccount.isExists) return undefined;
+
+  const data = await ctx._chain.queryStorage2(
+    block.hash,
+    'Balances',
+    'Account',
+    keys.map((a) => a)
+  );
+
+  return data.map((d) => ({ free: d.free, reserved: d.reserved }));
 }

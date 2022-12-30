@@ -1,5 +1,15 @@
 import type {Result, Option} from './support'
 
+export type BalanceStatus = BalanceStatus_Free | BalanceStatus_Reserved
+
+export interface BalanceStatus_Free {
+    __kind: 'Free'
+}
+
+export interface BalanceStatus_Reserved {
+    __kind: 'Reserved'
+}
+
 export type Type_608 = Type_608_Casting | Type_608_Delegating
 
 export interface Type_608_Casting {
@@ -12742,16 +12752,6 @@ export interface DispatchError_Corruption {
 
 export interface DispatchError_Unavailable {
     __kind: 'Unavailable'
-}
-
-export type BalanceStatus = BalanceStatus_Free | BalanceStatus_Reserved
-
-export interface BalanceStatus_Free {
-    __kind: 'Free'
-}
-
-export interface BalanceStatus_Reserved {
-    __kind: 'Reserved'
 }
 
 export interface Exposure {

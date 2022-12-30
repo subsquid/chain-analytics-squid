@@ -1,5 +1,19 @@
 import type {Result, Option} from './support'
 
+export type PoolState = PoolState_Open | PoolState_Blocked | PoolState_Destroying
+
+export interface PoolState_Open {
+    __kind: 'Open'
+}
+
+export interface PoolState_Blocked {
+    __kind: 'Blocked'
+}
+
+export interface PoolState_Destroying {
+    __kind: 'Destroying'
+}
+
 export type Call = Call_System | Call_Scheduler | Call_Preimage | Call_Babe | Call_Timestamp | Call_Indices | Call_Balances | Call_Authorship | Call_Staking | Call_Session | Call_Grandpa | Call_ImOnline | Call_Democracy | Call_Council | Call_TechnicalCommittee | Call_PhragmenElection | Call_TechnicalMembership | Call_Treasury | Call_Claims | Call_Vesting | Call_Utility | Call_Identity | Call_Proxy | Call_Multisig | Call_Bounties | Call_ChildBounties | Call_Tips | Call_ElectionProviderMultiPhase | Call_VoterList | Call_NominationPools | Call_Configuration | Call_ParasShared | Call_ParaInclusion | Call_ParaInherent | Call_Paras | Call_Initializer | Call_Dmp | Call_Ump | Call_Hrmp | Call_ParasDisputes | Call_Registrar | Call_Slots | Call_Auctions | Call_Crowdloan | Call_XcmPallet
 
 export interface Call_System {
@@ -5788,20 +5802,6 @@ export interface XcmPalletCall_limited_teleport_assets {
     assets: VersionedMultiAssets
     feeAssetItem: number
     weightLimit: V2WeightLimit
-}
-
-export type PoolState = PoolState_Open | PoolState_Blocked | PoolState_Destroying
-
-export interface PoolState_Open {
-    __kind: 'Open'
-}
-
-export interface PoolState_Blocked {
-    __kind: 'Blocked'
-}
-
-export interface PoolState_Destroying {
-    __kind: 'Destroying'
 }
 
 export interface PoolRoles {

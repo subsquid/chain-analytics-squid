@@ -1,5 +1,16 @@
 import { ChainApi } from '../../interfaces/chainApi';
-import { getTransferValue } from './events';
+import {
+  getBalancesTransferValue,
+  getBalancesTransferAccounts,
+  getBalancesEndowedAccounts,
+  getBalancesBalanceSetAccounts,
+  getBalancesReservedAccounts,
+  getBalancesUnreservedAccounts,
+  getBalancesReserveRepatriatedAccounts,
+  getBalancesDepositAccounts,
+  getBalancesWithdrawAccounts,
+  getBalancesSlashedAccounts
+} from './events';
 import {
   getTotalIssuance,
   getActiveEra,
@@ -9,12 +20,23 @@ import {
   getValidatorsCount,
   getEraStakersData,
   getIdealValidatorsCount,
-  getNominationPoolsData
+  getNominationPoolsData,
+  getSystemAccountBalancesByKeys,
+  getBalancesAccountBalancesByKeys
 } from './storage';
 
 export const api: ChainApi = {
   events: {
-    getTransferValue
+    getBalancesTransferValue,
+    getBalancesTransferAccounts,
+    getBalancesEndowedAccounts,
+    getBalancesBalanceSetAccounts,
+    getBalancesReservedAccounts,
+    getBalancesUnreservedAccounts,
+    getBalancesReserveRepatriatedAccounts,
+    getBalancesDepositAccounts,
+    getBalancesWithdrawAccounts,
+    getBalancesSlashedAccounts
   },
   storage: {
     getTotalIssuance,
@@ -25,6 +47,8 @@ export const api: ChainApi = {
     getValidatorsCount,
     getEraStakersData,
     getIdealValidatorsCount,
-    getNominationPoolsData
+    getNominationPoolsData,
+    getSystemAccountBalancesByKeys,
+    getBalancesAccountBalancesByKeys
   }
 };

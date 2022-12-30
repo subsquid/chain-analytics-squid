@@ -1,5 +1,5 @@
 import { ChainApi } from '../../interfaces/chainApi';
-import { getTransferValue } from './events';
+import { getBalancesTransferValue } from './events';
 import {
   getTotalIssuance,
   getHoldersTotals,
@@ -13,7 +13,7 @@ import {
 
 export const api: ChainApi = {
   events: {
-    getTransferValue
+    getBalancesTransferValue
   },
   storage: {
     getTotalIssuance,

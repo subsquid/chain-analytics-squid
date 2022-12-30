@@ -1,5 +1,31 @@
 import type {Result, Option} from './support'
 
+export type AccountValidity = AccountValidity_Invalid | AccountValidity_Initiated | AccountValidity_Pending | AccountValidity_ValidLow | AccountValidity_ValidHigh | AccountValidity_Completed
+
+export interface AccountValidity_Invalid {
+    __kind: 'Invalid'
+}
+
+export interface AccountValidity_Initiated {
+    __kind: 'Initiated'
+}
+
+export interface AccountValidity_Pending {
+    __kind: 'Pending'
+}
+
+export interface AccountValidity_ValidLow {
+    __kind: 'ValidLow'
+}
+
+export interface AccountValidity_ValidHigh {
+    __kind: 'ValidHigh'
+}
+
+export interface AccountValidity_Completed {
+    __kind: 'Completed'
+}
+
 export type Proposal = Proposal_System | Proposal_Scheduler | Proposal_Babe | Proposal_Timestamp | Proposal_Indices | Proposal_Balances | Proposal_Authorship | Proposal_Staking | Proposal_Offences | Proposal_Session | Proposal_FinalityTracker | Proposal_Grandpa | Proposal_ImOnline | Proposal_AuthorityDiscovery | Proposal_Democracy | Proposal_Council | Proposal_TechnicalCommittee | Proposal_ElectionsPhragmen | Proposal_TechnicalMembership | Proposal_Treasury | Proposal_Parachains | Proposal_Attestations | Proposal_Slots | Proposal_Registrar | Proposal_Claims | Proposal_Vesting | Proposal_Utility | Proposal_Sudo | Proposal_Identity | Proposal_Proxy | Proposal_Multisig | Proposal_Poll | Proposal_Purchase
 
 export interface Proposal_System {
@@ -4162,32 +4188,6 @@ export interface PurchaseCall_set_statement {
 export interface PurchaseCall_set_unlock_block {
     __kind: 'set_unlock_block'
     unlockBlock: number
-}
-
-export type AccountValidity = AccountValidity_Invalid | AccountValidity_Initiated | AccountValidity_Pending | AccountValidity_ValidLow | AccountValidity_ValidHigh | AccountValidity_Completed
-
-export interface AccountValidity_Invalid {
-    __kind: 'Invalid'
-}
-
-export interface AccountValidity_Initiated {
-    __kind: 'Initiated'
-}
-
-export interface AccountValidity_Pending {
-    __kind: 'Pending'
-}
-
-export interface AccountValidity_ValidLow {
-    __kind: 'ValidLow'
-}
-
-export interface AccountValidity_ValidHigh {
-    __kind: 'ValidHigh'
-}
-
-export interface AccountValidity_Completed {
-    __kind: 'Completed'
 }
 
 export type Type_44 = Type_44_System | Type_44_Scheduler | Type_44_Babe | Type_44_Timestamp | Type_44_Indices | Type_44_Balances | Type_44_Authorship | Type_44_Staking | Type_44_Offences | Type_44_Session | Type_44_FinalityTracker | Type_44_Grandpa | Type_44_ImOnline | Type_44_AuthorityDiscovery | Type_44_Democracy | Type_44_Council | Type_44_TechnicalCommittee | Type_44_ElectionsPhragmen | Type_44_TechnicalMembership | Type_44_Treasury | Type_44_Parachains | Type_44_Attestations | Type_44_Slots | Type_44_Registrar | Type_44_Claims | Type_44_Vesting | Type_44_Utility | Type_44_Sudo | Type_44_Identity | Type_44_Proxy | Type_44_Multisig | Type_44_Poll | Type_44_Purchase

@@ -4,6 +4,7 @@ export enum SubProcessorTask {
 }
 
 export enum BlockEventName {
+  INVOLVED_ACCOUNTS_SYNTHETIC = 'INVOLVED_ACCOUNTS_SYNTHETIC',
   BALANCES_TRANSFER = 'BALANCES_TRANSFER',
   BALANCES_WITHDRAW = 'BALANCES_WITHDRAW',
   SIGNED_EXTRINSIC = 'SIGNED_EXTRINSIC'
@@ -26,32 +27,30 @@ export enum CheckPointsKeys {
   nominationPools = 'nominationPools'
 }
 
-export interface BalancesTransferEventData {
+interface ItemMetadata {
   id: string;
   blockNumber: number;
   blockHash: string;
   timestamp: Date;
+}
+
+export interface BalancesTransferEventData extends ItemMetadata {
   volume: bigint;
 }
-
-export interface BalancesWithdrawEventData {
+export interface InvolvedAccountsData {
   id: string;
-  blockNumber: number;
-  blockHash: string;
-  timestamp: Date;
+  accountsU8: Uint8Array[];
 }
 
-export interface CallSignedExtrinsicData {
-  id: string;
-  blockNumber: number;
-  blockHash: string;
-  timestamp: Date;
-}
+export interface BalancesWithdrawEventData extends ItemMetadata {}
+
+export interface CallSignedExtrinsicData extends ItemMetadata {}
 
 export type ParsedEventsData =
   | BalancesTransferEventData
   | BalancesWithdrawEventData
-  | CallSignedExtrinsicData;
+  | CallSignedExtrinsicData
+  | InvolvedAccountsData;
 
 export type ParsedEventsDataMap = Map<
   BlockEventName,
@@ -99,6 +98,7 @@ export interface EraStaker {
 }
 
 export type ErasStakersArgs = [account: Uint8Array, era?: number];
+export type AccountBalanceShort = { free: bigint; reserved: bigint };
 
 export type CollatorInfoShort = {
   bond: bigint;

@@ -86,3 +86,12 @@ export function* splitIntoBatches<T>(list: T[], maxBatchSize: number): Generator
     yield list.slice(offset);
   }
 }
+
+
+export function getOriginAccountId(origin: any) {
+  if (origin && origin.__kind === 'system' && origin.value.__kind === 'Signed') {
+    return origin.value.value
+  } else {
+    return undefined
+  }
+}

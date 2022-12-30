@@ -1,5 +1,83 @@
 import type {Result, Option} from './support'
 
+export type VoteThreshold = VoteThreshold_SuperMajorityApprove | VoteThreshold_SuperMajorityAgainst | VoteThreshold_SimpleMajority
+
+export interface VoteThreshold_SuperMajorityApprove {
+    __kind: 'SuperMajorityApprove'
+}
+
+export interface VoteThreshold_SuperMajorityAgainst {
+    __kind: 'SuperMajorityAgainst'
+}
+
+export interface VoteThreshold_SimpleMajority {
+    __kind: 'SimpleMajority'
+}
+
+export interface FullIdentification {
+    total: bigint
+    own: bigint
+    others: IndividualExposure[]
+}
+
+export interface NewBidder {
+    who: Uint8Array
+    sub: number
+}
+
+export type SlotRange = SlotRange_ZeroZero | SlotRange_ZeroOne | SlotRange_ZeroTwo | SlotRange_ZeroThree | SlotRange_OneOne | SlotRange_OneTwo | SlotRange_OneThree | SlotRange_TwoTwo | SlotRange_TwoThree | SlotRange_ThreeThree
+
+export interface SlotRange_ZeroZero {
+    __kind: 'ZeroZero'
+}
+
+export interface SlotRange_ZeroOne {
+    __kind: 'ZeroOne'
+}
+
+export interface SlotRange_ZeroTwo {
+    __kind: 'ZeroTwo'
+}
+
+export interface SlotRange_ZeroThree {
+    __kind: 'ZeroThree'
+}
+
+export interface SlotRange_OneOne {
+    __kind: 'OneOne'
+}
+
+export interface SlotRange_OneTwo {
+    __kind: 'OneTwo'
+}
+
+export interface SlotRange_OneThree {
+    __kind: 'OneThree'
+}
+
+export interface SlotRange_TwoTwo {
+    __kind: 'TwoTwo'
+}
+
+export interface SlotRange_TwoThree {
+    __kind: 'TwoThree'
+}
+
+export interface SlotRange_ThreeThree {
+    __kind: 'ThreeThree'
+}
+
+export interface DispatchError {
+    module: (number | undefined)
+    error: number
+}
+
+export interface DispatchInfo {
+    weight: number
+    class: DispatchClass
+    paysFee: boolean
+}
+
 export interface BlockAttestations {
     receipt: CandidateReceipt
     valid: Uint8Array[]
@@ -201,20 +279,6 @@ export interface Proposal_Nicks {
     value: NicksCall
 }
 
-export type VoteThreshold = VoteThreshold_SuperMajorityApprove | VoteThreshold_SuperMajorityAgainst | VoteThreshold_SimpleMajority
-
-export interface VoteThreshold_SuperMajorityApprove {
-    __kind: 'SuperMajorityApprove'
-}
-
-export interface VoteThreshold_SuperMajorityAgainst {
-    __kind: 'SuperMajorityAgainst'
-}
-
-export interface VoteThreshold_SimpleMajority {
-    __kind: 'SimpleMajority'
-}
-
 export interface Type_283 {
     end: number
     proposalHash: Uint8Array
@@ -409,6 +473,25 @@ export interface TreasuryProposal {
     value: bigint
     beneficiary: Uint8Array
     bond: bigint
+}
+
+export interface IndividualExposure {
+    who: Uint8Array
+    value: bigint
+}
+
+export type DispatchClass = DispatchClass_Normal | DispatchClass_Operational | DispatchClass_Mandatory
+
+export interface DispatchClass_Normal {
+    __kind: 'Normal'
+}
+
+export interface DispatchClass_Operational {
+    __kind: 'Operational'
+}
+
+export interface DispatchClass_Mandatory {
+    __kind: 'Mandatory'
 }
 
 export interface CandidateReceipt {
@@ -1793,17 +1876,6 @@ export interface PendingResume {
     delay: number
 }
 
-export interface FullIdentification {
-    total: bigint
-    own: bigint
-    others: IndividualExposure[]
-}
-
-export interface NewBidder {
-    who: Uint8Array
-    sub: number
-}
-
 export interface IncomingParachainFixed {
     codeHash: Uint8Array
     codeSize: number
@@ -1818,11 +1890,6 @@ export interface IncomingParachainDeploy {
 export interface UnlockChunk {
     value: bigint
     era: number
-}
-
-export interface IndividualExposure {
-    who: Uint8Array
-    value: bigint
 }
 
 export type DigestItem = DigestItem_Other | DigestItem_AuthoritiesChange | DigestItem_ChangesTrieRoot | DigestItem_SealV0 | DigestItem_Consensus | DigestItem_Seal | DigestItem_PreRuntime | DigestItem_ChangesTrieSignal | DigestItem_RuntimeEnvironmentUpdated
@@ -3645,59 +3712,6 @@ export interface ChangesTrieConfiguration {
     digestLevels: number
 }
 
-export interface DispatchInfo {
-    weight: number
-    class: DispatchClass
-    paysFee: boolean
-}
-
-export interface DispatchError {
-    module: (number | undefined)
-    error: number
-}
-
-export type SlotRange = SlotRange_ZeroZero | SlotRange_ZeroOne | SlotRange_ZeroTwo | SlotRange_ZeroThree | SlotRange_OneOne | SlotRange_OneTwo | SlotRange_OneThree | SlotRange_TwoTwo | SlotRange_TwoThree | SlotRange_ThreeThree
-
-export interface SlotRange_ZeroZero {
-    __kind: 'ZeroZero'
-}
-
-export interface SlotRange_ZeroOne {
-    __kind: 'ZeroOne'
-}
-
-export interface SlotRange_ZeroTwo {
-    __kind: 'ZeroTwo'
-}
-
-export interface SlotRange_ZeroThree {
-    __kind: 'ZeroThree'
-}
-
-export interface SlotRange_OneOne {
-    __kind: 'OneOne'
-}
-
-export interface SlotRange_OneTwo {
-    __kind: 'OneTwo'
-}
-
-export interface SlotRange_OneThree {
-    __kind: 'OneThree'
-}
-
-export interface SlotRange_TwoTwo {
-    __kind: 'TwoTwo'
-}
-
-export interface SlotRange_TwoThree {
-    __kind: 'TwoThree'
-}
-
-export interface SlotRange_ThreeThree {
-    __kind: 'ThreeThree'
-}
-
 export interface CandidateCommitments {
     upwardMessages: Uint8Array[]
     horizontalMessages: OutboundHrmpMessage[]
@@ -3705,20 +3719,6 @@ export interface CandidateCommitments {
     headData: Uint8Array
     processedDownwardMessages: number
     hrmpWatermark: number
-}
-
-export type DispatchClass = DispatchClass_Normal | DispatchClass_Operational | DispatchClass_Mandatory
-
-export interface DispatchClass_Normal {
-    __kind: 'Normal'
-}
-
-export interface DispatchClass_Operational {
-    __kind: 'Operational'
-}
-
-export interface DispatchClass_Mandatory {
-    __kind: 'Mandatory'
 }
 
 export interface OutboundHrmpMessage {

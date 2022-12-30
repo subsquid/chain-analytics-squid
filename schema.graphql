@@ -68,6 +68,15 @@ type HistoricalDataMeta @entity {
   nominationPoolsLatestTime: DateTime @index
 }
 
+type Account @entity {
+  "Public key"
+  id: ID!
+  free: BigInt!
+  reserved: BigInt!
+  total: BigInt!
+  updatedAtBlock: Int
+}
+
 type Holders @entity {
   "Block number"
   id: ID!

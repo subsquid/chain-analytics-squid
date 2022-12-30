@@ -3,7 +3,8 @@ import {
   BatchContext,
   BatchProcessorItem,
   SubstrateBatchProcessor,
-  BatchProcessorCallItem
+  BatchProcessorCallItem,
+  BatchProcessorEventItem
 } from '@subsquid/substrate-processor';
 import { Store, TypeormDatabase } from '@subsquid/processor-tools';
 import { Totals, HistoricalDataMeta, SubProcessorTask } from './model';
@@ -19,7 +20,8 @@ import { handleTransfers } from './mappers/transfers';
 import {
   BlockEventName,
   BalancesTransferEventData,
-  CallSignedExtrinsicData
+  CallSignedExtrinsicData,
+  InvolvedAccountsData
 } from './utils/types';
 import { handleExtrinsics } from './mappers/extrinsics';
 import { getChain } from './chains';
@@ -37,8 +39,35 @@ const processor = new SubstrateBatchProcessor()
   })
   .setBlockRange(chainConfig.config.blockRange || { from: 0 })
   .includeAllBlocks()
+  .addEvent('Balances.Endowed', {
+    data: { event: { extrinsic: true, args: true } }
+  } as const)
   .addEvent('Balances.Transfer', {
     data: { event: { extrinsic: true, args: true } }
+  } as const)
+  .addEvent('Balances.BalanceSet', {
+    data: { event: { extrinsic: true, args: true } }
+  } as const)
+  .addEvent('Balances.Reserved', {
+    data: { event: { extrinsic: true, args: true } }
+  } as const)
+  .addEvent('Balances.Unreserved', {
+    data: { event: { extrinsic: true, args: true } }
+  } as const)
+  .addEvent('Balances.ReserveRepatriated', {
+    data: { event: { extrinsic: true, args: true } }
+  } as const)
+  .addEvent('Balances.Deposit', {
+    data: { event: { extrinsic: true, args: true } }
+  } as const)
+  .addEvent('Balances.Withdraw', {
+    data: { event: { extrinsic: true, args: true } }
+  } as const)
+  .addEvent('Balances.Slashed', {
+    data: { event: { extrinsic: true, args: true } }
+  } as const)
+  .addCall('*', {
+    data: { call: { origin: true, parent: true } }
   } as const)
   .addCall('*', {
     data: {
@@ -48,23 +77,25 @@ const processor = new SubstrateBatchProcessor()
 
 export type Item = BatchProcessorItem<typeof processor>;
 export type CallItem = BatchProcessorCallItem<typeof processor>;
+export type EventItem = BatchProcessorEventItem<typeof processor>;
 export type Ctx = BatchContext<Store, Item>;
 export type Block = BatchBlock<Item>;
 
 processor.run(new TypeormDatabase(), async (ctx) => {
   const tasksPool = TreadsPool.getInstance(ctx);
   const parsedEvents = getParsedEventsData(ctx);
+
   ctx.store.deferredLoad(Totals, '1');
   ctx.store.deferredLoad(HistoricalDataMeta, '1');
   ctx.store.deferredLoad(SubProcessorTask);
   await ctx.store.load();
+
   tasksPool.setResultsProcessingWindow(true);
   await tasksPool.ensureTasksQueue();
 
   for (let block of ctx.blocks) {
     await handleFinalizedBlock(ctx, block);
     await handleValidatorsCollators(ctx, block);
-    await handleChainHolders(ctx, block);
     await handleTotalIssuance(ctx, block);
     await handleStakeAmount(ctx, block);
     await handleNominationPools(ctx, block);
@@ -81,5 +112,13 @@ processor.run(new TypeormDatabase(), async (ctx) => {
       BlockEventName.SIGNED_EXTRINSIC
     )
   );
+  await handleChainHolders(
+    ctx,
+    ctx.blocks[ctx.blocks.length - 1],
+    parsedEvents.getBySection<InvolvedAccountsData>(
+      BlockEventName.INVOLVED_ACCOUNTS_SYNTHETIC
+    )
+  );
+
   tasksPool.setResultsProcessingWindow(false);
 });

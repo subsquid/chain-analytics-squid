@@ -1,5 +1,55 @@
 import type {Result, Option} from './support'
 
+export interface Timepoint {
+    height: number
+    index: number
+}
+
+export type DispatchResult = DispatchResult_Ok | DispatchResult_Err
+
+export interface DispatchResult_Ok {
+    __kind: 'Ok'
+}
+
+export interface DispatchResult_Err {
+    __kind: 'Err'
+    value: DispatchError
+}
+
+export type ProxyType = ProxyType_Any | ProxyType_NonTransfer | ProxyType_Governance | ProxyType_Staking | ProxyType_UnusedSudoBalances | ProxyType_IdentityJudgement | ProxyType_CancelProxy | ProxyType_Auction
+
+export interface ProxyType_Any {
+    __kind: 'Any'
+}
+
+export interface ProxyType_NonTransfer {
+    __kind: 'NonTransfer'
+}
+
+export interface ProxyType_Governance {
+    __kind: 'Governance'
+}
+
+export interface ProxyType_Staking {
+    __kind: 'Staking'
+}
+
+export interface ProxyType_UnusedSudoBalances {
+    __kind: 'UnusedSudoBalances'
+}
+
+export interface ProxyType_IdentityJudgement {
+    __kind: 'IdentityJudgement'
+}
+
+export interface ProxyType_CancelProxy {
+    __kind: 'CancelProxy'
+}
+
+export interface ProxyType_Auction {
+    __kind: 'Auction'
+}
+
 export interface Registration {
     judgements: [number, IdentityJudgement][]
     deposit: bigint
@@ -367,40 +417,6 @@ export interface Multisig {
     approvals: Uint8Array[]
 }
 
-export type ProxyType = ProxyType_Any | ProxyType_NonTransfer | ProxyType_Governance | ProxyType_Staking | ProxyType_UnusedSudoBalances | ProxyType_IdentityJudgement | ProxyType_CancelProxy | ProxyType_Auction
-
-export interface ProxyType_Any {
-    __kind: 'Any'
-}
-
-export interface ProxyType_NonTransfer {
-    __kind: 'NonTransfer'
-}
-
-export interface ProxyType_Governance {
-    __kind: 'Governance'
-}
-
-export interface ProxyType_Staking {
-    __kind: 'Staking'
-}
-
-export interface ProxyType_UnusedSudoBalances {
-    __kind: 'UnusedSudoBalances'
-}
-
-export interface ProxyType_IdentityJudgement {
-    __kind: 'IdentityJudgement'
-}
-
-export interface ProxyType_CancelProxy {
-    __kind: 'CancelProxy'
-}
-
-export interface ProxyType_Auction {
-    __kind: 'Auction'
-}
-
 export interface Scheduled {
     maybeId: (Uint8Array | undefined)
     priority: number
@@ -413,6 +429,43 @@ export interface EventRecord {
     phase: Phase
     event: Event
     topics: Uint8Array[]
+}
+
+export type DispatchError = DispatchError_Other | DispatchError_CannotLookup | DispatchError_BadOrigin | DispatchError_Module | DispatchError_ConsumerRemaining | DispatchError_NoProviders | DispatchError_Token | DispatchError_Arithmetic
+
+export interface DispatchError_Other {
+    __kind: 'Other'
+}
+
+export interface DispatchError_CannotLookup {
+    __kind: 'CannotLookup'
+}
+
+export interface DispatchError_BadOrigin {
+    __kind: 'BadOrigin'
+}
+
+export interface DispatchError_Module {
+    __kind: 'Module'
+    value: DispatchErrorModule
+}
+
+export interface DispatchError_ConsumerRemaining {
+    __kind: 'ConsumerRemaining'
+}
+
+export interface DispatchError_NoProviders {
+    __kind: 'NoProviders'
+}
+
+export interface DispatchError_Token {
+    __kind: 'Token'
+    value: TokenError
+}
+
+export interface DispatchError_Arithmetic {
+    __kind: 'Arithmetic'
+    value: ArithmeticError
 }
 
 export type IdentityJudgement = IdentityJudgement_Unknown | IdentityJudgement_FeePaid | IdentityJudgement_Reasonable | IdentityJudgement_KnownGood | IdentityJudgement_OutOfDate | IdentityJudgement_LowQuality | IdentityJudgement_Erroneous
@@ -4076,11 +4129,6 @@ export interface MultisigCall_cancel_as_multi {
     callHash: Uint8Array
 }
 
-export interface Timepoint {
-    height: number
-    index: number
-}
-
 export type Type_44 = Type_44_System | Type_44_Scheduler | Type_44_Babe | Type_44_Timestamp | Type_44_Indices | Type_44_Balances | Type_44_Authorship | Type_44_Staking | Type_44_Offences | Type_44_Session | Type_44_FinalityTracker | Type_44_Grandpa | Type_44_ImOnline | Type_44_AuthorityDiscovery | Type_44_Democracy | Type_44_Council | Type_44_TechnicalCommittee | Type_44_ElectionsPhragmen | Type_44_TechnicalMembership | Type_44_Treasury | Type_44_Parachains | Type_44_Attestations | Type_44_Slots | Type_44_Registrar | Type_44_Claims | Type_44_Vesting | Type_44_Utility | Type_44_Sudo | Type_44_Identity | Type_44_Proxy | Type_44_Multisig
 
 export interface Type_44_System {
@@ -4390,6 +4438,59 @@ export interface Event_Proxy {
 export interface Event_Multisig {
     __kind: 'Multisig'
     value: MultisigEvent
+}
+
+export interface DispatchErrorModule {
+    index: number
+    error: number
+}
+
+export type TokenError = TokenError_NoFunds | TokenError_WouldDie | TokenError_BelowMinimum | TokenError_CannotCreate | TokenError_UnknownAsset | TokenError_Frozen | TokenError_Underflow | TokenError_Overflow
+
+export interface TokenError_NoFunds {
+    __kind: 'NoFunds'
+}
+
+export interface TokenError_WouldDie {
+    __kind: 'WouldDie'
+}
+
+export interface TokenError_BelowMinimum {
+    __kind: 'BelowMinimum'
+}
+
+export interface TokenError_CannotCreate {
+    __kind: 'CannotCreate'
+}
+
+export interface TokenError_UnknownAsset {
+    __kind: 'UnknownAsset'
+}
+
+export interface TokenError_Frozen {
+    __kind: 'Frozen'
+}
+
+export interface TokenError_Underflow {
+    __kind: 'Underflow'
+}
+
+export interface TokenError_Overflow {
+    __kind: 'Overflow'
+}
+
+export type ArithmeticError = ArithmeticError_Underflow | ArithmeticError_Overflow | ArithmeticError_DivisionByZero
+
+export interface ArithmeticError_Underflow {
+    __kind: 'Underflow'
+}
+
+export interface ArithmeticError_Overflow {
+    __kind: 'Overflow'
+}
+
+export interface ArithmeticError_DivisionByZero {
+    __kind: 'DivisionByZero'
 }
 
 export interface ChangesTrieConfiguration {
@@ -5688,54 +5789,6 @@ export interface DispatchInfo {
     paysFee: Pays
 }
 
-export type DispatchError = DispatchError_Other | DispatchError_CannotLookup | DispatchError_BadOrigin | DispatchError_Module | DispatchError_ConsumerRemaining | DispatchError_NoProviders | DispatchError_Token | DispatchError_Arithmetic
-
-export interface DispatchError_Other {
-    __kind: 'Other'
-}
-
-export interface DispatchError_CannotLookup {
-    __kind: 'CannotLookup'
-}
-
-export interface DispatchError_BadOrigin {
-    __kind: 'BadOrigin'
-}
-
-export interface DispatchError_Module {
-    __kind: 'Module'
-    value: DispatchErrorModule
-}
-
-export interface DispatchError_ConsumerRemaining {
-    __kind: 'ConsumerRemaining'
-}
-
-export interface DispatchError_NoProviders {
-    __kind: 'NoProviders'
-}
-
-export interface DispatchError_Token {
-    __kind: 'Token'
-    value: TokenError
-}
-
-export interface DispatchError_Arithmetic {
-    __kind: 'Arithmetic'
-    value: ArithmeticError
-}
-
-export type DispatchResult = DispatchResult_Ok | DispatchResult_Err
-
-export interface DispatchResult_Ok {
-    __kind: 'Ok'
-}
-
-export interface DispatchResult_Err {
-    __kind: 'Err'
-    value: DispatchError
-}
-
 export type ElectionCompute = ElectionCompute_OnChain | ElectionCompute_Signed | ElectionCompute_Unsigned
 
 export interface ElectionCompute_OnChain {
@@ -5901,59 +5954,6 @@ export interface Pays_Yes {
 
 export interface Pays_No {
     __kind: 'No'
-}
-
-export interface DispatchErrorModule {
-    index: number
-    error: number
-}
-
-export type TokenError = TokenError_NoFunds | TokenError_WouldDie | TokenError_BelowMinimum | TokenError_CannotCreate | TokenError_UnknownAsset | TokenError_Frozen | TokenError_Underflow | TokenError_Overflow
-
-export interface TokenError_NoFunds {
-    __kind: 'NoFunds'
-}
-
-export interface TokenError_WouldDie {
-    __kind: 'WouldDie'
-}
-
-export interface TokenError_BelowMinimum {
-    __kind: 'BelowMinimum'
-}
-
-export interface TokenError_CannotCreate {
-    __kind: 'CannotCreate'
-}
-
-export interface TokenError_UnknownAsset {
-    __kind: 'UnknownAsset'
-}
-
-export interface TokenError_Frozen {
-    __kind: 'Frozen'
-}
-
-export interface TokenError_Underflow {
-    __kind: 'Underflow'
-}
-
-export interface TokenError_Overflow {
-    __kind: 'Overflow'
-}
-
-export type ArithmeticError = ArithmeticError_Underflow | ArithmeticError_Overflow | ArithmeticError_DivisionByZero
-
-export interface ArithmeticError_Underflow {
-    __kind: 'Underflow'
-}
-
-export interface ArithmeticError_Overflow {
-    __kind: 'Overflow'
-}
-
-export interface ArithmeticError_DivisionByZero {
-    __kind: 'DivisionByZero'
 }
 
 export interface IndividualExposure {

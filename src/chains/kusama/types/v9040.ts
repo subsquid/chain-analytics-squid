@@ -1,5 +1,22 @@
 import type {Result, Option} from './support'
 
+export type Outcome = Outcome_Complete | Outcome_Incomplete | Outcome_Error
+
+export interface Outcome_Complete {
+    __kind: 'Complete'
+    value: bigint
+}
+
+export interface Outcome_Incomplete {
+    __kind: 'Incomplete'
+    value: [bigint, XcmErrorV0]
+}
+
+export interface Outcome_Error {
+    __kind: 'Error'
+    value: XcmErrorV0
+}
+
 export interface StoredPendingChange {
     scheduledAt: number
     delay: number
@@ -275,6 +292,122 @@ export interface EventRecord {
     phase: Phase
     event: Event
     topics: Uint8Array[]
+}
+
+export type XcmErrorV0 = XcmErrorV0_Undefined | XcmErrorV0_Overflow | XcmErrorV0_Unimplemented | XcmErrorV0_UnhandledXcmVersion | XcmErrorV0_UnhandledXcmMessage | XcmErrorV0_UnhandledEffect | XcmErrorV0_EscalationOfPrivilege | XcmErrorV0_UntrustedReserveLocation | XcmErrorV0_UntrustedTeleportLocation | XcmErrorV0_DestinationBufferOverflow | XcmErrorV0_SendFailed | XcmErrorV0_CannotReachDestination | XcmErrorV0_MultiLocationFull | XcmErrorV0_FailedToDecode | XcmErrorV0_BadOrigin | XcmErrorV0_ExceedsMaxMessageSize | XcmErrorV0_FailedToTransactAsset | XcmErrorV0_WeightLimitReached | XcmErrorV0_Wildcard | XcmErrorV0_TooMuchWeightRequired | XcmErrorV0_NotHoldingFees | XcmErrorV0_WeightNotComputable | XcmErrorV0_Barrier | XcmErrorV0_NotWithdrawable | XcmErrorV0_LocationCannotHold | XcmErrorV0_TooExpensive | XcmErrorV0_AssetNotFound | XcmErrorV0_RecursionLimitReached
+
+export interface XcmErrorV0_Undefined {
+    __kind: 'Undefined'
+}
+
+export interface XcmErrorV0_Overflow {
+    __kind: 'Overflow'
+}
+
+export interface XcmErrorV0_Unimplemented {
+    __kind: 'Unimplemented'
+}
+
+export interface XcmErrorV0_UnhandledXcmVersion {
+    __kind: 'UnhandledXcmVersion'
+}
+
+export interface XcmErrorV0_UnhandledXcmMessage {
+    __kind: 'UnhandledXcmMessage'
+}
+
+export interface XcmErrorV0_UnhandledEffect {
+    __kind: 'UnhandledEffect'
+}
+
+export interface XcmErrorV0_EscalationOfPrivilege {
+    __kind: 'EscalationOfPrivilege'
+}
+
+export interface XcmErrorV0_UntrustedReserveLocation {
+    __kind: 'UntrustedReserveLocation'
+}
+
+export interface XcmErrorV0_UntrustedTeleportLocation {
+    __kind: 'UntrustedTeleportLocation'
+}
+
+export interface XcmErrorV0_DestinationBufferOverflow {
+    __kind: 'DestinationBufferOverflow'
+}
+
+export interface XcmErrorV0_SendFailed {
+    __kind: 'SendFailed'
+}
+
+export interface XcmErrorV0_CannotReachDestination {
+    __kind: 'CannotReachDestination'
+    value: [MultiLocation, Xcm]
+}
+
+export interface XcmErrorV0_MultiLocationFull {
+    __kind: 'MultiLocationFull'
+}
+
+export interface XcmErrorV0_FailedToDecode {
+    __kind: 'FailedToDecode'
+}
+
+export interface XcmErrorV0_BadOrigin {
+    __kind: 'BadOrigin'
+}
+
+export interface XcmErrorV0_ExceedsMaxMessageSize {
+    __kind: 'ExceedsMaxMessageSize'
+}
+
+export interface XcmErrorV0_FailedToTransactAsset {
+    __kind: 'FailedToTransactAsset'
+}
+
+export interface XcmErrorV0_WeightLimitReached {
+    __kind: 'WeightLimitReached'
+    value: bigint
+}
+
+export interface XcmErrorV0_Wildcard {
+    __kind: 'Wildcard'
+}
+
+export interface XcmErrorV0_TooMuchWeightRequired {
+    __kind: 'TooMuchWeightRequired'
+}
+
+export interface XcmErrorV0_NotHoldingFees {
+    __kind: 'NotHoldingFees'
+}
+
+export interface XcmErrorV0_WeightNotComputable {
+    __kind: 'WeightNotComputable'
+}
+
+export interface XcmErrorV0_Barrier {
+    __kind: 'Barrier'
+}
+
+export interface XcmErrorV0_NotWithdrawable {
+    __kind: 'NotWithdrawable'
+}
+
+export interface XcmErrorV0_LocationCannotHold {
+    __kind: 'LocationCannotHold'
+}
+
+export interface XcmErrorV0_TooExpensive {
+    __kind: 'TooExpensive'
+}
+
+export interface XcmErrorV0_AssetNotFound {
+    __kind: 'AssetNotFound'
+}
+
+export interface XcmErrorV0_RecursionLimitReached {
+    __kind: 'RecursionLimitReached'
 }
 
 export interface PendingPause {
@@ -5916,6 +6049,123 @@ export interface Event_XcmPallet {
     value: XcmPalletEvent
 }
 
+export type MultiLocation = MultiLocation_Here | MultiLocation_X1 | MultiLocation_X2 | MultiLocation_X3 | MultiLocation_X4 | MultiLocation_X5 | MultiLocation_X6 | MultiLocation_X7 | MultiLocation_X8
+
+export interface MultiLocation_Here {
+    __kind: 'Here'
+}
+
+export interface MultiLocation_X1 {
+    __kind: 'X1'
+    value: JunctionV0
+}
+
+export interface MultiLocation_X2 {
+    __kind: 'X2'
+    value: [JunctionV0, JunctionV0]
+}
+
+export interface MultiLocation_X3 {
+    __kind: 'X3'
+    value: [JunctionV0, JunctionV0, JunctionV0]
+}
+
+export interface MultiLocation_X4 {
+    __kind: 'X4'
+    value: [JunctionV0, JunctionV0, JunctionV0, JunctionV0]
+}
+
+export interface MultiLocation_X5 {
+    __kind: 'X5'
+    value: [JunctionV0, JunctionV0, JunctionV0, JunctionV0, JunctionV0]
+}
+
+export interface MultiLocation_X6 {
+    __kind: 'X6'
+    value: [JunctionV0, JunctionV0, JunctionV0, JunctionV0, JunctionV0, JunctionV0]
+}
+
+export interface MultiLocation_X7 {
+    __kind: 'X7'
+    value: [JunctionV0, JunctionV0, JunctionV0, JunctionV0, JunctionV0, JunctionV0, JunctionV0]
+}
+
+export interface MultiLocation_X8 {
+    __kind: 'X8'
+    value: [JunctionV0, JunctionV0, JunctionV0, JunctionV0, JunctionV0, JunctionV0, JunctionV0, JunctionV0]
+}
+
+export type Xcm = Xcm_WithdrawAsset | Xcm_ReserveAssetDeposit | Xcm_ReceiveTeleportedAsset | Xcm_QueryResponse | Xcm_TransferAsset | Xcm_TransferReserveAsset | Xcm_Transact | Xcm_HrmpNewChannelOpenRequest | Xcm_HrmpChannelAccepted | Xcm_HrmpChannelClosing | Xcm_RelayedFrom
+
+export interface Xcm_WithdrawAsset {
+    __kind: 'WithdrawAsset'
+    assets: MultiAssetV0[]
+    effects: XcmOrderV0[]
+}
+
+export interface Xcm_ReserveAssetDeposit {
+    __kind: 'ReserveAssetDeposit'
+    assets: MultiAssetV0[]
+    effects: XcmOrderV0[]
+}
+
+export interface Xcm_ReceiveTeleportedAsset {
+    __kind: 'ReceiveTeleportedAsset'
+    assets: MultiAssetV0[]
+    effects: XcmOrderV0[]
+}
+
+export interface Xcm_QueryResponse {
+    __kind: 'QueryResponse'
+    queryId: bigint
+    response: ResponseV0
+}
+
+export interface Xcm_TransferAsset {
+    __kind: 'TransferAsset'
+    assets: MultiAssetV0[]
+    dest: MultiLocationV0
+}
+
+export interface Xcm_TransferReserveAsset {
+    __kind: 'TransferReserveAsset'
+    assets: MultiAssetV0[]
+    dest: MultiLocationV0
+    effects: XcmOrderV0[]
+}
+
+export interface Xcm_Transact {
+    __kind: 'Transact'
+    originType: XcmOriginKind
+    requireWeightAtMost: bigint
+    call: DoubleEncodedCall
+}
+
+export interface Xcm_HrmpNewChannelOpenRequest {
+    __kind: 'HrmpNewChannelOpenRequest'
+    sender: number
+    maxMessageSize: number
+    maxCapacity: number
+}
+
+export interface Xcm_HrmpChannelAccepted {
+    __kind: 'HrmpChannelAccepted'
+    recipient: number
+}
+
+export interface Xcm_HrmpChannelClosing {
+    __kind: 'HrmpChannelClosing'
+    initiator: number
+    sender: number
+    recipient: number
+}
+
+export interface Xcm_RelayedFrom {
+    __kind: 'RelayedFrom'
+    who: MultiLocationV0
+    message: XcmV0
+}
+
 export interface ChangesTrieConfiguration {
     digestInterval: number
     digestLevels: number
@@ -6432,123 +6682,6 @@ export interface MultiSignature_Sr25519 {
 export interface MultiSignature_Ecdsa {
     __kind: 'Ecdsa'
     value: Uint8Array
-}
-
-export type MultiLocation = MultiLocation_Here | MultiLocation_X1 | MultiLocation_X2 | MultiLocation_X3 | MultiLocation_X4 | MultiLocation_X5 | MultiLocation_X6 | MultiLocation_X7 | MultiLocation_X8
-
-export interface MultiLocation_Here {
-    __kind: 'Here'
-}
-
-export interface MultiLocation_X1 {
-    __kind: 'X1'
-    value: JunctionV0
-}
-
-export interface MultiLocation_X2 {
-    __kind: 'X2'
-    value: [JunctionV0, JunctionV0]
-}
-
-export interface MultiLocation_X3 {
-    __kind: 'X3'
-    value: [JunctionV0, JunctionV0, JunctionV0]
-}
-
-export interface MultiLocation_X4 {
-    __kind: 'X4'
-    value: [JunctionV0, JunctionV0, JunctionV0, JunctionV0]
-}
-
-export interface MultiLocation_X5 {
-    __kind: 'X5'
-    value: [JunctionV0, JunctionV0, JunctionV0, JunctionV0, JunctionV0]
-}
-
-export interface MultiLocation_X6 {
-    __kind: 'X6'
-    value: [JunctionV0, JunctionV0, JunctionV0, JunctionV0, JunctionV0, JunctionV0]
-}
-
-export interface MultiLocation_X7 {
-    __kind: 'X7'
-    value: [JunctionV0, JunctionV0, JunctionV0, JunctionV0, JunctionV0, JunctionV0, JunctionV0]
-}
-
-export interface MultiLocation_X8 {
-    __kind: 'X8'
-    value: [JunctionV0, JunctionV0, JunctionV0, JunctionV0, JunctionV0, JunctionV0, JunctionV0, JunctionV0]
-}
-
-export type Xcm = Xcm_WithdrawAsset | Xcm_ReserveAssetDeposit | Xcm_ReceiveTeleportedAsset | Xcm_QueryResponse | Xcm_TransferAsset | Xcm_TransferReserveAsset | Xcm_Transact | Xcm_HrmpNewChannelOpenRequest | Xcm_HrmpChannelAccepted | Xcm_HrmpChannelClosing | Xcm_RelayedFrom
-
-export interface Xcm_WithdrawAsset {
-    __kind: 'WithdrawAsset'
-    assets: MultiAssetV0[]
-    effects: XcmOrderV0[]
-}
-
-export interface Xcm_ReserveAssetDeposit {
-    __kind: 'ReserveAssetDeposit'
-    assets: MultiAssetV0[]
-    effects: XcmOrderV0[]
-}
-
-export interface Xcm_ReceiveTeleportedAsset {
-    __kind: 'ReceiveTeleportedAsset'
-    assets: MultiAssetV0[]
-    effects: XcmOrderV0[]
-}
-
-export interface Xcm_QueryResponse {
-    __kind: 'QueryResponse'
-    queryId: bigint
-    response: ResponseV0
-}
-
-export interface Xcm_TransferAsset {
-    __kind: 'TransferAsset'
-    assets: MultiAssetV0[]
-    dest: MultiLocationV0
-}
-
-export interface Xcm_TransferReserveAsset {
-    __kind: 'TransferReserveAsset'
-    assets: MultiAssetV0[]
-    dest: MultiLocationV0
-    effects: XcmOrderV0[]
-}
-
-export interface Xcm_Transact {
-    __kind: 'Transact'
-    originType: XcmOriginKind
-    requireWeightAtMost: bigint
-    call: DoubleEncodedCall
-}
-
-export interface Xcm_HrmpNewChannelOpenRequest {
-    __kind: 'HrmpNewChannelOpenRequest'
-    sender: number
-    maxMessageSize: number
-    maxCapacity: number
-}
-
-export interface Xcm_HrmpChannelAccepted {
-    __kind: 'HrmpChannelAccepted'
-    recipient: number
-}
-
-export interface Xcm_HrmpChannelClosing {
-    __kind: 'HrmpChannelClosing'
-    initiator: number
-    sender: number
-    recipient: number
-}
-
-export interface Xcm_RelayedFrom {
-    __kind: 'RelayedFrom'
-    who: MultiLocationV0
-    message: XcmV0
 }
 
 export type MultiAsset = MultiAsset_None | MultiAsset_All | MultiAsset_AllFungible | MultiAsset_AllNonFungible | MultiAsset_AllAbstractFungible | MultiAsset_AllAbstractNonFungible | MultiAsset_AllConcreteFungible | MultiAsset_AllConcreteNonFungible | MultiAsset_AbstractFungible | MultiAsset_AbstractNonFungible | MultiAsset_ConcreteFungible | MultiAsset_ConcreteNonFungible
@@ -8368,87 +8501,6 @@ export interface XcmPalletEvent_Sent {
     value: [MultiLocation, MultiLocation, Xcm]
 }
 
-export interface NextConfigDescriptorV1 {
-    c: [bigint, bigint]
-    allowedSlots: AllowedSlots
-}
-
-export interface Digest {
-    logs: DigestItem[]
-}
-
-export type GrandpaEquivocation = GrandpaEquivocation_Prevote | GrandpaEquivocation_Precommit
-
-export interface GrandpaEquivocation_Prevote {
-    __kind: 'Prevote'
-    value: GrandpaEquivocationValue
-}
-
-export interface GrandpaEquivocation_Precommit {
-    __kind: 'Precommit'
-    value: GrandpaEquivocationValue
-}
-
-export interface OpaqueNetworkState {
-    peerId: Uint8Array
-    externalAddresses: Uint8Array[]
-}
-
-export interface AccountVoteStandard {
-    vote: number
-    balance: bigint
-}
-
-export interface AccountVoteSplit {
-    aye: bigint
-    nay: bigint
-}
-
-export interface CompactAssignmentsWith24 {
-    votes1: [number, number][]
-    votes2: [number, [number, number], number][]
-    votes3: [number, [number, number][], number][]
-    votes4: [number, [number, number][], number][]
-    votes5: [number, [number, number][], number][]
-    votes6: [number, [number, number][], number][]
-    votes7: [number, [number, number][], number][]
-    votes8: [number, [number, number][], number][]
-    votes9: [number, [number, number][], number][]
-    votes10: [number, [number, number][], number][]
-    votes11: [number, [number, number][], number][]
-    votes12: [number, [number, number][], number][]
-    votes13: [number, [number, number][], number][]
-    votes14: [number, [number, number][], number][]
-    votes15: [number, [number, number][], number][]
-    votes16: [number, [number, number][], number][]
-    votes17: [number, [number, number][], number][]
-    votes18: [number, [number, number][], number][]
-    votes19: [number, [number, number][], number][]
-    votes20: [number, [number, number][], number][]
-    votes21: [number, [number, number][], number][]
-    votes22: [number, [number, number][], number][]
-    votes23: [number, [number, number][], number][]
-    votes24: [number, [number, number][], number][]
-}
-
-export interface SignedAvailabilityBitfield {
-    payload: Uint8Array
-    validatorIndex: number
-    signature: Uint8Array
-}
-
-export interface BackedCandidate {
-    candidate: CommittedCandidateReceipt
-    validityVotes: ValidityAttestation[]
-    validatorIndices: Uint8Array
-}
-
-export interface DisputeStatementSet {
-    candidateHash: Uint8Array
-    session: number
-    statements: [DisputeStatement, number, Uint8Array][]
-}
-
 export type JunctionV0 = JunctionV0_Parent | JunctionV0_Parachain | JunctionV0_AccountId32 | JunctionV0_AccountIndex64 | JunctionV0_AccountKey20 | JunctionV0_PalletInstance | JunctionV0_GeneralIndex | JunctionV0_GeneralKey | JunctionV0_OnlyChild | JunctionV0_Plurality
 
 export interface JunctionV0_Parent {
@@ -8766,6 +8818,87 @@ export interface XcmV0_RelayedFrom {
     message: XcmV0
 }
 
+export interface NextConfigDescriptorV1 {
+    c: [bigint, bigint]
+    allowedSlots: AllowedSlots
+}
+
+export interface Digest {
+    logs: DigestItem[]
+}
+
+export type GrandpaEquivocation = GrandpaEquivocation_Prevote | GrandpaEquivocation_Precommit
+
+export interface GrandpaEquivocation_Prevote {
+    __kind: 'Prevote'
+    value: GrandpaEquivocationValue
+}
+
+export interface GrandpaEquivocation_Precommit {
+    __kind: 'Precommit'
+    value: GrandpaEquivocationValue
+}
+
+export interface OpaqueNetworkState {
+    peerId: Uint8Array
+    externalAddresses: Uint8Array[]
+}
+
+export interface AccountVoteStandard {
+    vote: number
+    balance: bigint
+}
+
+export interface AccountVoteSplit {
+    aye: bigint
+    nay: bigint
+}
+
+export interface CompactAssignmentsWith24 {
+    votes1: [number, number][]
+    votes2: [number, [number, number], number][]
+    votes3: [number, [number, number][], number][]
+    votes4: [number, [number, number][], number][]
+    votes5: [number, [number, number][], number][]
+    votes6: [number, [number, number][], number][]
+    votes7: [number, [number, number][], number][]
+    votes8: [number, [number, number][], number][]
+    votes9: [number, [number, number][], number][]
+    votes10: [number, [number, number][], number][]
+    votes11: [number, [number, number][], number][]
+    votes12: [number, [number, number][], number][]
+    votes13: [number, [number, number][], number][]
+    votes14: [number, [number, number][], number][]
+    votes15: [number, [number, number][], number][]
+    votes16: [number, [number, number][], number][]
+    votes17: [number, [number, number][], number][]
+    votes18: [number, [number, number][], number][]
+    votes19: [number, [number, number][], number][]
+    votes20: [number, [number, number][], number][]
+    votes21: [number, [number, number][], number][]
+    votes22: [number, [number, number][], number][]
+    votes23: [number, [number, number][], number][]
+    votes24: [number, [number, number][], number][]
+}
+
+export interface SignedAvailabilityBitfield {
+    payload: Uint8Array
+    validatorIndex: number
+    signature: Uint8Array
+}
+
+export interface BackedCandidate {
+    candidate: CommittedCandidateReceipt
+    validityVotes: ValidityAttestation[]
+    validatorIndices: Uint8Array
+}
+
+export interface DisputeStatementSet {
+    candidateHash: Uint8Array
+    session: number
+    statements: [DisputeStatement, number, Uint8Array][]
+}
+
 export type AssetInstanceV0 = AssetInstanceV0_Undefined | AssetInstanceV0_Index8 | AssetInstanceV0_Index16 | AssetInstanceV0_Index32 | AssetInstanceV0_Index64 | AssetInstanceV0_Index128 | AssetInstanceV0_Array4 | AssetInstanceV0_Array8 | AssetInstanceV0_Array16 | AssetInstanceV0_Array32 | AssetInstanceV0_Blob
 
 export interface AssetInstanceV0_Undefined {
@@ -8925,23 +9058,6 @@ export interface CandidateReceipt {
     commitmentsHash: Uint8Array
 }
 
-export type Outcome = Outcome_Complete | Outcome_Incomplete | Outcome_Error
-
-export interface Outcome_Complete {
-    __kind: 'Complete'
-    value: bigint
-}
-
-export interface Outcome_Incomplete {
-    __kind: 'Incomplete'
-    value: [bigint, XcmErrorV0]
-}
-
-export interface Outcome_Error {
-    __kind: 'Error'
-    value: XcmErrorV0
-}
-
 export type SlotRange = SlotRange_ZeroZero | SlotRange_ZeroOne | SlotRange_ZeroTwo | SlotRange_ZeroThree | SlotRange_OneOne | SlotRange_OneTwo | SlotRange_OneThree | SlotRange_TwoTwo | SlotRange_TwoThree | SlotRange_ThreeThree
 
 export interface SlotRange_ZeroZero {
@@ -8982,6 +9098,86 @@ export interface SlotRange_TwoThree {
 
 export interface SlotRange_ThreeThree {
     __kind: 'ThreeThree'
+}
+
+export type NetworkId = NetworkId_Any | NetworkId_Named | NetworkId_Polkadot | NetworkId_Kusama
+
+export interface NetworkId_Any {
+    __kind: 'Any'
+}
+
+export interface NetworkId_Named {
+    __kind: 'Named'
+    value: Uint8Array
+}
+
+export interface NetworkId_Polkadot {
+    __kind: 'Polkadot'
+}
+
+export interface NetworkId_Kusama {
+    __kind: 'Kusama'
+}
+
+export type BodyId = BodyId_Unit | BodyId_Named | BodyId_Index | BodyId_Executive | BodyId_Technical | BodyId_Legislative | BodyId_Judicial
+
+export interface BodyId_Unit {
+    __kind: 'Unit'
+}
+
+export interface BodyId_Named {
+    __kind: 'Named'
+    value: Uint8Array
+}
+
+export interface BodyId_Index {
+    __kind: 'Index'
+    value: number
+}
+
+export interface BodyId_Executive {
+    __kind: 'Executive'
+}
+
+export interface BodyId_Technical {
+    __kind: 'Technical'
+}
+
+export interface BodyId_Legislative {
+    __kind: 'Legislative'
+}
+
+export interface BodyId_Judicial {
+    __kind: 'Judicial'
+}
+
+export type BodyPart = BodyPart_Voice | BodyPart_Members | BodyPart_Fraction | BodyPart_AtLeastProportion | BodyPart_MoreThanProportion
+
+export interface BodyPart_Voice {
+    __kind: 'Voice'
+}
+
+export interface BodyPart_Members {
+    __kind: 'Members'
+    value: number
+}
+
+export interface BodyPart_Fraction {
+    __kind: 'Fraction'
+    nom: number
+    denom: number
+}
+
+export interface BodyPart_AtLeastProportion {
+    __kind: 'AtLeastProportion'
+    nom: number
+    denom: number
+}
+
+export interface BodyPart_MoreThanProportion {
+    __kind: 'MoreThanProportion'
+    nom: number
+    denom: number
 }
 
 export type AllowedSlots = AllowedSlots_PrimarySlots | AllowedSlots_PrimaryAndSecondaryPlainSlots | AllowedSlots_PrimaryAndSecondaryVRFSlots
@@ -9084,86 +9280,6 @@ export interface DisputeStatement_Invalid {
     value: InvalidDisputeStatementKind
 }
 
-export type NetworkId = NetworkId_Any | NetworkId_Named | NetworkId_Polkadot | NetworkId_Kusama
-
-export interface NetworkId_Any {
-    __kind: 'Any'
-}
-
-export interface NetworkId_Named {
-    __kind: 'Named'
-    value: Uint8Array
-}
-
-export interface NetworkId_Polkadot {
-    __kind: 'Polkadot'
-}
-
-export interface NetworkId_Kusama {
-    __kind: 'Kusama'
-}
-
-export type BodyId = BodyId_Unit | BodyId_Named | BodyId_Index | BodyId_Executive | BodyId_Technical | BodyId_Legislative | BodyId_Judicial
-
-export interface BodyId_Unit {
-    __kind: 'Unit'
-}
-
-export interface BodyId_Named {
-    __kind: 'Named'
-    value: Uint8Array
-}
-
-export interface BodyId_Index {
-    __kind: 'Index'
-    value: number
-}
-
-export interface BodyId_Executive {
-    __kind: 'Executive'
-}
-
-export interface BodyId_Technical {
-    __kind: 'Technical'
-}
-
-export interface BodyId_Legislative {
-    __kind: 'Legislative'
-}
-
-export interface BodyId_Judicial {
-    __kind: 'Judicial'
-}
-
-export type BodyPart = BodyPart_Voice | BodyPart_Members | BodyPart_Fraction | BodyPart_AtLeastProportion | BodyPart_MoreThanProportion
-
-export interface BodyPart_Voice {
-    __kind: 'Voice'
-}
-
-export interface BodyPart_Members {
-    __kind: 'Members'
-    value: number
-}
-
-export interface BodyPart_Fraction {
-    __kind: 'Fraction'
-    nom: number
-    denom: number
-}
-
-export interface BodyPart_AtLeastProportion {
-    __kind: 'AtLeastProportion'
-    nom: number
-    denom: number
-}
-
-export interface BodyPart_MoreThanProportion {
-    __kind: 'MoreThanProportion'
-    nom: number
-    denom: number
-}
-
 export type DispatchClass = DispatchClass_Normal | DispatchClass_Operational | DispatchClass_Mandatory
 
 export interface DispatchClass_Normal {
@@ -9256,122 +9372,6 @@ export interface CandidateDescriptor {
     signature: Uint8Array
     paraHead: Uint8Array
     validationCodeHash: Uint8Array
-}
-
-export type XcmErrorV0 = XcmErrorV0_Undefined | XcmErrorV0_Overflow | XcmErrorV0_Unimplemented | XcmErrorV0_UnhandledXcmVersion | XcmErrorV0_UnhandledXcmMessage | XcmErrorV0_UnhandledEffect | XcmErrorV0_EscalationOfPrivilege | XcmErrorV0_UntrustedReserveLocation | XcmErrorV0_UntrustedTeleportLocation | XcmErrorV0_DestinationBufferOverflow | XcmErrorV0_SendFailed | XcmErrorV0_CannotReachDestination | XcmErrorV0_MultiLocationFull | XcmErrorV0_FailedToDecode | XcmErrorV0_BadOrigin | XcmErrorV0_ExceedsMaxMessageSize | XcmErrorV0_FailedToTransactAsset | XcmErrorV0_WeightLimitReached | XcmErrorV0_Wildcard | XcmErrorV0_TooMuchWeightRequired | XcmErrorV0_NotHoldingFees | XcmErrorV0_WeightNotComputable | XcmErrorV0_Barrier | XcmErrorV0_NotWithdrawable | XcmErrorV0_LocationCannotHold | XcmErrorV0_TooExpensive | XcmErrorV0_AssetNotFound | XcmErrorV0_RecursionLimitReached
-
-export interface XcmErrorV0_Undefined {
-    __kind: 'Undefined'
-}
-
-export interface XcmErrorV0_Overflow {
-    __kind: 'Overflow'
-}
-
-export interface XcmErrorV0_Unimplemented {
-    __kind: 'Unimplemented'
-}
-
-export interface XcmErrorV0_UnhandledXcmVersion {
-    __kind: 'UnhandledXcmVersion'
-}
-
-export interface XcmErrorV0_UnhandledXcmMessage {
-    __kind: 'UnhandledXcmMessage'
-}
-
-export interface XcmErrorV0_UnhandledEffect {
-    __kind: 'UnhandledEffect'
-}
-
-export interface XcmErrorV0_EscalationOfPrivilege {
-    __kind: 'EscalationOfPrivilege'
-}
-
-export interface XcmErrorV0_UntrustedReserveLocation {
-    __kind: 'UntrustedReserveLocation'
-}
-
-export interface XcmErrorV0_UntrustedTeleportLocation {
-    __kind: 'UntrustedTeleportLocation'
-}
-
-export interface XcmErrorV0_DestinationBufferOverflow {
-    __kind: 'DestinationBufferOverflow'
-}
-
-export interface XcmErrorV0_SendFailed {
-    __kind: 'SendFailed'
-}
-
-export interface XcmErrorV0_CannotReachDestination {
-    __kind: 'CannotReachDestination'
-    value: [MultiLocation, Xcm]
-}
-
-export interface XcmErrorV0_MultiLocationFull {
-    __kind: 'MultiLocationFull'
-}
-
-export interface XcmErrorV0_FailedToDecode {
-    __kind: 'FailedToDecode'
-}
-
-export interface XcmErrorV0_BadOrigin {
-    __kind: 'BadOrigin'
-}
-
-export interface XcmErrorV0_ExceedsMaxMessageSize {
-    __kind: 'ExceedsMaxMessageSize'
-}
-
-export interface XcmErrorV0_FailedToTransactAsset {
-    __kind: 'FailedToTransactAsset'
-}
-
-export interface XcmErrorV0_WeightLimitReached {
-    __kind: 'WeightLimitReached'
-    value: bigint
-}
-
-export interface XcmErrorV0_Wildcard {
-    __kind: 'Wildcard'
-}
-
-export interface XcmErrorV0_TooMuchWeightRequired {
-    __kind: 'TooMuchWeightRequired'
-}
-
-export interface XcmErrorV0_NotHoldingFees {
-    __kind: 'NotHoldingFees'
-}
-
-export interface XcmErrorV0_WeightNotComputable {
-    __kind: 'WeightNotComputable'
-}
-
-export interface XcmErrorV0_Barrier {
-    __kind: 'Barrier'
-}
-
-export interface XcmErrorV0_NotWithdrawable {
-    __kind: 'NotWithdrawable'
-}
-
-export interface XcmErrorV0_LocationCannotHold {
-    __kind: 'LocationCannotHold'
-}
-
-export interface XcmErrorV0_TooExpensive {
-    __kind: 'TooExpensive'
-}
-
-export interface XcmErrorV0_AssetNotFound {
-    __kind: 'AssetNotFound'
-}
-
-export interface XcmErrorV0_RecursionLimitReached {
-    __kind: 'RecursionLimitReached'
 }
 
 export type ChangesTrieSignal = ChangesTrieSignal_NewConfiguration

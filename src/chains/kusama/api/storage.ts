@@ -17,10 +17,11 @@ import {
   EraStaker,
   ErasStakersArgs,
   NominationPoolsData,
-  AccountBalancesPair
+  AccountBalancesPair, AccountBalanceShort
 } from '../../../utils/types';
 import { getKeysCountAll, handleHoldersTotals } from '../../utils';
 import { excludeFromCirculatingAssetsAmountAddresses } from '../../moonriver/config';
+import { BalancesAccountStorage } from '../../polkadot/types/storage';
 
 export async function getTotalIssuance(ctx: ChainContext, block: Block) {
   const storage = new BalancesTotalIssuanceStorage(ctx, block);
@@ -257,3 +258,43 @@ export async function getEraStakersData(
     }))
   })) as EraStaker[];
 }
+
+export async function getSystemAccountBalancesByKeys(
+  ctx: ChainContext,
+  block: Block,
+  keys: Uint8Array[]
+): Promise<AccountBalanceShort[] | undefined> {
+  if (keys.length === 0) return undefined;
+  const storageSysAccount = new SystemAccountStorage(ctx, block);
+
+  if (!storageSysAccount.isExists) return undefined
+
+  const data = await ctx._chain.queryStorage2(
+    block.hash,
+    'System',
+    'Account',
+    keys.map((a) => [a])
+  )
+
+  return data.map((d) => ({ free: d.free, reserved: d.reserved }))
+}
+export async function getBalancesAccountBalancesByKeys(
+  ctx: ChainContext,
+  block: Block,
+  keys: Uint8Array[]
+): Promise<AccountBalanceShort[] | undefined> {
+  if (keys.length === 0) return undefined;
+  const storageBalAccount = new BalancesAccountStorage(ctx, block);
+
+  if (!storageBalAccount.isExists) return undefined
+
+  const data = await ctx._chain.queryStorage2(
+    block.hash,
+    'Balances',
+    'Account',
+    keys.map((a) => [a])
+  )
+
+  return data.map((d) => ({ free: d.free, reserved: d.reserved }))
+}
+

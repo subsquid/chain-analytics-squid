@@ -1,5 +1,5 @@
-module.exports = class Data1671639926900 {
-    name = 'Data1671639926900'
+module.exports = class Data1672416045332 {
+    name = 'Data1672416045332'
 
     async up(db) {
         await db.query(`CREATE TABLE "sub_processor_task" ("id" character varying NOT NULL, "worker_id" text, "task_name" text NOT NULL, "block_hash" text NOT NULL, "block_height" integer NOT NULL, "timestamp" text NOT NULL, "result" jsonb, "queue_index" integer NOT NULL, "queue_sub_index" integer NOT NULL, "status" character varying(10) NOT NULL, CONSTRAINT "PK_57accaad7b367165b5e165de3f4" PRIMARY KEY ("id"))`)
@@ -21,6 +21,7 @@ module.exports = class Data1671639926900 {
         await db.query(`CREATE INDEX "IDX_387409712a008b9b1e0263eba3" ON "historical_data_meta" ("staking_latest_time") `)
         await db.query(`CREATE INDEX "IDX_17cae1ce86ad03a9a598d49401" ON "historical_data_meta" ("nomination_pools_latest_block_number") `)
         await db.query(`CREATE INDEX "IDX_88f1efc28c9c512617d4657101" ON "historical_data_meta" ("nomination_pools_latest_time") `)
+        await db.query(`CREATE TABLE "account" ("id" character varying NOT NULL, "free" numeric NOT NULL, "reserved" numeric NOT NULL, "total" numeric NOT NULL, "updated_at_block" integer, CONSTRAINT "PK_54115ee388cdb6d86bb4bf5b2ea" PRIMARY KEY ("id"))`)
         await db.query(`CREATE TABLE "holders" ("id" character varying NOT NULL, "amount" integer NOT NULL, "total_free_balance" numeric NOT NULL, "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, "block_hash" text NOT NULL, CONSTRAINT "PK_db78e78aa79aa06fd917151e37f" PRIMARY KEY ("id"))`)
         await db.query(`CREATE INDEX "IDX_5acf8ee6a2f31d656fa1492393" ON "holders" ("amount") `)
         await db.query(`CREATE INDEX "IDX_97209a6defe3f6d0202b6c2120" ON "holders" ("total_free_balance") `)
@@ -84,6 +85,7 @@ module.exports = class Data1671639926900 {
         await db.query(`DROP INDEX "public"."IDX_387409712a008b9b1e0263eba3"`)
         await db.query(`DROP INDEX "public"."IDX_17cae1ce86ad03a9a598d49401"`)
         await db.query(`DROP INDEX "public"."IDX_88f1efc28c9c512617d4657101"`)
+        await db.query(`DROP TABLE "account"`)
         await db.query(`DROP TABLE "holders"`)
         await db.query(`DROP INDEX "public"."IDX_5acf8ee6a2f31d656fa1492393"`)
         await db.query(`DROP INDEX "public"."IDX_97209a6defe3f6d0202b6c2120"`)

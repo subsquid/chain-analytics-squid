@@ -1,5 +1,145 @@
 import type {Result, Option} from './support'
 
+export type DispatchResult = DispatchResult_Ok | DispatchResult_Err
+
+export interface DispatchResult_Ok {
+    __kind: 'Ok'
+}
+
+export interface DispatchResult_Err {
+    __kind: 'Err'
+    value: DispatchError
+}
+
+export type VoteThreshold = VoteThreshold_SuperMajorityApprove | VoteThreshold_SuperMajorityAgainst | VoteThreshold_SimpleMajority
+
+export interface VoteThreshold_SuperMajorityApprove {
+    __kind: 'SuperMajorityApprove'
+}
+
+export interface VoteThreshold_SuperMajorityAgainst {
+    __kind: 'SuperMajorityAgainst'
+}
+
+export interface VoteThreshold_SimpleMajority {
+    __kind: 'SimpleMajority'
+}
+
+export interface FullIdentification {
+    total: bigint
+    own: bigint
+    others: IndividualExposure[]
+}
+
+export interface NewBidder {
+    who: Uint8Array
+    sub: number
+}
+
+export type SlotRange = SlotRange_ZeroZero | SlotRange_ZeroOne | SlotRange_ZeroTwo | SlotRange_ZeroThree | SlotRange_OneOne | SlotRange_OneTwo | SlotRange_OneThree | SlotRange_TwoTwo | SlotRange_TwoThree | SlotRange_ThreeThree
+
+export interface SlotRange_ZeroZero {
+    __kind: 'ZeroZero'
+}
+
+export interface SlotRange_ZeroOne {
+    __kind: 'ZeroOne'
+}
+
+export interface SlotRange_ZeroTwo {
+    __kind: 'ZeroTwo'
+}
+
+export interface SlotRange_ZeroThree {
+    __kind: 'ZeroThree'
+}
+
+export interface SlotRange_OneOne {
+    __kind: 'OneOne'
+}
+
+export interface SlotRange_OneTwo {
+    __kind: 'OneTwo'
+}
+
+export interface SlotRange_OneThree {
+    __kind: 'OneThree'
+}
+
+export interface SlotRange_TwoTwo {
+    __kind: 'TwoTwo'
+}
+
+export interface SlotRange_TwoThree {
+    __kind: 'TwoThree'
+}
+
+export interface SlotRange_ThreeThree {
+    __kind: 'ThreeThree'
+}
+
+export type ElectionCompute = ElectionCompute_OnChain | ElectionCompute_Signed | ElectionCompute_Unsigned
+
+export interface ElectionCompute_OnChain {
+    __kind: 'OnChain'
+}
+
+export interface ElectionCompute_Signed {
+    __kind: 'Signed'
+}
+
+export interface ElectionCompute_Unsigned {
+    __kind: 'Unsigned'
+}
+
+export type DispatchError = DispatchError_Other | DispatchError_CannotLookup | DispatchError_BadOrigin | DispatchError_Module | DispatchError_ConsumerRemaining | DispatchError_NoProviders | DispatchError_Token | DispatchError_Arithmetic
+
+export interface DispatchError_Other {
+    __kind: 'Other'
+}
+
+export interface DispatchError_CannotLookup {
+    __kind: 'CannotLookup'
+}
+
+export interface DispatchError_BadOrigin {
+    __kind: 'BadOrigin'
+}
+
+export interface DispatchError_Module {
+    __kind: 'Module'
+    value: DispatchErrorModule
+}
+
+export interface DispatchError_ConsumerRemaining {
+    __kind: 'ConsumerRemaining'
+}
+
+export interface DispatchError_NoProviders {
+    __kind: 'NoProviders'
+}
+
+export interface DispatchError_Token {
+    __kind: 'Token'
+    value: TokenError
+}
+
+export interface DispatchError_Arithmetic {
+    __kind: 'Arithmetic'
+    value: ArithmeticError
+}
+
+export interface DispatchInfo {
+    weight: bigint
+    class: DispatchClass
+    paysFee: Pays
+}
+
+export interface Timepoint {
+    height: number
+    index: number
+}
+
 export interface BlockAttestations {
     receipt: CandidateReceipt
     valid: Uint8Array[]
@@ -100,20 +240,6 @@ export interface StatementKind_Regular {
 
 export interface StatementKind_Saft {
     __kind: 'Saft'
-}
-
-export type VoteThreshold = VoteThreshold_SuperMajorityApprove | VoteThreshold_SuperMajorityAgainst | VoteThreshold_SimpleMajority
-
-export interface VoteThreshold_SuperMajorityApprove {
-    __kind: 'SuperMajorityApprove'
-}
-
-export interface VoteThreshold_SuperMajorityAgainst {
-    __kind: 'SuperMajorityAgainst'
-}
-
-export interface VoteThreshold_SimpleMajority {
-    __kind: 'SimpleMajority'
 }
 
 export type PreimageStatus = PreimageStatus_Missing | PreimageStatus_Available
@@ -584,6 +710,88 @@ export interface VestingInfo {
     locked: bigint
     perBlock: bigint
     startingBlock: number
+}
+
+export interface IndividualExposure {
+    who: Uint8Array
+    value: bigint
+}
+
+export interface DispatchErrorModule {
+    index: number
+    error: number
+}
+
+export type TokenError = TokenError_NoFunds | TokenError_WouldDie | TokenError_BelowMinimum | TokenError_CannotCreate | TokenError_UnknownAsset | TokenError_Frozen | TokenError_Underflow | TokenError_Overflow
+
+export interface TokenError_NoFunds {
+    __kind: 'NoFunds'
+}
+
+export interface TokenError_WouldDie {
+    __kind: 'WouldDie'
+}
+
+export interface TokenError_BelowMinimum {
+    __kind: 'BelowMinimum'
+}
+
+export interface TokenError_CannotCreate {
+    __kind: 'CannotCreate'
+}
+
+export interface TokenError_UnknownAsset {
+    __kind: 'UnknownAsset'
+}
+
+export interface TokenError_Frozen {
+    __kind: 'Frozen'
+}
+
+export interface TokenError_Underflow {
+    __kind: 'Underflow'
+}
+
+export interface TokenError_Overflow {
+    __kind: 'Overflow'
+}
+
+export type ArithmeticError = ArithmeticError_Underflow | ArithmeticError_Overflow | ArithmeticError_DivisionByZero
+
+export interface ArithmeticError_Underflow {
+    __kind: 'Underflow'
+}
+
+export interface ArithmeticError_Overflow {
+    __kind: 'Overflow'
+}
+
+export interface ArithmeticError_DivisionByZero {
+    __kind: 'DivisionByZero'
+}
+
+export type DispatchClass = DispatchClass_Normal | DispatchClass_Operational | DispatchClass_Mandatory
+
+export interface DispatchClass_Normal {
+    __kind: 'Normal'
+}
+
+export interface DispatchClass_Operational {
+    __kind: 'Operational'
+}
+
+export interface DispatchClass_Mandatory {
+    __kind: 'Mandatory'
+}
+
+export type Pays = Pays_Yes | Pays_No
+
+export interface Pays_Yes {
+    __kind: 'Yes'
+}
+
+export interface Pays_No {
+    __kind: 'No'
 }
 
 export interface CandidateReceipt {
@@ -4020,12 +4228,6 @@ export interface SudoCall_sudo_as {
     call: Type_44
 }
 
-export interface FullIdentification {
-    total: bigint
-    own: bigint
-    others: IndividualExposure[]
-}
-
 export interface ReplacementTimes {
     expectedAt: number
     activatedAt: number
@@ -4190,11 +4392,6 @@ export interface PalletsOrigin_TechnicalCommittee {
     value: CollectiveOrigin
 }
 
-export interface NewBidder {
-    who: Uint8Array
-    sub: number
-}
-
 export interface IncomingParachainFixed {
     codeHash: Uint8Array
     codeSize: number
@@ -4206,28 +4403,9 @@ export interface IncomingParachainDeploy {
     initialHeadData: Uint8Array
 }
 
-export interface IndividualExposure {
-    who: Uint8Array
-    value: bigint
-}
-
 export interface UnlockChunk {
     value: bigint
     era: number
-}
-
-export type ElectionCompute = ElectionCompute_OnChain | ElectionCompute_Signed | ElectionCompute_Unsigned
-
-export interface ElectionCompute_OnChain {
-    __kind: 'OnChain'
-}
-
-export interface ElectionCompute_Signed {
-    __kind: 'Signed'
-}
-
-export interface ElectionCompute_Unsigned {
-    __kind: 'Unsigned'
 }
 
 export type DigestItem = DigestItem_Other | DigestItem_AuthoritiesChange | DigestItem_ChangesTrieRoot | DigestItem_SealV0 | DigestItem_Consensus | DigestItem_Seal | DigestItem_PreRuntime | DigestItem_ChangesTrieSignal | DigestItem_RuntimeEnvironmentUpdated
@@ -4381,11 +4559,6 @@ export interface Event_Utility {
 export interface Event_Sudo {
     __kind: 'Sudo'
     value: SudoEvent
-}
-
-export interface Timepoint {
-    height: number
-    index: number
 }
 
 export interface CandidateDescriptor {
@@ -5586,102 +5759,6 @@ export interface SigningContext {
     parentHash: Uint8Array
 }
 
-export interface DispatchInfo {
-    weight: bigint
-    class: DispatchClass
-    paysFee: Pays
-}
-
-export type DispatchError = DispatchError_Other | DispatchError_CannotLookup | DispatchError_BadOrigin | DispatchError_Module | DispatchError_ConsumerRemaining | DispatchError_NoProviders | DispatchError_Token | DispatchError_Arithmetic
-
-export interface DispatchError_Other {
-    __kind: 'Other'
-}
-
-export interface DispatchError_CannotLookup {
-    __kind: 'CannotLookup'
-}
-
-export interface DispatchError_BadOrigin {
-    __kind: 'BadOrigin'
-}
-
-export interface DispatchError_Module {
-    __kind: 'Module'
-    value: DispatchErrorModule
-}
-
-export interface DispatchError_ConsumerRemaining {
-    __kind: 'ConsumerRemaining'
-}
-
-export interface DispatchError_NoProviders {
-    __kind: 'NoProviders'
-}
-
-export interface DispatchError_Token {
-    __kind: 'Token'
-    value: TokenError
-}
-
-export interface DispatchError_Arithmetic {
-    __kind: 'Arithmetic'
-    value: ArithmeticError
-}
-
-export type DispatchResult = DispatchResult_Ok | DispatchResult_Err
-
-export interface DispatchResult_Ok {
-    __kind: 'Ok'
-}
-
-export interface DispatchResult_Err {
-    __kind: 'Err'
-    value: DispatchError
-}
-
-export type SlotRange = SlotRange_ZeroZero | SlotRange_ZeroOne | SlotRange_ZeroTwo | SlotRange_ZeroThree | SlotRange_OneOne | SlotRange_OneTwo | SlotRange_OneThree | SlotRange_TwoTwo | SlotRange_TwoThree | SlotRange_ThreeThree
-
-export interface SlotRange_ZeroZero {
-    __kind: 'ZeroZero'
-}
-
-export interface SlotRange_ZeroOne {
-    __kind: 'ZeroOne'
-}
-
-export interface SlotRange_ZeroTwo {
-    __kind: 'ZeroTwo'
-}
-
-export interface SlotRange_ZeroThree {
-    __kind: 'ZeroThree'
-}
-
-export interface SlotRange_OneOne {
-    __kind: 'OneOne'
-}
-
-export interface SlotRange_OneTwo {
-    __kind: 'OneTwo'
-}
-
-export interface SlotRange_OneThree {
-    __kind: 'OneThree'
-}
-
-export interface SlotRange_TwoTwo {
-    __kind: 'TwoTwo'
-}
-
-export interface SlotRange_TwoThree {
-    __kind: 'TwoThree'
-}
-
-export interface SlotRange_ThreeThree {
-    __kind: 'ThreeThree'
-}
-
 export interface GrandpaEquivocationValue {
     roundNumber: bigint
     identity: Uint8Array
@@ -5696,83 +5773,6 @@ export interface CandidateCommitments {
     headData: Uint8Array
     processedDownwardMessages: number
     hrmpWatermark: number
-}
-
-export type DispatchClass = DispatchClass_Normal | DispatchClass_Operational | DispatchClass_Mandatory
-
-export interface DispatchClass_Normal {
-    __kind: 'Normal'
-}
-
-export interface DispatchClass_Operational {
-    __kind: 'Operational'
-}
-
-export interface DispatchClass_Mandatory {
-    __kind: 'Mandatory'
-}
-
-export type Pays = Pays_Yes | Pays_No
-
-export interface Pays_Yes {
-    __kind: 'Yes'
-}
-
-export interface Pays_No {
-    __kind: 'No'
-}
-
-export interface DispatchErrorModule {
-    index: number
-    error: number
-}
-
-export type TokenError = TokenError_NoFunds | TokenError_WouldDie | TokenError_BelowMinimum | TokenError_CannotCreate | TokenError_UnknownAsset | TokenError_Frozen | TokenError_Underflow | TokenError_Overflow
-
-export interface TokenError_NoFunds {
-    __kind: 'NoFunds'
-}
-
-export interface TokenError_WouldDie {
-    __kind: 'WouldDie'
-}
-
-export interface TokenError_BelowMinimum {
-    __kind: 'BelowMinimum'
-}
-
-export interface TokenError_CannotCreate {
-    __kind: 'CannotCreate'
-}
-
-export interface TokenError_UnknownAsset {
-    __kind: 'UnknownAsset'
-}
-
-export interface TokenError_Frozen {
-    __kind: 'Frozen'
-}
-
-export interface TokenError_Underflow {
-    __kind: 'Underflow'
-}
-
-export interface TokenError_Overflow {
-    __kind: 'Overflow'
-}
-
-export type ArithmeticError = ArithmeticError_Underflow | ArithmeticError_Overflow | ArithmeticError_DivisionByZero
-
-export interface ArithmeticError_Underflow {
-    __kind: 'Underflow'
-}
-
-export interface ArithmeticError_Overflow {
-    __kind: 'Overflow'
-}
-
-export interface ArithmeticError_DivisionByZero {
-    __kind: 'DivisionByZero'
 }
 
 export interface GrandpaPrevote {

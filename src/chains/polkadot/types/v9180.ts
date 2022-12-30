@@ -1,5 +1,25 @@
 import type {Result, Option} from './support'
 
+export type DisputeResult = DisputeResult_Valid | DisputeResult_Invalid
+
+export interface DisputeResult_Valid {
+    __kind: 'Valid'
+}
+
+export interface DisputeResult_Invalid {
+    __kind: 'Invalid'
+}
+
+export type DisputeLocation = DisputeLocation_Local | DisputeLocation_Remote
+
+export interface DisputeLocation_Local {
+    __kind: 'Local'
+}
+
+export interface DisputeLocation_Remote {
+    __kind: 'Remote'
+}
+
 export type Call = Call_System | Call_Scheduler | Call_Preimage | Call_Babe | Call_Timestamp | Call_Indices | Call_Balances | Call_Authorship | Call_Staking | Call_Session | Call_Grandpa | Call_ImOnline | Call_Democracy | Call_Council | Call_TechnicalCommittee | Call_PhragmenElection | Call_TechnicalMembership | Call_Treasury | Call_Claims | Call_Vesting | Call_Utility | Call_Identity | Call_Proxy | Call_Multisig | Call_Bounties | Call_Tips | Call_ElectionProviderMultiPhase | Call_BagsList | Call_Configuration | Call_ParasShared | Call_ParaInclusion | Call_ParaInherent | Call_Paras | Call_Initializer | Call_Dmp | Call_Ump | Call_Hrmp | Call_ParasDisputes | Call_Registrar | Call_Slots | Call_Auctions | Call_Crowdloan | Call_XcmPallet
 
 export interface Call_System {
@@ -9397,26 +9417,6 @@ export interface V2Outcome_Incomplete {
 export interface V2Outcome_Error {
     __kind: 'Error'
     value: V2Error
-}
-
-export type DisputeLocation = DisputeLocation_Local | DisputeLocation_Remote
-
-export interface DisputeLocation_Local {
-    __kind: 'Local'
-}
-
-export interface DisputeLocation_Remote {
-    __kind: 'Remote'
-}
-
-export type DisputeResult = DisputeResult_Valid | DisputeResult_Invalid
-
-export interface DisputeResult_Valid {
-    __kind: 'Valid'
-}
-
-export interface DisputeResult_Invalid {
-    __kind: 'Invalid'
 }
 
 export type V2Response = V2Response_Null | V2Response_Assets | V2Response_ExecutionResult | V2Response_Version

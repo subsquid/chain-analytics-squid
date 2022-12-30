@@ -20990,6 +20990,38 @@ export interface StakingMinValidatorBondStorageV9050 {
     get(): Promise<bigint>
 }
 
+export class StakingMinimumActiveStakeStorage extends StorageBase {
+    protected getPrefix() {
+        return 'Staking'
+    }
+
+    protected getName() {
+        return 'MinimumActiveStake'
+    }
+
+    /**
+     *  The minimum active nominator stake of the last successful election.
+     */
+    get isV9360(): boolean {
+        return this.getTypeHash() === 'f8ebe28eb30158172c0ccf672f7747c46a244f892d08ef2ebcbaadde34a26bc0'
+    }
+
+    /**
+     *  The minimum active nominator stake of the last successful election.
+     */
+    get asV9360(): StakingMinimumActiveStakeStorageV9360 {
+        assert(this.isV9360)
+        return this as any
+    }
+}
+
+/**
+ *  The minimum active nominator stake of the last successful election.
+ */
+export interface StakingMinimumActiveStakeStorageV9360 {
+    get(): Promise<bigint>
+}
+
 export class StakingMinimumValidatorCountStorage extends StorageBase {
     protected getPrefix() {
         return 'Staking'

@@ -6,17 +6,40 @@ import {
   ErasStakersArgs,
   CollatorInfoShort,
   DelegatorInfoShort,
-  HoldersTotals
+  HoldersTotals,
+  AccountBalanceShort
 } from '../../utils/types';
+import {
+  getBalancesAccountBalancesByKeys,
+  getSystemAccountBalancesByKeys
+} from '../polkadot/api/storage';
 
 export type ChainApi = {
   events: {
-    getTransferValue: EventGetter<bigint>;
+    getBalancesTransferValue?: EventGetter<bigint>;
+    getBalancesTransferAccounts?: EventGetter<Uint8Array[]>;
+    getBalancesEndowedAccounts?: EventGetter<Uint8Array[]>;
+    getBalancesBalanceSetAccounts?: EventGetter<Uint8Array[]>;
+    getBalancesReservedAccounts?: EventGetter<Uint8Array[]>;
+    getBalancesUnreservedAccounts?: EventGetter<Uint8Array[]>;
+    getBalancesReserveRepatriatedAccounts?: EventGetter<Uint8Array[]>;
+    getBalancesDepositAccounts?: EventGetter<Uint8Array[]>;
+    getBalancesWithdrawAccounts?: EventGetter<Uint8Array[]>;
+    getBalancesSlashedAccounts?: EventGetter<Uint8Array[]>;
   };
   storage: {
     getTotalIssuance: StorageGetter<[], bigint | undefined>;
     // getTotalHoldersCount: StorageGetter<[], number | undefined>;
     getHoldersTotals: StorageGetter<[], HoldersTotals | undefined>;
+
+    getSystemAccountBalancesByKeys?: StorageGetter<
+      [Uint8Array[]],
+      AccountBalanceShort[] | undefined
+    >;
+    getBalancesAccountBalancesByKeys?: StorageGetter<
+      [Uint8Array[]],
+      AccountBalanceShort[] | undefined
+    >;
 
     getEraStakersData?: StorageGetter<
       [ErasStakersArgs[]],
@@ -57,7 +80,23 @@ type StorageGetter<T extends Array<any>, R> = (
 
 export type ChainName = 'kusama' | 'polkadot' | 'moonbeam' | 'moonriver';
 
+type KusamaPolkadotChainsEvents =
+  | 'getBalancesTransferValue'
+  | 'getBalancesTransferAccounts'
+  | 'getBalancesEndowedAccounts'
+  | 'getBalancesBalanceSetAccounts'
+  | 'getBalancesReservedAccounts'
+  | 'getBalancesUnreservedAccounts'
+  | 'getBalancesReserveRepatriatedAccounts'
+  | 'getBalancesDepositAccounts'
+  | 'getBalancesWithdrawAccounts'
+  | 'getBalancesSlashedAccounts';
+
+type MoonChainsEvents = never;
+
 type KusamaPolkadotChainsStorageCalls =
+  | 'getSystemAccountBalancesByKeys'
+  | 'getBalancesAccountBalancesByKeys'
   | 'getTotalIssuance'
   | 'getHoldersTotals'
   | 'getEraStakersData'
@@ -79,7 +118,11 @@ type MoonChainsStorageCalls =
   | 'getRoundNumber';
 
 export type ChainApiDecorated<C> = {
-  events: ChainApi['events'];
+  events: C extends 'kusama' | 'polkadot'
+    ? Required<Pick<ChainApi['events'], KusamaPolkadotChainsEvents>>
+    : C extends 'moonbeam' | 'moonriver'
+      ? Required<Pick<ChainApi['events'], MoonChainsEvents>>
+      : any;
   storage: C extends 'kusama' | 'polkadot'
     ? Required<Pick<ChainApi['storage'], KusamaPolkadotChainsStorageCalls>>
     : C extends 'moonbeam' | 'moonriver'
