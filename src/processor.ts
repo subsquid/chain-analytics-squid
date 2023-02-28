@@ -94,11 +94,13 @@ processor.run(new TypeormDatabase(), async (ctx) => {
   await tasksPool.ensureTasksQueue();
 
   for (let block of ctx.blocks) {
-    await handleFinalizedBlock(ctx, block);
-    await handleValidatorsCollators(ctx, block);
-    await handleTotalIssuance(ctx, block);
-    await handleStakeAmount(ctx, block);
-    await handleNominationPools(ctx, block);
+    await Promise.all([
+      handleFinalizedBlock(ctx, block),
+      handleValidatorsCollators(ctx, block),
+      handleTotalIssuance(ctx, block),
+      handleStakeAmount(ctx, block),
+      handleNominationPools(ctx, block)
+    ]);
   }
   await handleTransfers(
     ctx,
