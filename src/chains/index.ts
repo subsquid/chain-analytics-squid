@@ -1,55 +1,31 @@
-import {
-  ApiDecorator,
-  ChainApi,
-  ChainApiDecorated,
-  ChainName
-} from './interfaces/chainApi';
-import { ProcessorConfig } from './interfaces/processorConfig';
 
-function withDecorator({
-  config,
-  api
-}: {
-  config: ProcessorConfig;
-  api: ChainApi;
-}): {
-  config: ProcessorConfig;
-  api: ChainApi;
-  getApiDecorated: ApiDecorator;
-} {
-  return {
-    config,
-    api,
-    getApiDecorated: <C extends ChainName>(c: C) => api as ChainApiDecorated<C>
-  };
-}
+import { ChainApi } from './interfaces/chainApi';
+import { ProcessorConfig } from './interfaces/processorConfig';
 
 export function getChain(): {
   config: ProcessorConfig;
   api: ChainApi;
-  getApiDecorated: ApiDecorator;
+
 } {
   switch (process.env.CHAIN) {
-    // case 'crust':
-    //     return require('./crust')
     case 'hydradx':
-      return withDecorator(require('./hydradx'));
+      return require('./hydradx');
     case 'kusama':
-      return withDecorator(require('./kusama'));
+      return require('./kusama');
     case 'polkadot':
-      return withDecorator(require('./polkadot'));
+      return require('./polkadot');
     case 'acala':
-      return withDecorator(require('./acala'));
+      return require('./acala');
     case 'karura':
-      return withDecorator(require('./karura'));
+      return require('./karura');
     case 'moonriver':
-      return withDecorator(require('./moonriver'));
+      return require('./moonriver');
     case 'moonbeam':
-      return withDecorator(require('./moonbeam'));
+      return require('./moonbeam');
     case 'bifrost':
-      return withDecorator(require('./bifrost'));
+      return require('./bifrost');
     case 'phala':
-      return withDecorator(require('./phala'));
+      return require('./phala');
     default:
       throw new Error(`Unsupported chain ${process.env.CHAIN}`);
   }

@@ -16,120 +16,65 @@ import {
 
 export type ChainApi = {
   events: {
-    getBalancesTransferValue?: EventGetter<bigint>;
-    getBalancesTransferAccounts?: EventGetter<Uint8Array[]>;
-    getBalancesEndowedAccounts?: EventGetter<Uint8Array[]>;
-    getBalancesBalanceSetAccounts?: EventGetter<Uint8Array[]>;
-    getBalancesReservedAccounts?: EventGetter<Uint8Array[]>;
-    getBalancesUnreservedAccounts?: EventGetter<Uint8Array[]>;
-    getBalancesReserveRepatriatedAccounts?: EventGetter<Uint8Array[]>;
-    getBalancesDepositAccounts?: EventGetter<Uint8Array[]>;
-    getBalancesWithdrawAccounts?: EventGetter<Uint8Array[]>;
-    getBalancesSlashedAccounts?: EventGetter<Uint8Array[]>;
+    getBalancesTransferValue: EventGetter<bigint>;
+    getBalancesTransferAccounts: EventGetter<Uint8Array[]>;
+    getBalancesEndowedAccounts: EventGetter<Uint8Array[]>;
+    getBalancesBalanceSetAccounts: EventGetter<Uint8Array[]>;
+    getBalancesReservedAccounts: EventGetter<Uint8Array[]>;
+    getBalancesUnreservedAccounts: EventGetter<Uint8Array[]>;
+    getBalancesReserveRepatriatedAccounts: EventGetter<Uint8Array[]>;
+    getBalancesDepositAccounts: EventGetter<Uint8Array[]>;
+    getBalancesWithdrawAccounts: EventGetter<Uint8Array[]>;
+    getBalancesSlashedAccounts: EventGetter<Uint8Array[]>;
   };
   storage: {
     getTotalIssuance: StorageGetter<[], bigint | undefined>;
     // getTotalHoldersCount: StorageGetter<[], number | undefined>;
     getHoldersTotals: StorageGetter<[], HoldersTotals | undefined>;
 
-    getSystemAccountBalancesByKeys?: StorageGetter<
+    getSystemAccountBalancesByKeys: StorageGetter<
       [Uint8Array[]],
       AccountBalanceShort[] | undefined
     >;
-    getBalancesAccountBalancesByKeys?: StorageGetter<
+    getBalancesAccountBalancesByKeys: StorageGetter<
       [Uint8Array[]],
       AccountBalanceShort[] | undefined
     >;
 
-    getEraStakersData?: StorageGetter<
+    getEraStakersData: StorageGetter<
       [ErasStakersArgs[]],
       (EraStaker | undefined)[] | undefined
     >;
-    getActiveEra?: StorageGetter<[], ActiveEraInfo | undefined>;
-    getCurrentEra?: StorageGetter<[], number | undefined>;
+    getActiveEra: StorageGetter<[], ActiveEraInfo | undefined>;
+    getCurrentEra: StorageGetter<[], number | undefined>;
 
-    getSelectedCollators?: StorageGetter<[], Uint8Array[] | undefined>;
-    getSelectedCollatorsCount?: StorageGetter<[], number | undefined>;
-    getRoundNumber?: StorageGetter<[], number | undefined>;
-    getCollatorsDataShort?: StorageGetter<
+    getSelectedCollators: StorageGetter<[], Uint8Array[] | undefined>;
+    getSelectedCollatorsCount: StorageGetter<[], number | undefined>;
+    getRoundNumber: StorageGetter<[], number | undefined>;
+    getCollatorsDataShort: StorageGetter<
       [Uint8Array[]],
       Map<Uint8Array, CollatorInfoShort | null> | undefined
     >;
-    getStakingDelegatorsAllDataShort?: StorageGetter<
+    getStakingDelegatorsAllDataShort: StorageGetter<
       [],
       DelegatorInfoShort[] | undefined
     >;
-    getTotalStake?: StorageGetter<[], bigint | undefined>;
+    getTotalStake: StorageGetter<[], bigint | undefined>;
 
-    getValidators?: StorageGetter<[], Uint8Array[] | undefined>;
-    getValidatorsCount?: StorageGetter<[], number | undefined>;
-    getIdealValidatorsCount?: StorageGetter<[], number | undefined>;
+    getValidators: StorageGetter<[], Uint8Array[] | undefined>;
+    getValidatorsCount: StorageGetter<[], number | undefined>;
+    getIdealValidatorsCount: StorageGetter<[], number | undefined>;
 
-    getNominationPoolsData?: StorageGetter<[], NominationPoolsData | undefined>;
+    getNominationPoolsData: StorageGetter<[], NominationPoolsData | undefined>;
+    getCounterForValidatorsNumber: StorageGetter<[], number | undefined>;
+    getCounterForNominatorsNumber: StorageGetter<[], number | undefined>;
+    getAuctionCounterNumber: StorageGetter<[], number | undefined>;
   };
 };
 
-type BalanceData = { free: bigint; reserved: bigint };
-
-type EventGetter<R> = (ctx: ChainContext, event: Event) => R;
-type StorageGetter<T extends Array<any>, R> = (
+export type EventGetter<R> = (ctx: ChainContext, event: Event) => R;
+export type StorageGetter<T extends Array<any>, R> = (
   ctx: ChainContext,
   block: Block,
   ...args: T
 ) => Promise<R>;
-
-export type ChainName = 'kusama' | 'polkadot' | 'moonbeam' | 'moonriver';
-
-type KusamaPolkadotChainsEvents =
-  | 'getBalancesTransferValue'
-  | 'getBalancesTransferAccounts'
-  | 'getBalancesEndowedAccounts'
-  | 'getBalancesBalanceSetAccounts'
-  | 'getBalancesReservedAccounts'
-  | 'getBalancesUnreservedAccounts'
-  | 'getBalancesReserveRepatriatedAccounts'
-  | 'getBalancesDepositAccounts'
-  | 'getBalancesWithdrawAccounts'
-  | 'getBalancesSlashedAccounts';
-
-type MoonChainsEvents = never;
-
-type KusamaPolkadotChainsStorageCalls =
-  | 'getSystemAccountBalancesByKeys'
-  | 'getBalancesAccountBalancesByKeys'
-  | 'getTotalIssuance'
-  | 'getHoldersTotals'
-  | 'getEraStakersData'
-  | 'getActiveEra'
-  | 'getCurrentEra'
-  | 'getValidators'
-  | 'getValidatorsCount'
-  | 'getIdealValidatorsCount'
-  | 'getNominationPoolsData';
-
-type MoonChainsStorageCalls =
-  | 'getTotalIssuance'
-  | 'getHoldersTotals'
-  | 'getSelectedCollators'
-  | 'getSelectedCollatorsCount'
-  | 'getCollatorsDataShort'
-  | 'getStakingDelegatorsAllDataShort'
-  | 'getTotalStake'
-  | 'getRoundNumber';
-
-export type ChainApiDecorated<C> = {
-  events: C extends 'kusama' | 'polkadot'
-    ? Required<Pick<ChainApi['events'], KusamaPolkadotChainsEvents>>
-    : C extends 'moonbeam' | 'moonriver'
-      ? Required<Pick<ChainApi['events'], MoonChainsEvents>>
-      : any;
-  storage: C extends 'kusama' | 'polkadot'
-    ? Required<Pick<ChainApi['storage'], KusamaPolkadotChainsStorageCalls>>
-    : C extends 'moonbeam' | 'moonriver'
-    ? Required<Pick<ChainApi['storage'], MoonChainsStorageCalls>>
-    : any;
-};
-
-export type ApiDecorator = <C extends ChainName>(
-  chainName: C
-) => ChainApiDecorated<C>;

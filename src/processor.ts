@@ -112,13 +112,13 @@ processor.run(new TypeormDatabase(), async (ctx) => {
       BlockEventName.SIGNED_EXTRINSIC
     )
   );
-  await handleChainHolders(
-    ctx,
-    ctx.blocks[ctx.blocks.length - 1],
-    parsedEvents.getBySection<InvolvedAccountsData>(
-      BlockEventName.INVOLVED_ACCOUNTS_SYNTHETIC
-    )
-  );
+  // await handleChainHolders(
+  //   ctx,
+  //   ctx.blocks[ctx.blocks.length - 1],
+  //   parsedEvents.getBySection<InvolvedAccountsData>(
+  //     BlockEventName.INVOLVED_ACCOUNTS_SYNTHETIC
+  //   )
+  // );
 
   tasksPool.setResultsProcessingWindow(false);
 });

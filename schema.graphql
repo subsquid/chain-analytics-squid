@@ -119,7 +119,11 @@ type StakedValue @entity {
   currentEra: Int @index
   currentRound: Int @index
   collatorsCount: Int @index
-  validatorsCount: Int @index
+  activeValidators: Int @index
+  totalValidators: Int @index
+  totalNominators: Int @index
+  inflationRatio: Float @index
+  rewardsRatio: Float @index
   timestamp: DateTime! @index
   totalStake: BigInt! @index
   totalStakeStorage: BigInt @index

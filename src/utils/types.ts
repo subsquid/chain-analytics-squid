@@ -85,6 +85,8 @@ export interface SubProcessorTaskResult<T> extends SubProcessorTaskPayload {
   result: SubProcessorTaskResultValue<T> | null;
 }
 
+export type BalanceData = { free: bigint; reserved: bigint };
+
 export type NominationPoolsData = {
   totalPoolsCount: number;
   totalPoolsMembers: number;

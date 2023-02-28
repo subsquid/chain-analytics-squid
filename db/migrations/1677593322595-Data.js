@@ -1,5 +1,5 @@
-module.exports = class Data1672416045332 {
-    name = 'Data1672416045332'
+module.exports = class Data1677593322595 {
+    name = 'Data1677593322595'
 
     async up(db) {
         await db.query(`CREATE TABLE "sub_processor_task" ("id" character varying NOT NULL, "worker_id" text, "task_name" text NOT NULL, "block_hash" text NOT NULL, "block_height" integer NOT NULL, "timestamp" text NOT NULL, "result" jsonb, "queue_index" integer NOT NULL, "queue_sub_index" integer NOT NULL, "status" character varying(10) NOT NULL, CONSTRAINT "PK_57accaad7b367165b5e165de3f4" PRIMARY KEY ("id"))`)
@@ -42,11 +42,15 @@ module.exports = class Data1672416045332 {
         await db.query(`CREATE INDEX "IDX_4768bd83bc1e937428aefb432d" ON "validator_collator" ("ideal_count") `)
         await db.query(`CREATE INDEX "IDX_95fb9bf1c8b4407a2e515dd5f9" ON "validator_collator" ("count") `)
         await db.query(`CREATE INDEX "IDX_772574a8ff0b95683264fcb65f" ON "validator_collator" ("block_hash") `)
-        await db.query(`CREATE TABLE "staked_value" ("id" character varying NOT NULL, "current_era" integer, "current_round" integer, "collators_count" integer, "validators_count" integer, "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, "total_stake" numeric NOT NULL, "total_stake_storage" numeric, "validator_stake" numeric, "collator_stake" numeric, "nominator_stake" numeric NOT NULL, "block_hash" text NOT NULL, CONSTRAINT "PK_9367623dbb86a6f313128f3e3da" PRIMARY KEY ("id"))`)
+        await db.query(`CREATE TABLE "staked_value" ("id" character varying NOT NULL, "current_era" integer, "current_round" integer, "collators_count" integer, "active_validators" integer, "total_validators" integer, "total_nominators" integer, "inflation_ratio" numeric, "rewards_ratio" numeric, "timestamp" TIMESTAMP WITH TIME ZONE NOT NULL, "total_stake" numeric NOT NULL, "total_stake_storage" numeric, "validator_stake" numeric, "collator_stake" numeric, "nominator_stake" numeric NOT NULL, "block_hash" text NOT NULL, CONSTRAINT "PK_9367623dbb86a6f313128f3e3da" PRIMARY KEY ("id"))`)
         await db.query(`CREATE INDEX "IDX_69aac368cf8415a05a082f4445" ON "staked_value" ("current_era") `)
         await db.query(`CREATE INDEX "IDX_9b37789a35eb51f3caa7738064" ON "staked_value" ("current_round") `)
         await db.query(`CREATE INDEX "IDX_e9af2c44b360951e995ad7c4a5" ON "staked_value" ("collators_count") `)
-        await db.query(`CREATE INDEX "IDX_809eb93077c830065495ddeb5c" ON "staked_value" ("validators_count") `)
+        await db.query(`CREATE INDEX "IDX_a26e20b2eb95e89ddabfd451a4" ON "staked_value" ("active_validators") `)
+        await db.query(`CREATE INDEX "IDX_5675e276e2d314b5af9a9df3bd" ON "staked_value" ("total_validators") `)
+        await db.query(`CREATE INDEX "IDX_3d67a5782f1e2868a6bd65a83d" ON "staked_value" ("total_nominators") `)
+        await db.query(`CREATE INDEX "IDX_4c91797378020ebef438477601" ON "staked_value" ("inflation_ratio") `)
+        await db.query(`CREATE INDEX "IDX_fe4b4c5d581eedb2cb386524c2" ON "staked_value" ("rewards_ratio") `)
         await db.query(`CREATE INDEX "IDX_c7a294c15bf0f681fb67b81587" ON "staked_value" ("timestamp") `)
         await db.query(`CREATE INDEX "IDX_79245fbee38dff23a04174cefe" ON "staked_value" ("total_stake") `)
         await db.query(`CREATE INDEX "IDX_060b42cc6e0326194c322f7884" ON "staked_value" ("total_stake_storage") `)
@@ -110,7 +114,11 @@ module.exports = class Data1672416045332 {
         await db.query(`DROP INDEX "public"."IDX_69aac368cf8415a05a082f4445"`)
         await db.query(`DROP INDEX "public"."IDX_9b37789a35eb51f3caa7738064"`)
         await db.query(`DROP INDEX "public"."IDX_e9af2c44b360951e995ad7c4a5"`)
-        await db.query(`DROP INDEX "public"."IDX_809eb93077c830065495ddeb5c"`)
+        await db.query(`DROP INDEX "public"."IDX_a26e20b2eb95e89ddabfd451a4"`)
+        await db.query(`DROP INDEX "public"."IDX_5675e276e2d314b5af9a9df3bd"`)
+        await db.query(`DROP INDEX "public"."IDX_3d67a5782f1e2868a6bd65a83d"`)
+        await db.query(`DROP INDEX "public"."IDX_4c91797378020ebef438477601"`)
+        await db.query(`DROP INDEX "public"."IDX_fe4b4c5d581eedb2cb386524c2"`)
         await db.query(`DROP INDEX "public"."IDX_c7a294c15bf0f681fb67b81587"`)
         await db.query(`DROP INDEX "public"."IDX_79245fbee38dff23a04174cefe"`)
         await db.query(`DROP INDEX "public"."IDX_060b42cc6e0326194c322f7884"`)

@@ -4,6 +4,7 @@ import * as dotenv from 'dotenv';
 dotenv.config({ path: `${__dirname}/../../../.env.local` });
 
 export const config: ProcessorConfig = {
+  blockRange: {from: 7658910},
   chainName: 'polkadot',
   prefix: 'polkadot',
   dataSource: {
@@ -17,6 +18,14 @@ export const config: ProcessorConfig = {
     ['validators', 1000 * 60 * 60],
     ['nominationPools', 1000 * 60 * 60]
   ]),
+  stakingParams: {
+    auctionAdjust: 0,
+    auctionMax: 0,
+    falloff: 0.05,
+    maxInflation: 0.1,
+    minInflation: 0.025,
+    stakeTarget: 0.75,
+  },
   trackingMetrics: new Set([
     TrackingMetrics.holders,
     TrackingMetrics.issuance,

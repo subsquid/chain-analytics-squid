@@ -45,10 +45,14 @@ export function encodeAccount(
   return prefix != null ? ss58.codec(prefix).encode(id) : toHex(id);
 }
 
-export function decodeAccount(id: string, prefix?: string | number | undefined) {
+export function decodeAccount(
+  id: string,
+  prefix?: string | number | undefined
+) {
   return prefix != null ? ss58.codec(prefix).decode(id) : decodeHex(id);
 }
 
+//
 export function isCheckPoint(
   checkPointKey: CheckPointsKeys,
   histDataMeta: HistoricalDataMeta,
@@ -74,7 +78,10 @@ export async function sleepTo(delay: number = 0) {
   await new Promise<void>((res) => setTimeout(() => res(), delay));
 }
 
-export function* splitIntoBatches<T>(list: T[], maxBatchSize: number): Generator<T[]> {
+export function* splitIntoBatches<T>(
+  list: T[],
+  maxBatchSize: number
+): Generator<T[]> {
   if (list.length <= maxBatchSize) {
     yield list;
   } else {
@@ -87,11 +94,14 @@ export function* splitIntoBatches<T>(list: T[], maxBatchSize: number): Generator
   }
 }
 
-
 export function getOriginAccountId(origin: any) {
-  if (origin && origin.__kind === 'system' && origin.value.__kind === 'Signed') {
-    return origin.value.value
+  if (
+    origin &&
+    origin.__kind === 'system' &&
+    origin.value.__kind === 'Signed'
+  ) {
+    return origin.value.value;
   } else {
-    return undefined
+    return undefined;
   }
 }

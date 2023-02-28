@@ -9,4 +9,12 @@ export interface ProcessorConfig {
   intervals: Map<string, number>;
   trackingMetrics: Set<string>;
   assetCirculatingIgnoreAccounts?: Set<string>;
+  stakingParams?: {
+    auctionAdjust: number;
+    auctionMax: number;
+    falloff: number;
+    maxInflation: number;
+    minInflation: number;
+    stakeTarget: number;
+  };
 }

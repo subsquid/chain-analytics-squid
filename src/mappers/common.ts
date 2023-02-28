@@ -9,7 +9,7 @@ import { decodeHex } from '@subsquid/util-internal-hex';
 import { getOriginAccountId, ParsedEventsDataScope } from '../utils/common';
 import { getChain } from '../chains';
 
-const { getApiDecorated } = getChain();
+const api = getChain().api
 
 function getEventMeta(event: EventItem, block: Block) {
   return {
@@ -22,7 +22,6 @@ function getEventMeta(event: EventItem, block: Block) {
 
 export function getParsedEventsData(ctx: Ctx): ParsedEventsDataScope {
   const parsedData = new ParsedEventsDataScope();
-  const api = getApiDecorated('polkadot'); // TODO should be refactored
 
   for (let block of ctx.blocks) {
     for (let item of block.items) {

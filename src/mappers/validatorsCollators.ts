@@ -5,7 +5,7 @@ import { getOrCreateTotals } from './totals';
 import { isCheckPoint } from '../utils/common';
 import { CheckPointsKeys } from '../utils/types';
 import { getChain } from '../chains';
-const { config: chainConfig, getApiDecorated } = getChain();
+const { config: chainConfig, api: apiDecorated } = getChain();
 
 export async function handleValidatorsCollators(ctx: Ctx, block: Block) {
   const histDataMeta = await getOrCreateHistoricalDataMeta(ctx);
@@ -31,8 +31,6 @@ export async function handleValidatorsCollators(ctx: Ctx, block: Block) {
   switch (chainConfig.chainName) {
     case 'kusama':
     case 'polkadot': {
-      const apiDecorated = getApiDecorated('kusama');
-
       newValidatorStat.idealCount =
         (await apiDecorated.storage.getIdealValidatorsCount(
           ctx,
@@ -49,7 +47,6 @@ export async function handleValidatorsCollators(ctx: Ctx, block: Block) {
     }
     case 'moonbeam':
     case 'moonriver': {
-      const apiDecorated = getApiDecorated('moonbeam');
       newValidatorStat.count =
         (await apiDecorated.storage.getSelectedCollatorsCount(
           ctx,

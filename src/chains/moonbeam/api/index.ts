@@ -1,28 +1,8 @@
 import { ChainApi } from '../../interfaces/chainApi';
-import { getBalancesTransferValue } from './events';
-import {
-  getTotalIssuance,
-  getHoldersTotals,
-  getSelectedCollatorsCount,
-  getRoundNumber,
-  getCollatorsDataShort,
-  getStakingDelegatorsAllDataShort,
-  getSelectedCollators,
-  getTotalStake
-} from './storage';
+import * as events from './events';
+import * as storage from './storage';
 
-export const api: ChainApi = {
-  events: {
-    getBalancesTransferValue
-  },
-  storage: {
-    getTotalIssuance,
-    getHoldersTotals,
-    getSelectedCollatorsCount,
-    getRoundNumber,
-    getCollatorsDataShort,
-    getStakingDelegatorsAllDataShort,
-    getSelectedCollators,
-    getTotalStake
-  }
+export const api = {
+  events,
+  storage,
 };

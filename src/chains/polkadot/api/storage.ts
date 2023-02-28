@@ -7,9 +7,13 @@ import {
   SessionValidatorsStorage,
   StakingErasStakersStorage,
   StakingValidatorCountStorage,
-  BalancesAccountStorage
+  BalancesAccountStorage,
+  NominationPoolsBondedPoolsStorage,
+  StakingCounterForValidatorsStorage,
+  StakingCounterForNominatorsStorage,
+  AuctionsAuctionCounterStorage
 } from '../types/storage';
-import { UnknownVersionError } from '../../../utils/errors';
+import { FunctionNotExist, UnknownVersionError } from '../../../utils/errors';
 import { decodeAccount, encodeAccount } from '../../../utils/common';
 import { getChain } from '../../index';
 import {
@@ -20,7 +24,7 @@ import {
   AccountBalanceShort
 } from '../../../utils/types';
 import { getKeysCountAll, handleHoldersTotals } from '../../utils';
-import { NominationPoolsBondedPoolsStorage } from '../../kusama/types/storage';
+import { StorageGetter } from '../../interfaces/chainApi';
 
 export async function getTotalIssuance(ctx: ChainContext, block: Block) {
   const storage = new BalancesTotalIssuanceStorage(ctx, block);
@@ -106,16 +110,8 @@ export async function getNominationPoolsData(ctx: ChainContext, block: Block) {
     totalPoolsCount: 0
   };
 
-  if (storage.isV9220) {
-    for (const poolDetails of (await storage.asV9220.getAll()).filter(
-      (p) => p.state.__kind === 'Open'
-    )) {
-      res.totalPoolsCount++;
-      res.totalPoolsMembers += poolDetails.memberCounter;
-      res.totalPoolsStake += poolDetails.points;
-    }
-  } else if (storage.isV9230) {
-    for (const poolDetails of (await storage.asV9230.getAll()).filter(
+  if (storage.isV9280) {
+    for (const poolDetails of (await storage.asV9280.getAll()).filter(
       (p) => p.state.__kind === 'Open'
     )) {
       res.totalPoolsCount++;
@@ -126,6 +122,42 @@ export async function getNominationPoolsData(ctx: ChainContext, block: Block) {
     throw new UnknownVersionError(storage.constructor.name);
   }
   return res;
+}
+
+export async function getCounterForValidatorsNumber(
+  ctx: ChainContext,
+  block: Block
+) {
+  const storage = new StakingCounterForValidatorsStorage(ctx, block);
+  if (!storage.isExists) return undefined;
+  if (storage.isV9050) {
+    return await storage.asV9050.get();
+  } else {
+    throw new UnknownVersionError(storage.constructor.name);
+  }
+}
+
+export async function getCounterForNominatorsNumber(
+  ctx: ChainContext,
+  block: Block
+) {
+  const storage = new StakingCounterForNominatorsStorage(ctx, block);
+  if (!storage.isExists) return undefined;
+  if (storage.isV9050) {
+    return await storage.asV9050.get();
+  } else {
+    throw new UnknownVersionError(storage.constructor.name);
+  }
+}
+
+export async function getAuctionCounterNumber(ctx: ChainContext, block: Block) {
+  const storage = new AuctionsAuctionCounterStorage(ctx, block);
+  if (!storage.isExists) return undefined;
+  if (storage.isV9110) {
+    return await storage.asV9110.get();
+  } else {
+    throw new UnknownVersionError(storage.constructor.name);
+  }
 }
 
 // export async function getTotalHoldersCount(ctx: ChainContext, block: Block) {
@@ -275,4 +307,49 @@ export async function getBalancesAccountBalancesByKeys(
   );
 
   return data.map((d) => ({ free: d.free, reserved: d.reserved }));
+}
+
+// NOT EXISTING STORAGE FUNCTIONS FROM OTHER CHAINS
+// We need to define them everywhere with 'never' return value to match chainApi interface
+export const getSelectedCollators: StorageGetter<[], Uint8Array[] | undefined > = async function (
+  ctx: ChainContext,
+  block: Block,
+): Promise<never> {
+  throw new FunctionNotExist();
+}
+
+export async function getSelectedCollatorsCount(
+  ctx: ChainContext,
+  block: Block,
+): Promise<never> {
+  throw new FunctionNotExist();
+}
+
+export async function getStakingDelegatorsAllDataShort(
+  ctx: ChainContext,
+  block: Block,
+): Promise<never> {
+  throw new FunctionNotExist();
+}
+
+export async function getCollatorsDataShort(
+  ctx: ChainContext,
+  block: Block,
+  keys: Uint8Array[]
+): Promise<never> {
+  throw new FunctionNotExist();
+}
+
+export async function getRoundNumber(
+  ctx: ChainContext,
+  block: Block,
+): Promise<never> {
+  throw new FunctionNotExist();
+}
+
+export async function getTotalStake(
+  ctx: ChainContext,
+  block: Block,
+): Promise<never> {
+  throw new FunctionNotExist();
 }

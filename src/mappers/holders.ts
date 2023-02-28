@@ -13,7 +13,7 @@ import {
 } from '../utils/types';
 import { TreadsPool } from '../subProcessor';
 import { getChain } from '../chains';
-const { config: chainConfig, getApiDecorated } = getChain();
+const { config: chainConfig, api } = getChain();
 import { decodeHex, toHex } from '@subsquid/util-internal-hex';
 
 // export async function handleChainHolders(ctx: Ctx, block: Block) {
@@ -74,7 +74,6 @@ export async function handleChainHolders(
 
   if (!involvedAccountData) return;
   const histDataMeta = await getOrCreateHistoricalDataMeta(ctx);
-  const api = getApiDecorated('polkadot');
   const blockForStorage = {
     hash: block.header.hash
   };

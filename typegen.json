@@ -1,7 +1,0 @@
-{
-  "outDir": "src/types/generated/",
-  "specVersions": "https://kusama.archive.subsquid.io/graphql",
-  "events": true,
-  "calls": true,
-  "storage": true
-}

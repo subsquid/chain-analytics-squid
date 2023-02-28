@@ -27,7 +27,23 @@ export class StakedValue {
 
     @Index_()
     @Column_("int4", {nullable: true})
-    validatorsCount!: number | undefined | null
+    activeValidators!: number | undefined | null
+
+    @Index_()
+    @Column_("int4", {nullable: true})
+    totalValidators!: number | undefined | null
+
+    @Index_()
+    @Column_("int4", {nullable: true})
+    totalNominators!: number | undefined | null
+
+    @Index_()
+    @Column_("numeric", {transformer: marshal.floatTransformer, nullable: true})
+    inflationRatio!: number | undefined | null
+
+    @Index_()
+    @Column_("numeric", {transformer: marshal.floatTransformer, nullable: true})
+    rewardsRatio!: number | undefined | null
 
     @Index_()
     @Column_("timestamp with time zone", {nullable: false})
