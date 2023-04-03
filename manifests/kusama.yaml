@@ -1,8 +1,8 @@
 manifestVersion: subsquid.io/v0.1
-name: gs-stats-polkadot
-version: 2023
+name: gs-stats-kusama
+version: 1
 description: |-
-  Giant Squid Stats squid for Polkadot chain
+  Giant Squid Stats squid for kusama chain
 build:
 
 deploy:
@@ -11,7 +11,7 @@ deploy:
   processor:
     env:
       CHAIN:
-        polkadot
+        kusama
     cmd: [ "node", "lib/processor" ]
   api:
     cmd: [ "npx", "squid-graphql-server", "--dumb-cache", "in-memory", "--dumb-cache-ttl", "1000", "--dumb-cache-size", "100", "--dumb-cache-max-age", "1000" ]

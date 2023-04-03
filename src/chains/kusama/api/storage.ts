@@ -8,20 +8,24 @@ import {
   StakingErasStakersStorage,
   StakingStakersStorage,
   StakingValidatorCountStorage,
-  NominationPoolsBondedPoolsStorage
+  BalancesAccountStorage,
+  NominationPoolsBondedPoolsStorage,
+  StakingCounterForValidatorsStorage,
+  StakingCounterForNominatorsStorage,
+  AuctionsAuctionCounterStorage
 } from '../types/storage';
-import { UnknownVersionError } from '../../../utils/errors';
+import { FunctionNotExist, UnknownVersionError } from '../../../utils/errors';
 import { decodeAccount, encodeAccount } from '../../../utils/common';
 import { getChain } from '../../index';
 import {
   EraStaker,
   ErasStakersArgs,
   NominationPoolsData,
-  AccountBalancesPair, AccountBalanceShort
+  AccountBalancesPair,
+  AccountBalanceShort
 } from '../../../utils/types';
 import { getKeysCountAll, handleHoldersTotals } from '../../utils';
-import { excludeFromCirculatingAssetsAmountAddresses } from '../../moonriver/config';
-import { BalancesAccountStorage } from '../../polkadot/types/storage';
+import { StorageGetter } from '../../interfaces/chainApi';
 
 export async function getTotalIssuance(ctx: ChainContext, block: Block) {
   const storage = new BalancesTotalIssuanceStorage(ctx, block);
@@ -66,6 +70,7 @@ export async function getValidators(ctx: ChainContext, block: Block) {
 
   throw new UnknownVersionError(storage.constructor.name);
 }
+
 export async function getValidatorsCount(ctx: ChainContext, block: Block) {
   const list = await getValidators(ctx, block);
   if (!list) return undefined;
@@ -141,6 +146,42 @@ export async function getNominationPoolsData(ctx: ChainContext, block: Block) {
     throw new UnknownVersionError(storage.constructor.name);
   }
   return res;
+}
+
+export async function getCounterForValidatorsNumber(
+  ctx: ChainContext,
+  block: Block
+) {
+  const storage = new StakingCounterForValidatorsStorage(ctx, block);
+  if (!storage.isExists) return undefined;
+  if (storage.isV9050) {
+    return await storage.asV9050.get();
+  } else {
+    throw new UnknownVersionError(storage.constructor.name);
+  }
+}
+
+export async function getCounterForNominatorsNumber(
+  ctx: ChainContext,
+  block: Block
+) {
+  const storage = new StakingCounterForNominatorsStorage(ctx, block);
+  if (!storage.isExists) return undefined;
+  if (storage.isV9050) {
+    return await storage.asV9050.get();
+  } else {
+    throw new UnknownVersionError(storage.constructor.name);
+  }
+}
+
+export async function getAuctionCounterNumber(ctx: ChainContext, block: Block) {
+  const storage = new AuctionsAuctionCounterStorage(ctx, block);
+  if (!storage.isExists) return undefined;
+  if (storage.isV9010) {
+    return await storage.asV9010.get();
+  } else {
+    throw new UnknownVersionError(storage.constructor.name);
+  }
 }
 //
 // export async function getTotalHoldersCount(ctx: ChainContext, block: Block) {
@@ -242,11 +283,8 @@ export async function getEraStakersData(
   const { config: chainConfig } = chain;
 
   const eraStakers: [number, Uint8Array][] = keys.map((k) => [k[1] || 0, k[0]]);
-  const stakers: Uint8Array[] = keys.map((k) => k[0]);
 
-  const data =
-    (await getErasStakersData(ctx, block, eraStakers)) ||
-    (await getStakersData(ctx, block, stakers));
+  const data = await getErasStakersData(ctx, block, eraStakers);
   if (!data) return undefined;
 
   return data.map((v) => ({
@@ -267,16 +305,16 @@ export async function getSystemAccountBalancesByKeys(
   if (keys.length === 0) return undefined;
   const storageSysAccount = new SystemAccountStorage(ctx, block);
 
-  if (!storageSysAccount.isExists) return undefined
+  if (!storageSysAccount.isExists) return undefined;
 
   const data = await ctx._chain.queryStorage2(
     block.hash,
     'System',
     'Account',
     keys.map((a) => [a])
-  )
+  );
 
-  return data.map((d) => ({ free: d.free, reserved: d.reserved }))
+  return data.map((d) => ({ free: d.free, reserved: d.reserved }));
 }
 export async function getBalancesAccountBalancesByKeys(
   ctx: ChainContext,
@@ -286,15 +324,57 @@ export async function getBalancesAccountBalancesByKeys(
   if (keys.length === 0) return undefined;
   const storageBalAccount = new BalancesAccountStorage(ctx, block);
 
-  if (!storageBalAccount.isExists) return undefined
+  if (!storageBalAccount.isExists) return undefined;
 
   const data = await ctx._chain.queryStorage2(
     block.hash,
     'Balances',
     'Account',
     keys.map((a) => [a])
-  )
+  );
 
-  return data.map((d) => ({ free: d.free, reserved: d.reserved }))
+  return data.map((d) => ({ free: d.free, reserved: d.reserved }));
 }
 
+// NOT EXISTING STORAGE FUNCTIONS FROM OTHER CHAINS
+// We need to define them everywhere with 'never' return value to match chainApi interface
+export const getSelectedCollators: StorageGetter<[], Uint8Array[] | undefined> =
+  async function (ctx: ChainContext, block: Block): Promise<never> {
+    throw new FunctionNotExist();
+  };
+
+export async function getSelectedCollatorsCount(
+  ctx: ChainContext,
+  block: Block
+): Promise<never> {
+  throw new FunctionNotExist();
+}
+
+export async function getStakingDelegatorsAllDataShort(
+  ctx: ChainContext,
+  block: Block
+): Promise<never> {
+  throw new FunctionNotExist();
+}
+
+export async function getCollatorsDataShort(
+  ctx: ChainContext,
+  block: Block,
+  keys: Uint8Array[]
+): Promise<never> {
+  throw new FunctionNotExist();
+}
+
+export async function getRoundNumber(
+  ctx: ChainContext,
+  block: Block
+): Promise<never> {
+  throw new FunctionNotExist();
+}
+
+export async function getTotalStake(
+  ctx: ChainContext,
+  block: Block
+): Promise<never> {
+  throw new FunctionNotExist();
+}

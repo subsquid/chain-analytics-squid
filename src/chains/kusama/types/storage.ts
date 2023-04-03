@@ -61,6 +61,7 @@ import * as v9300 from './v9300'
 import * as v9320 from './v9320'
 import * as v9340 from './v9340'
 import * as v9350 from './v9350'
+import * as v9370 from './v9370'
 
 export class AttestationsDidUpdateStorage extends StorageBase {
     protected getPrefix() {
@@ -2353,6 +2354,21 @@ export class ConfigurationActiveConfigStorage extends StorageBase {
         assert(this.isV9320)
         return this as any
     }
+
+    /**
+     *  The active configuration for the current session.
+     */
+    get isV9370(): boolean {
+        return this.getTypeHash() === 'cf652c18f01bf19a2433f416ea01f8cb5359f558fae8b079f28f8569f8cb2350'
+    }
+
+    /**
+     *  The active configuration for the current session.
+     */
+    get asV9370(): ConfigurationActiveConfigStorageV9370 {
+        assert(this.isV9370)
+        return this as any
+    }
 }
 
 /**
@@ -2388,6 +2404,13 @@ export interface ConfigurationActiveConfigStorageV9291 {
  */
 export interface ConfigurationActiveConfigStorageV9320 {
     get(): Promise<v9320.HostConfiguration>
+}
+
+/**
+ *  The active configuration for the current session.
+ */
+export interface ConfigurationActiveConfigStorageV9370 {
+    get(): Promise<v9370.HostConfiguration>
 }
 
 export class ConfigurationBypassConsistencyCheckStorage extends StorageBase {
@@ -2588,6 +2611,33 @@ export class ConfigurationPendingConfigsStorage extends StorageBase {
         assert(this.isV9320)
         return this as any
     }
+
+    /**
+     *  Pending configuration changes.
+     * 
+     *  This is a list of configuration changes, each with a session index at which it should
+     *  be applied.
+     * 
+     *  The list is sorted ascending by session index. Also, this list can only contain at most
+     *  2 items: for the next session and for the `scheduled_session`.
+     */
+    get isV9370(): boolean {
+        return this.getTypeHash() === '7e1cf5dcc03b8629ac374a7ef87cf4c04216a6b720c26877b65e525f2bde0fbd'
+    }
+
+    /**
+     *  Pending configuration changes.
+     * 
+     *  This is a list of configuration changes, each with a session index at which it should
+     *  be applied.
+     * 
+     *  The list is sorted ascending by session index. Also, this list can only contain at most
+     *  2 items: for the next session and for the `scheduled_session`.
+     */
+    get asV9370(): ConfigurationPendingConfigsStorageV9370 {
+        assert(this.isV9370)
+        return this as any
+    }
 }
 
 /**
@@ -2627,6 +2677,19 @@ export interface ConfigurationPendingConfigsStorageV9291 {
  */
 export interface ConfigurationPendingConfigsStorageV9320 {
     get(): Promise<[number, v9320.HostConfiguration][]>
+}
+
+/**
+ *  Pending configuration changes.
+ * 
+ *  This is a list of configuration changes, each with a session index at which it should
+ *  be applied.
+ * 
+ *  The list is sorted ascending by session index. Also, this list can only contain at most
+ *  2 items: for the next session and for the `scheduled_session`.
+ */
+export interface ConfigurationPendingConfigsStorageV9370 {
+    get(): Promise<[number, v9370.HostConfiguration][]>
 }
 
 export class ConvictionVotingClassLocksForStorage extends StorageBase {
@@ -3109,6 +3172,21 @@ export class CouncilProposalOfStorage extends StorageBase {
         assert(this.isV9350)
         return this as any
     }
+
+    /**
+     *  Actual proposal for a given hash, if it's current.
+     */
+    get isV9370(): boolean {
+        return this.getTypeHash() === '02ea96d1290feb9231e11e833e8eb92c5f4c7bf8bc9033921415b61ac5e1e4b5'
+    }
+
+    /**
+     *  Actual proposal for a given hash, if it's current.
+     */
+    get asV9370(): CouncilProposalOfStorageV9370 {
+        assert(this.isV9370)
+        return this as any
+    }
 }
 
 /**
@@ -3381,6 +3459,23 @@ export interface CouncilProposalOfStorageV9350 {
     getPairs(key: Uint8Array): Promise<[k: Uint8Array, v: v9350.Call][]>
     getPairsPaged(pageSize: number): AsyncIterable<[k: Uint8Array, v: v9350.Call][]>
     getPairsPaged(pageSize: number, key: Uint8Array): AsyncIterable<[k: Uint8Array, v: v9350.Call][]>
+}
+
+/**
+ *  Actual proposal for a given hash, if it's current.
+ */
+export interface CouncilProposalOfStorageV9370 {
+    get(key: Uint8Array): Promise<(v9370.Call | undefined)>
+    getAll(): Promise<v9370.Call[]>
+    getMany(keys: Uint8Array[]): Promise<(v9370.Call | undefined)[]>
+    getKeys(): Promise<Uint8Array[]>
+    getKeys(key: Uint8Array): Promise<Uint8Array[]>
+    getKeysPaged(pageSize: number): AsyncIterable<Uint8Array[]>
+    getKeysPaged(pageSize: number, key: Uint8Array): AsyncIterable<Uint8Array[]>
+    getPairs(): Promise<[k: Uint8Array, v: v9370.Call][]>
+    getPairs(key: Uint8Array): Promise<[k: Uint8Array, v: v9370.Call][]>
+    getPairsPaged(pageSize: number): AsyncIterable<[k: Uint8Array, v: v9370.Call][]>
+    getPairsPaged(pageSize: number, key: Uint8Array): AsyncIterable<[k: Uint8Array, v: v9370.Call][]>
 }
 
 export class CouncilProposalsStorage extends StorageBase {
@@ -6309,6 +6404,21 @@ export class FellowshipReferendaReferendumInfoForStorage extends StorageBase {
         assert(this.isV9350)
         return this as any
     }
+
+    /**
+     *  Information concerning any given referendum.
+     */
+    get isV9370(): boolean {
+        return this.getTypeHash() === '94d97d6312dcca8e8b83b102ca6ece367c8a23b89f39bef9faa78f5e68a93333'
+    }
+
+    /**
+     *  Information concerning any given referendum.
+     */
+    get asV9370(): FellowshipReferendaReferendumInfoForStorageV9370 {
+        assert(this.isV9370)
+        return this as any
+    }
 }
 
 /**
@@ -6343,6 +6453,23 @@ export interface FellowshipReferendaReferendumInfoForStorageV9350 {
     getPairs(key: number): Promise<[k: number, v: v9350.Type_643][]>
     getPairsPaged(pageSize: number): AsyncIterable<[k: number, v: v9350.Type_643][]>
     getPairsPaged(pageSize: number, key: number): AsyncIterable<[k: number, v: v9350.Type_643][]>
+}
+
+/**
+ *  Information concerning any given referendum.
+ */
+export interface FellowshipReferendaReferendumInfoForStorageV9370 {
+    get(key: number): Promise<(v9370.Type_644 | undefined)>
+    getAll(): Promise<v9370.Type_644[]>
+    getMany(keys: number[]): Promise<(v9370.Type_644 | undefined)[]>
+    getKeys(): Promise<number[]>
+    getKeys(key: number): Promise<number[]>
+    getKeysPaged(pageSize: number): AsyncIterable<number[]>
+    getKeysPaged(pageSize: number, key: number): AsyncIterable<number[]>
+    getPairs(): Promise<[k: number, v: v9370.Type_644][]>
+    getPairs(key: number): Promise<[k: number, v: v9370.Type_644][]>
+    getPairsPaged(pageSize: number): AsyncIterable<[k: number, v: v9370.Type_644][]>
+    getPairsPaged(pageSize: number, key: number): AsyncIterable<[k: number, v: v9370.Type_644][]>
 }
 
 export class FellowshipReferendaTrackQueueStorage extends StorageBase {
@@ -16285,6 +16412,21 @@ export class ReferendaReferendumInfoForStorage extends StorageBase {
         assert(this.isV9350)
         return this as any
     }
+
+    /**
+     *  Information concerning any given referendum.
+     */
+    get isV9370(): boolean {
+        return this.getTypeHash() === '2e118aad7ee2503a94d98e08177512fcbcb174783c0ea17e18b13efb0a6a5dff'
+    }
+
+    /**
+     *  Information concerning any given referendum.
+     */
+    get asV9370(): ReferendaReferendumInfoForStorageV9370 {
+        assert(this.isV9370)
+        return this as any
+    }
 }
 
 /**
@@ -16319,6 +16461,23 @@ export interface ReferendaReferendumInfoForStorageV9350 {
     getPairs(key: number): Promise<[k: number, v: v9350.Type_620][]>
     getPairsPaged(pageSize: number): AsyncIterable<[k: number, v: v9350.Type_620][]>
     getPairsPaged(pageSize: number, key: number): AsyncIterable<[k: number, v: v9350.Type_620][]>
+}
+
+/**
+ *  Information concerning any given referendum.
+ */
+export interface ReferendaReferendumInfoForStorageV9370 {
+    get(key: number): Promise<(v9370.Type_621 | undefined)>
+    getAll(): Promise<v9370.Type_621[]>
+    getMany(keys: number[]): Promise<(v9370.Type_621 | undefined)[]>
+    getKeys(): Promise<number[]>
+    getKeys(key: number): Promise<number[]>
+    getKeysPaged(pageSize: number): AsyncIterable<number[]>
+    getKeysPaged(pageSize: number, key: number): AsyncIterable<number[]>
+    getPairs(): Promise<[k: number, v: v9370.Type_621][]>
+    getPairs(key: number): Promise<[k: number, v: v9370.Type_621][]>
+    getPairsPaged(pageSize: number): AsyncIterable<[k: number, v: v9370.Type_621][]>
+    getPairsPaged(pageSize: number, key: number): AsyncIterable<[k: number, v: v9370.Type_621][]>
 }
 
 export class ReferendaTrackQueueStorage extends StorageBase {
@@ -17258,6 +17417,21 @@ export class SchedulerAgendaStorage extends StorageBase {
         assert(this.isV9320)
         return this as any
     }
+
+    /**
+     *  Items to be executed, indexed by the block number that they should be executed on.
+     */
+    get isV9370(): boolean {
+        return this.getTypeHash() === '98f7d3f98d82a159726271a03ba48aa720675b7b8bb59f3ca416e2f61c975d2c'
+    }
+
+    /**
+     *  Items to be executed, indexed by the block number that they should be executed on.
+     */
+    get asV9370(): SchedulerAgendaStorageV9370 {
+        assert(this.isV9370)
+        return this as any
+    }
 }
 
 /**
@@ -17870,6 +18044,23 @@ export interface SchedulerAgendaStorageV9320 {
     getPairs(key: number): Promise<[k: number, v: (v9320.Scheduled | undefined)[]][]>
     getPairsPaged(pageSize: number): AsyncIterable<[k: number, v: (v9320.Scheduled | undefined)[]][]>
     getPairsPaged(pageSize: number, key: number): AsyncIterable<[k: number, v: (v9320.Scheduled | undefined)[]][]>
+}
+
+/**
+ *  Items to be executed, indexed by the block number that they should be executed on.
+ */
+export interface SchedulerAgendaStorageV9370 {
+    get(key: number): Promise<(v9370.Scheduled | undefined)[]>
+    getAll(): Promise<(v9370.Scheduled | undefined)[][]>
+    getMany(keys: number[]): Promise<(v9370.Scheduled | undefined)[][]>
+    getKeys(): Promise<number[]>
+    getKeys(key: number): Promise<number[]>
+    getKeysPaged(pageSize: number): AsyncIterable<number[]>
+    getKeysPaged(pageSize: number, key: number): AsyncIterable<number[]>
+    getPairs(): Promise<[k: number, v: (v9370.Scheduled | undefined)[]][]>
+    getPairs(key: number): Promise<[k: number, v: (v9370.Scheduled | undefined)[]][]>
+    getPairsPaged(pageSize: number): AsyncIterable<[k: number, v: (v9370.Scheduled | undefined)[]][]>
+    getPairsPaged(pageSize: number, key: number): AsyncIterable<[k: number, v: (v9370.Scheduled | undefined)[]][]>
 }
 
 export class SchedulerIncompleteSinceStorage extends StorageBase {
@@ -23761,6 +23952,33 @@ export class SystemEventsStorage extends StorageBase {
         assert(this.isV9350)
         return this as any
     }
+
+    /**
+     *  Events deposited for the current block.
+     * 
+     *  NOTE: The item is unbound and should therefore never be read on chain.
+     *  It could otherwise inflate the PoV size of a block.
+     * 
+     *  Events have a large in-memory size. Box the events to not go out-of-memory
+     *  just in case someone still reads them from within the runtime.
+     */
+    get isV9370(): boolean {
+        return this.getTypeHash() === '5fd1b94b1df0e9dc11695ab47b1d25255bafb33625b7730f97ad122cbd34781d'
+    }
+
+    /**
+     *  Events deposited for the current block.
+     * 
+     *  NOTE: The item is unbound and should therefore never be read on chain.
+     *  It could otherwise inflate the PoV size of a block.
+     * 
+     *  Events have a large in-memory size. Box the events to not go out-of-memory
+     *  just in case someone still reads them from within the runtime.
+     */
+    get asV9370(): SystemEventsStorageV9370 {
+        assert(this.isV9370)
+        return this as any
+    }
 }
 
 /**
@@ -24205,6 +24423,19 @@ export interface SystemEventsStorageV9340 {
  */
 export interface SystemEventsStorageV9350 {
     get(): Promise<v9350.EventRecord[]>
+}
+
+/**
+ *  Events deposited for the current block.
+ * 
+ *  NOTE: The item is unbound and should therefore never be read on chain.
+ *  It could otherwise inflate the PoV size of a block.
+ * 
+ *  Events have a large in-memory size. Box the events to not go out-of-memory
+ *  just in case someone still reads them from within the runtime.
+ */
+export interface SystemEventsStorageV9370 {
+    get(): Promise<v9370.EventRecord[]>
 }
 
 export class SystemExecutionPhaseStorage extends StorageBase {
@@ -24911,6 +25142,21 @@ export class TechnicalCommitteeProposalOfStorage extends StorageBase {
         assert(this.isV9350)
         return this as any
     }
+
+    /**
+     *  Actual proposal for a given hash, if it's current.
+     */
+    get isV9370(): boolean {
+        return this.getTypeHash() === '02ea96d1290feb9231e11e833e8eb92c5f4c7bf8bc9033921415b61ac5e1e4b5'
+    }
+
+    /**
+     *  Actual proposal for a given hash, if it's current.
+     */
+    get asV9370(): TechnicalCommitteeProposalOfStorageV9370 {
+        assert(this.isV9370)
+        return this as any
+    }
 }
 
 /**
@@ -25183,6 +25429,23 @@ export interface TechnicalCommitteeProposalOfStorageV9350 {
     getPairs(key: Uint8Array): Promise<[k: Uint8Array, v: v9350.Call][]>
     getPairsPaged(pageSize: number): AsyncIterable<[k: Uint8Array, v: v9350.Call][]>
     getPairsPaged(pageSize: number, key: Uint8Array): AsyncIterable<[k: Uint8Array, v: v9350.Call][]>
+}
+
+/**
+ *  Actual proposal for a given hash, if it's current.
+ */
+export interface TechnicalCommitteeProposalOfStorageV9370 {
+    get(key: Uint8Array): Promise<(v9370.Call | undefined)>
+    getAll(): Promise<v9370.Call[]>
+    getMany(keys: Uint8Array[]): Promise<(v9370.Call | undefined)[]>
+    getKeys(): Promise<Uint8Array[]>
+    getKeys(key: Uint8Array): Promise<Uint8Array[]>
+    getKeysPaged(pageSize: number): AsyncIterable<Uint8Array[]>
+    getKeysPaged(pageSize: number, key: Uint8Array): AsyncIterable<Uint8Array[]>
+    getPairs(): Promise<[k: Uint8Array, v: v9370.Call][]>
+    getPairs(key: Uint8Array): Promise<[k: Uint8Array, v: v9370.Call][]>
+    getPairsPaged(pageSize: number): AsyncIterable<[k: Uint8Array, v: v9370.Call][]>
+    getPairsPaged(pageSize: number, key: Uint8Array): AsyncIterable<[k: Uint8Array, v: v9370.Call][]>
 }
 
 export class TechnicalCommitteeProposalsStorage extends StorageBase {
@@ -25743,6 +26006,38 @@ export interface TreasuryBountyDescriptionsStorageV2025 {
     getPairs(key: number): Promise<[k: number, v: Uint8Array][]>
     getPairsPaged(pageSize: number): AsyncIterable<[k: number, v: Uint8Array][]>
     getPairsPaged(pageSize: number, key: number): AsyncIterable<[k: number, v: Uint8Array][]>
+}
+
+export class TreasuryDeactivatedStorage extends StorageBase {
+    protected getPrefix() {
+        return 'Treasury'
+    }
+
+    protected getName() {
+        return 'Deactivated'
+    }
+
+    /**
+     *  The amount which has been reported as inactive to Currency.
+     */
+    get isV9370(): boolean {
+        return this.getTypeHash() === 'f8ebe28eb30158172c0ccf672f7747c46a244f892d08ef2ebcbaadde34a26bc0'
+    }
+
+    /**
+     *  The amount which has been reported as inactive to Currency.
+     */
+    get asV9370(): TreasuryDeactivatedStorageV9370 {
+        assert(this.isV9370)
+        return this as any
+    }
+}
+
+/**
+ *  The amount which has been reported as inactive to Currency.
+ */
+export interface TreasuryDeactivatedStorageV9370 {
+    get(): Promise<bigint>
 }
 
 export class TreasuryInactiveStorage extends StorageBase {
@@ -26706,6 +27001,21 @@ export class XcmPalletQueriesStorage extends StorageBase {
         assert(this.isV9160)
         return this as any
     }
+
+    /**
+     *  The ongoing queries.
+     */
+    get isV9370(): boolean {
+        return this.getTypeHash() === 'd10dd933536b6a509757649a144befe6c924fc7ec281f36a7bd0d258223921f2'
+    }
+
+    /**
+     *  The ongoing queries.
+     */
+    get asV9370(): XcmPalletQueriesStorageV9370 {
+        assert(this.isV9370)
+        return this as any
+    }
 }
 
 /**
@@ -26740,6 +27050,23 @@ export interface XcmPalletQueriesStorageV9160 {
     getPairs(key: bigint): Promise<[k: bigint, v: v9160.QueryStatus][]>
     getPairsPaged(pageSize: number): AsyncIterable<[k: bigint, v: v9160.QueryStatus][]>
     getPairsPaged(pageSize: number, key: bigint): AsyncIterable<[k: bigint, v: v9160.QueryStatus][]>
+}
+
+/**
+ *  The ongoing queries.
+ */
+export interface XcmPalletQueriesStorageV9370 {
+    get(key: bigint): Promise<(v9370.QueryStatus | undefined)>
+    getAll(): Promise<v9370.QueryStatus[]>
+    getMany(keys: bigint[]): Promise<(v9370.QueryStatus | undefined)[]>
+    getKeys(): Promise<bigint[]>
+    getKeys(key: bigint): Promise<bigint[]>
+    getKeysPaged(pageSize: number): AsyncIterable<bigint[]>
+    getKeysPaged(pageSize: number, key: bigint): AsyncIterable<bigint[]>
+    getPairs(): Promise<[k: bigint, v: v9370.QueryStatus][]>
+    getPairs(key: bigint): Promise<[k: bigint, v: v9370.QueryStatus][]>
+    getPairsPaged(pageSize: number): AsyncIterable<[k: bigint, v: v9370.QueryStatus][]>
+    getPairsPaged(pageSize: number, key: bigint): AsyncIterable<[k: bigint, v: v9370.QueryStatus][]>
 }
 
 export class XcmPalletQueryCounterStorage extends StorageBase {
@@ -26832,6 +27159,21 @@ export class XcmPalletSupportedVersionStorage extends StorageBase {
         assert(this.isV9111)
         return this as any
     }
+
+    /**
+     *  The Latest versions that we know various locations support.
+     */
+    get isV9370(): boolean {
+        return this.getTypeHash() === '523e16bf5eab0fa24d391969017bb7ba96a0ccf8c757f474e1305f6fb2ca4c56'
+    }
+
+    /**
+     *  The Latest versions that we know various locations support.
+     */
+    get asV9370(): XcmPalletSupportedVersionStorageV9370 {
+        assert(this.isV9370)
+        return this as any
+    }
 }
 
 /**
@@ -26853,6 +27195,27 @@ export interface XcmPalletSupportedVersionStorageV9111 {
     getPairsPaged(pageSize: number): AsyncIterable<[k: [number, v9111.VersionedMultiLocation], v: number][]>
     getPairsPaged(pageSize: number, key1: number): AsyncIterable<[k: [number, v9111.VersionedMultiLocation], v: number][]>
     getPairsPaged(pageSize: number, key1: number, key2: v9111.VersionedMultiLocation): AsyncIterable<[k: [number, v9111.VersionedMultiLocation], v: number][]>
+}
+
+/**
+ *  The Latest versions that we know various locations support.
+ */
+export interface XcmPalletSupportedVersionStorageV9370 {
+    get(key1: number, key2: v9370.VersionedMultiLocation): Promise<(number | undefined)>
+    getAll(): Promise<number[]>
+    getMany(keys: [number, v9370.VersionedMultiLocation][]): Promise<(number | undefined)[]>
+    getKeys(): Promise<[number, v9370.VersionedMultiLocation][]>
+    getKeys(key1: number): Promise<[number, v9370.VersionedMultiLocation][]>
+    getKeys(key1: number, key2: v9370.VersionedMultiLocation): Promise<[number, v9370.VersionedMultiLocation][]>
+    getKeysPaged(pageSize: number): AsyncIterable<[number, v9370.VersionedMultiLocation][]>
+    getKeysPaged(pageSize: number, key1: number): AsyncIterable<[number, v9370.VersionedMultiLocation][]>
+    getKeysPaged(pageSize: number, key1: number, key2: v9370.VersionedMultiLocation): AsyncIterable<[number, v9370.VersionedMultiLocation][]>
+    getPairs(): Promise<[k: [number, v9370.VersionedMultiLocation], v: number][]>
+    getPairs(key1: number): Promise<[k: [number, v9370.VersionedMultiLocation], v: number][]>
+    getPairs(key1: number, key2: v9370.VersionedMultiLocation): Promise<[k: [number, v9370.VersionedMultiLocation], v: number][]>
+    getPairsPaged(pageSize: number): AsyncIterable<[k: [number, v9370.VersionedMultiLocation], v: number][]>
+    getPairsPaged(pageSize: number, key1: number): AsyncIterable<[k: [number, v9370.VersionedMultiLocation], v: number][]>
+    getPairsPaged(pageSize: number, key1: number, key2: v9370.VersionedMultiLocation): AsyncIterable<[k: [number, v9370.VersionedMultiLocation], v: number][]>
 }
 
 export class XcmPalletVersionDiscoveryQueueStorage extends StorageBase {
@@ -26882,6 +27245,25 @@ export class XcmPalletVersionDiscoveryQueueStorage extends StorageBase {
         assert(this.isV9111)
         return this as any
     }
+
+    /**
+     *  Destinations whose latest XCM version we would like to know. Duplicates not allowed, and
+     *  the `u32` counter is the number of times that a send to the destination has been attempted,
+     *  which is used as a prioritization.
+     */
+    get isV9370(): boolean {
+        return this.getTypeHash() === 'c083fea4cf1195adcbfad7e0e32371a867d5ee11c67b4620ec6977d399fd1aee'
+    }
+
+    /**
+     *  Destinations whose latest XCM version we would like to know. Duplicates not allowed, and
+     *  the `u32` counter is the number of times that a send to the destination has been attempted,
+     *  which is used as a prioritization.
+     */
+    get asV9370(): XcmPalletVersionDiscoveryQueueStorageV9370 {
+        assert(this.isV9370)
+        return this as any
+    }
 }
 
 /**
@@ -26891,6 +27273,15 @@ export class XcmPalletVersionDiscoveryQueueStorage extends StorageBase {
  */
 export interface XcmPalletVersionDiscoveryQueueStorageV9111 {
     get(): Promise<[v9111.VersionedMultiLocation, number][]>
+}
+
+/**
+ *  Destinations whose latest XCM version we would like to know. Duplicates not allowed, and
+ *  the `u32` counter is the number of times that a send to the destination has been attempted,
+ *  which is used as a prioritization.
+ */
+export interface XcmPalletVersionDiscoveryQueueStorageV9370 {
+    get(): Promise<[v9370.VersionedMultiLocation, number][]>
 }
 
 export class XcmPalletVersionNotifiersStorage extends StorageBase {
@@ -26916,6 +27307,21 @@ export class XcmPalletVersionNotifiersStorage extends StorageBase {
         assert(this.isV9111)
         return this as any
     }
+
+    /**
+     *  All locations that we have requested version notifications from.
+     */
+    get isV9370(): boolean {
+        return this.getTypeHash() === 'b91f3dac7afb55835a6f5f37431cda7a2fb7722283e5e5ad9feea7b84cffdc7a'
+    }
+
+    /**
+     *  All locations that we have requested version notifications from.
+     */
+    get asV9370(): XcmPalletVersionNotifiersStorageV9370 {
+        assert(this.isV9370)
+        return this as any
+    }
 }
 
 /**
@@ -26937,6 +27343,27 @@ export interface XcmPalletVersionNotifiersStorageV9111 {
     getPairsPaged(pageSize: number): AsyncIterable<[k: [number, v9111.VersionedMultiLocation], v: bigint][]>
     getPairsPaged(pageSize: number, key1: number): AsyncIterable<[k: [number, v9111.VersionedMultiLocation], v: bigint][]>
     getPairsPaged(pageSize: number, key1: number, key2: v9111.VersionedMultiLocation): AsyncIterable<[k: [number, v9111.VersionedMultiLocation], v: bigint][]>
+}
+
+/**
+ *  All locations that we have requested version notifications from.
+ */
+export interface XcmPalletVersionNotifiersStorageV9370 {
+    get(key1: number, key2: v9370.VersionedMultiLocation): Promise<(bigint | undefined)>
+    getAll(): Promise<bigint[]>
+    getMany(keys: [number, v9370.VersionedMultiLocation][]): Promise<(bigint | undefined)[]>
+    getKeys(): Promise<[number, v9370.VersionedMultiLocation][]>
+    getKeys(key1: number): Promise<[number, v9370.VersionedMultiLocation][]>
+    getKeys(key1: number, key2: v9370.VersionedMultiLocation): Promise<[number, v9370.VersionedMultiLocation][]>
+    getKeysPaged(pageSize: number): AsyncIterable<[number, v9370.VersionedMultiLocation][]>
+    getKeysPaged(pageSize: number, key1: number): AsyncIterable<[number, v9370.VersionedMultiLocation][]>
+    getKeysPaged(pageSize: number, key1: number, key2: v9370.VersionedMultiLocation): AsyncIterable<[number, v9370.VersionedMultiLocation][]>
+    getPairs(): Promise<[k: [number, v9370.VersionedMultiLocation], v: bigint][]>
+    getPairs(key1: number): Promise<[k: [number, v9370.VersionedMultiLocation], v: bigint][]>
+    getPairs(key1: number, key2: v9370.VersionedMultiLocation): Promise<[k: [number, v9370.VersionedMultiLocation], v: bigint][]>
+    getPairsPaged(pageSize: number): AsyncIterable<[k: [number, v9370.VersionedMultiLocation], v: bigint][]>
+    getPairsPaged(pageSize: number, key1: number): AsyncIterable<[k: [number, v9370.VersionedMultiLocation], v: bigint][]>
+    getPairsPaged(pageSize: number, key1: number, key2: v9370.VersionedMultiLocation): AsyncIterable<[k: [number, v9370.VersionedMultiLocation], v: bigint][]>
 }
 
 export class XcmPalletVersionNotifyTargetsStorage extends StorageBase {
@@ -26979,6 +27406,23 @@ export class XcmPalletVersionNotifyTargetsStorage extends StorageBase {
      */
     get asV9111(): XcmPalletVersionNotifyTargetsStorageV9111 {
         assert(this.isV9111)
+        return this as any
+    }
+
+    /**
+     *  The target locations that are subscribed to our version changes, as well as the most recent
+     *  of our versions we informed them of.
+     */
+    get isV9370(): boolean {
+        return this.getTypeHash() === '0366789a1c94a7567fc5a8d256e5cd0721b84138187c2fffb75e3528ebb47078'
+    }
+
+    /**
+     *  The target locations that are subscribed to our version changes, as well as the most recent
+     *  of our versions we informed them of.
+     */
+    get asV9370(): XcmPalletVersionNotifyTargetsStorageV9370 {
+        assert(this.isV9370)
         return this as any
     }
 }
@@ -27025,4 +27469,26 @@ export interface XcmPalletVersionNotifyTargetsStorageV9111 {
     getPairsPaged(pageSize: number): AsyncIterable<[k: [number, v9111.VersionedMultiLocation], v: [bigint, bigint, number]][]>
     getPairsPaged(pageSize: number, key1: number): AsyncIterable<[k: [number, v9111.VersionedMultiLocation], v: [bigint, bigint, number]][]>
     getPairsPaged(pageSize: number, key1: number, key2: v9111.VersionedMultiLocation): AsyncIterable<[k: [number, v9111.VersionedMultiLocation], v: [bigint, bigint, number]][]>
+}
+
+/**
+ *  The target locations that are subscribed to our version changes, as well as the most recent
+ *  of our versions we informed them of.
+ */
+export interface XcmPalletVersionNotifyTargetsStorageV9370 {
+    get(key1: number, key2: v9370.VersionedMultiLocation): Promise<([bigint, bigint, number] | undefined)>
+    getAll(): Promise<[bigint, bigint, number][]>
+    getMany(keys: [number, v9370.VersionedMultiLocation][]): Promise<([bigint, bigint, number] | undefined)[]>
+    getKeys(): Promise<[number, v9370.VersionedMultiLocation][]>
+    getKeys(key1: number): Promise<[number, v9370.VersionedMultiLocation][]>
+    getKeys(key1: number, key2: v9370.VersionedMultiLocation): Promise<[number, v9370.VersionedMultiLocation][]>
+    getKeysPaged(pageSize: number): AsyncIterable<[number, v9370.VersionedMultiLocation][]>
+    getKeysPaged(pageSize: number, key1: number): AsyncIterable<[number, v9370.VersionedMultiLocation][]>
+    getKeysPaged(pageSize: number, key1: number, key2: v9370.VersionedMultiLocation): AsyncIterable<[number, v9370.VersionedMultiLocation][]>
+    getPairs(): Promise<[k: [number, v9370.VersionedMultiLocation], v: [bigint, bigint, number]][]>
+    getPairs(key1: number): Promise<[k: [number, v9370.VersionedMultiLocation], v: [bigint, bigint, number]][]>
+    getPairs(key1: number, key2: v9370.VersionedMultiLocation): Promise<[k: [number, v9370.VersionedMultiLocation], v: [bigint, bigint, number]][]>
+    getPairsPaged(pageSize: number): AsyncIterable<[k: [number, v9370.VersionedMultiLocation], v: [bigint, bigint, number]][]>
+    getPairsPaged(pageSize: number, key1: number): AsyncIterable<[k: [number, v9370.VersionedMultiLocation], v: [bigint, bigint, number]][]>
+    getPairsPaged(pageSize: number, key1: number, key2: v9370.VersionedMultiLocation): AsyncIterable<[k: [number, v9370.VersionedMultiLocation], v: [bigint, bigint, number]][]>
 }

@@ -270,6 +270,7 @@ export async function getEraStakersData(
     }))
   })) as EraStaker[];
 }
+
 export async function getSystemAccountBalancesByKeys(
   ctx: ChainContext,
   block: Block,
@@ -293,7 +294,6 @@ export async function getBalancesAccountBalancesByKeys(
   block: Block,
   keys: Uint8Array[]
 ): Promise<AccountBalanceShort[] | undefined> {
-  console.dir(keys, { depth: null });
   if (keys.length === 0) return undefined;
   const storageBalAccount = new BalancesAccountStorage(ctx, block);
 
@@ -311,23 +311,21 @@ export async function getBalancesAccountBalancesByKeys(
 
 // NOT EXISTING STORAGE FUNCTIONS FROM OTHER CHAINS
 // We need to define them everywhere with 'never' return value to match chainApi interface
-export const getSelectedCollators: StorageGetter<[], Uint8Array[] | undefined > = async function (
-  ctx: ChainContext,
-  block: Block,
-): Promise<never> {
-  throw new FunctionNotExist();
-}
+export const getSelectedCollators: StorageGetter<[], Uint8Array[] | undefined> =
+  async function (ctx: ChainContext, block: Block): Promise<never> {
+    throw new FunctionNotExist();
+  };
 
 export async function getSelectedCollatorsCount(
   ctx: ChainContext,
-  block: Block,
+  block: Block
 ): Promise<never> {
   throw new FunctionNotExist();
 }
 
 export async function getStakingDelegatorsAllDataShort(
   ctx: ChainContext,
-  block: Block,
+  block: Block
 ): Promise<never> {
   throw new FunctionNotExist();
 }
@@ -342,14 +340,14 @@ export async function getCollatorsDataShort(
 
 export async function getRoundNumber(
   ctx: ChainContext,
-  block: Block,
+  block: Block
 ): Promise<never> {
   throw new FunctionNotExist();
 }
 
 export async function getTotalStake(
   ctx: ChainContext,
-  block: Block,
+  block: Block
 ): Promise<never> {
   throw new FunctionNotExist();
 }

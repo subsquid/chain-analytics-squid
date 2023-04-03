@@ -25,6 +25,7 @@ import * as v9291 from './v9291'
 import * as v9300 from './v9300'
 import * as v9320 from './v9320'
 import * as v9340 from './v9340'
+import * as v9370 from './v9370'
 
 export class AuctionsAuctionClosedEvent {
     private readonly _chain: Chain
@@ -3635,6 +3636,35 @@ export class ElectionProviderMultiPhaseElectionFinalizedEvent {
     }
 }
 
+export class ElectionProviderMultiPhasePhaseTransitionedEvent {
+    private readonly _chain: Chain
+    private readonly event: Event
+
+    constructor(ctx: EventContext)
+    constructor(ctx: ChainContext, event: Event)
+    constructor(ctx: EventContext, event?: Event) {
+        event = event || ctx.event
+        assert(event.name === 'ElectionProviderMultiPhase.PhaseTransitioned')
+        this._chain = ctx._chain
+        this.event = event
+    }
+
+    /**
+     * There was a phase transition in a given round.
+     */
+    get isV9370(): boolean {
+        return this._chain.getEventHash('ElectionProviderMultiPhase.PhaseTransitioned') === 'c7ca79c013a2eb6682b0eae5badc17841b3fa2ec00221d968b3e1fb4ce1f7d8f'
+    }
+
+    /**
+     * There was a phase transition in a given round.
+     */
+    get asV9370(): {from: v9370.Phase, to: v9370.Phase, round: number} {
+        assert(this.isV9370)
+        return this._chain.decodeEvent(this.event)
+    }
+}
+
 export class ElectionProviderMultiPhaseRewardedEvent {
     private readonly _chain: Chain
     private readonly event: Event
@@ -3928,6 +3958,33 @@ export class ElectionProviderMultiPhaseSolutionStoredEvent {
      */
     get asV9291(): {compute: v9291.ElectionCompute, prevEjected: boolean} {
         assert(this.isV9291)
+        return this._chain.decodeEvent(this.event)
+    }
+
+    /**
+     * A solution was stored with the given compute.
+     * 
+     * The `origin` indicates the origin of the solution. If `origin` is `Some(AccountId)`,
+     * the stored solution was submited in the signed phase by a miner with the `AccountId`.
+     * Otherwise, the solution was stored either during the unsigned phase or by
+     * `T::ForceOrigin`. The `bool` is `true` when a previous solution was ejected to make
+     * room for this one.
+     */
+    get isV9370(): boolean {
+        return this._chain.getEventHash('ElectionProviderMultiPhase.SolutionStored') === '66fb962d8c6d753e5c5954ef51f605c0221a1597d71cb5cf595e74ae264b9d57'
+    }
+
+    /**
+     * A solution was stored with the given compute.
+     * 
+     * The `origin` indicates the origin of the solution. If `origin` is `Some(AccountId)`,
+     * the stored solution was submited in the signed phase by a miner with the `AccountId`.
+     * Otherwise, the solution was stored either during the unsigned phase or by
+     * `T::ForceOrigin`. The `bool` is `true` when a previous solution was ejected to make
+     * room for this one.
+     */
+    get asV9370(): {compute: v9370.ElectionCompute, origin: (Uint8Array | undefined), prevEjected: boolean} {
+        assert(this.isV9370)
         return this._chain.decodeEvent(this.event)
     }
 }
@@ -11538,6 +11595,35 @@ export class StakingEraPayoutEvent {
     }
 }
 
+export class StakingForceEraEvent {
+    private readonly _chain: Chain
+    private readonly event: Event
+
+    constructor(ctx: EventContext)
+    constructor(ctx: ChainContext, event: Event)
+    constructor(ctx: EventContext, event?: Event) {
+        event = event || ctx.event
+        assert(event.name === 'Staking.ForceEra')
+        this._chain = ctx._chain
+        this.event = event
+    }
+
+    /**
+     * A new force era mode was set.
+     */
+    get isV9370(): boolean {
+        return this._chain.getEventHash('Staking.ForceEra') === 'd01e60727d072e84480126126bc575ed2a927476ff6a196deed5f14861885e98'
+    }
+
+    /**
+     * A new force era mode was set.
+     */
+    get asV9370(): {mode: v9370.Forcing} {
+        assert(this.isV9370)
+        return this._chain.decodeEvent(this.event)
+    }
+}
+
 export class StakingKickedEvent {
     private readonly _chain: Chain
     private readonly event: Event
@@ -14234,6 +14320,35 @@ export class TreasuryTipRetractedEvent {
     }
 }
 
+export class TreasuryUpdatedInactiveEvent {
+    private readonly _chain: Chain
+    private readonly event: Event
+
+    constructor(ctx: EventContext)
+    constructor(ctx: ChainContext, event: Event)
+    constructor(ctx: EventContext, event?: Event) {
+        event = event || ctx.event
+        assert(event.name === 'Treasury.UpdatedInactive')
+        this._chain = ctx._chain
+        this.event = event
+    }
+
+    /**
+     * The inactive funds of the pallet have been updated.
+     */
+    get isV9370(): boolean {
+        return this._chain.getEventHash('Treasury.UpdatedInactive') === 'd25083f089d99f72f11dfcdd8481dbdc5c0c6d9c3369646530e2e08cd9f6bbba'
+    }
+
+    /**
+     * The inactive funds of the pallet have been updated.
+     */
+    get asV9370(): {reactivated: bigint, deactivated: bigint} {
+        assert(this.isV9370)
+        return this._chain.decodeEvent(this.event)
+    }
+}
+
 export class UmpExecutedUpwardEvent {
     private readonly _chain: Chain
     private readonly event: Event
@@ -15464,6 +15579,25 @@ export class XcmPalletAssetsClaimedEvent {
         assert(this.isV9320)
         return this._chain.decodeEvent(this.event)
     }
+
+    /**
+     * Some assets have been claimed from an asset trap
+     * 
+     * \[ hash, origin, assets \]
+     */
+    get isV9370(): boolean {
+        return this._chain.getEventHash('XcmPallet.AssetsClaimed') === '357607142e5298824c427a1fe0bfb4dd63f3878ebfea84e52fa98b82b1a4f4c6'
+    }
+
+    /**
+     * Some assets have been claimed from an asset trap
+     * 
+     * \[ hash, origin, assets \]
+     */
+    get asV9370(): [Uint8Array, v9370.V1MultiLocation, v9370.VersionedMultiAssets] {
+        assert(this.isV9370)
+        return this._chain.decodeEvent(this.event)
+    }
 }
 
 export class XcmPalletAssetsTrappedEvent {
@@ -15495,6 +15629,25 @@ export class XcmPalletAssetsTrappedEvent {
      */
     get asV9111(): [Uint8Array, v9111.V1MultiLocation, v9111.VersionedMultiAssets] {
         assert(this.isV9111)
+        return this._chain.decodeEvent(this.event)
+    }
+
+    /**
+     * Some assets have been placed in an asset trap.
+     * 
+     * \[ hash, origin, assets \]
+     */
+    get isV9370(): boolean {
+        return this._chain.getEventHash('XcmPallet.AssetsTrapped') === '357607142e5298824c427a1fe0bfb4dd63f3878ebfea84e52fa98b82b1a4f4c6'
+    }
+
+    /**
+     * Some assets have been placed in an asset trap.
+     * 
+     * \[ hash, origin, assets \]
+     */
+    get asV9370(): [Uint8Array, v9370.V1MultiLocation, v9370.VersionedMultiAssets] {
+        assert(this.isV9370)
         return this._chain.decodeEvent(this.event)
     }
 }
@@ -15604,6 +15757,29 @@ export class XcmPalletInvalidResponderEvent {
         assert(this.isV9111)
         return this._chain.decodeEvent(this.event)
     }
+
+    /**
+     * Expected query response has been received but the origin location of the response does
+     * not match that expected. The query remains registered for a later, valid, response to
+     * be received and acted upon.
+     * 
+     * \[ origin location, id, expected location \]
+     */
+    get isV9370(): boolean {
+        return this._chain.getEventHash('XcmPallet.InvalidResponder') === '990cc00e432c7557e78d8fc369a5ff1c27aceeaff4ef11984d218478dc53d382'
+    }
+
+    /**
+     * Expected query response has been received but the origin location of the response does
+     * not match that expected. The query remains registered for a later, valid, response to
+     * be received and acted upon.
+     * 
+     * \[ origin location, id, expected location \]
+     */
+    get asV9370(): [v9370.V1MultiLocation, bigint, (v9370.V1MultiLocation | undefined)] {
+        assert(this.isV9370)
+        return this._chain.decodeEvent(this.event)
+    }
 }
 
 export class XcmPalletInvalidResponderVersionEvent {
@@ -15647,6 +15823,37 @@ export class XcmPalletInvalidResponderVersionEvent {
      */
     get asV9111(): [v9111.V1MultiLocation, bigint] {
         assert(this.isV9111)
+        return this._chain.decodeEvent(this.event)
+    }
+
+    /**
+     * Expected query response has been received but the expected origin location placed in
+     * storage by this runtime previously cannot be decoded. The query remains registered.
+     * 
+     * This is unexpected (since a location placed in storage in a previously executing
+     * runtime should be readable prior to query timeout) and dangerous since the possibly
+     * valid response will be dropped. Manual governance intervention is probably going to be
+     * needed.
+     * 
+     * \[ origin location, id \]
+     */
+    get isV9370(): boolean {
+        return this._chain.getEventHash('XcmPallet.InvalidResponderVersion') === 'a42731758e356b8640e3321dafe151b8ac297a2be71bc4ceff985033060f2569'
+    }
+
+    /**
+     * Expected query response has been received but the expected origin location placed in
+     * storage by this runtime previously cannot be decoded. The query remains registered.
+     * 
+     * This is unexpected (since a location placed in storage in a previously executing
+     * runtime should be readable prior to query timeout) and dangerous since the possibly
+     * valid response will be dropped. Manual governance intervention is probably going to be
+     * needed.
+     * 
+     * \[ origin location, id \]
+     */
+    get asV9370(): [v9370.V1MultiLocation, bigint] {
+        assert(this.isV9370)
         return this._chain.decodeEvent(this.event)
     }
 }
@@ -15874,6 +16081,27 @@ export class XcmPalletNotifyTargetMigrationFailEvent {
         assert(this.isV9111)
         return this._chain.decodeEvent(this.event)
     }
+
+    /**
+     * A given location which had a version change subscription was dropped owing to an error
+     * migrating the location to our new XCM format.
+     * 
+     * \[ location, query ID \]
+     */
+    get isV9370(): boolean {
+        return this._chain.getEventHash('XcmPallet.NotifyTargetMigrationFail') === 'df85778aaaf8dd844e177ac92fcb3256708dd8f3a8c5f94e1fa79f126116dc1c'
+    }
+
+    /**
+     * A given location which had a version change subscription was dropped owing to an error
+     * migrating the location to our new XCM format.
+     * 
+     * \[ location, query ID \]
+     */
+    get asV9370(): [v9370.VersionedMultiLocation, bigint] {
+        assert(this.isV9370)
+        return this._chain.decodeEvent(this.event)
+    }
 }
 
 export class XcmPalletNotifyTargetSendFailEvent {
@@ -15930,6 +16158,27 @@ export class XcmPalletNotifyTargetSendFailEvent {
         assert(this.isV9160)
         return this._chain.decodeEvent(this.event)
     }
+
+    /**
+     * A given location which had a version change subscription was dropped owing to an error
+     * sending the notification to it.
+     * 
+     * \[ location, query ID, error \]
+     */
+    get isV9370(): boolean {
+        return this._chain.getEventHash('XcmPallet.NotifyTargetSendFail') === '70b4128bc206c159059329487777fcca974cd67403fafe82ed254a875947534d'
+    }
+
+    /**
+     * A given location which had a version change subscription was dropped owing to an error
+     * sending the notification to it.
+     * 
+     * \[ location, query ID, error \]
+     */
+    get asV9370(): [v9370.V1MultiLocation, bigint, v9370.V2Error] {
+        assert(this.isV9370)
+        return this._chain.decodeEvent(this.event)
+    }
 }
 
 export class XcmPalletResponseReadyEvent {
@@ -15984,6 +16233,27 @@ export class XcmPalletResponseReadyEvent {
      */
     get asV9160(): [bigint, v9160.V2Response] {
         assert(this.isV9160)
+        return this._chain.decodeEvent(this.event)
+    }
+
+    /**
+     * Query response has been received and is ready for taking with `take_response`. There is
+     * no registered notification call.
+     * 
+     * \[ id, response \]
+     */
+    get isV9370(): boolean {
+        return this._chain.getEventHash('XcmPallet.ResponseReady') === 'b377afa93f6a1fa3fbbbe2957f60a56bc7c8e08a09d110a511fc3ed24c3c67a4'
+    }
+
+    /**
+     * Query response has been received and is ready for taking with `take_response`. There is
+     * no registered notification call.
+     * 
+     * \[ id, response \]
+     */
+    get asV9370(): [bigint, v9370.V2Response] {
+        assert(this.isV9370)
         return this._chain.decodeEvent(this.event)
     }
 }
@@ -16089,6 +16359,25 @@ export class XcmPalletSentEvent {
         assert(this.isV9160)
         return this._chain.decodeEvent(this.event)
     }
+
+    /**
+     * A XCM message was sent.
+     * 
+     * \[ origin, destination, message \]
+     */
+    get isV9370(): boolean {
+        return this._chain.getEventHash('XcmPallet.Sent') === '2d7b5f95d8bfc74ce68a179c7a746363dc0d3d0eca2fe88f6606a522fbe34a83'
+    }
+
+    /**
+     * A XCM message was sent.
+     * 
+     * \[ origin, destination, message \]
+     */
+    get asV9370(): [v9370.V1MultiLocation, v9370.V1MultiLocation, v9370.V2Instruction[]] {
+        assert(this.isV9370)
+        return this._chain.decodeEvent(this.event)
+    }
 }
 
 export class XcmPalletSupportedVersionChangedEvent {
@@ -16122,6 +16411,27 @@ export class XcmPalletSupportedVersionChangedEvent {
      */
     get asV9111(): [v9111.V1MultiLocation, number] {
         assert(this.isV9111)
+        return this._chain.decodeEvent(this.event)
+    }
+
+    /**
+     * The supported version of a location has been changed. This might be through an
+     * automatic notification or a manual intervention.
+     * 
+     * \[ location, XCM version \]
+     */
+    get isV9370(): boolean {
+        return this._chain.getEventHash('XcmPallet.SupportedVersionChanged') === 'a03fd5bf20a50aaaf59ab7760b98733a03d897f929733dd0cc98b0a5d9bb0924'
+    }
+
+    /**
+     * The supported version of a location has been changed. This might be through an
+     * automatic notification or a manual intervention.
+     * 
+     * \[ location, XCM version \]
+     */
+    get asV9370(): [v9370.V1MultiLocation, number] {
+        assert(this.isV9370)
         return this._chain.decodeEvent(this.event)
     }
 }
@@ -16161,6 +16471,29 @@ export class XcmPalletUnexpectedResponseEvent {
         assert(this.isV9111)
         return this._chain.decodeEvent(this.event)
     }
+
+    /**
+     * Query response received which does not match a registered query. This may be because a
+     * matching query was never registered, it may be because it is a duplicate response, or
+     * because the query timed out.
+     * 
+     * \[ origin location, id \]
+     */
+    get isV9370(): boolean {
+        return this._chain.getEventHash('XcmPallet.UnexpectedResponse') === 'a42731758e356b8640e3321dafe151b8ac297a2be71bc4ceff985033060f2569'
+    }
+
+    /**
+     * Query response received which does not match a registered query. This may be because a
+     * matching query was never registered, it may be because it is a duplicate response, or
+     * because the query timed out.
+     * 
+     * \[ origin location, id \]
+     */
+    get asV9370(): [v9370.V1MultiLocation, bigint] {
+        assert(this.isV9370)
+        return this._chain.decodeEvent(this.event)
+    }
 }
 
 export class XcmPalletVersionChangeNotifiedEvent {
@@ -16192,6 +16525,25 @@ export class XcmPalletVersionChangeNotifiedEvent {
      */
     get asV9111(): [v9111.V1MultiLocation, number] {
         assert(this.isV9111)
+        return this._chain.decodeEvent(this.event)
+    }
+
+    /**
+     * An XCM version change notification message has been attempted to be sent.
+     * 
+     * \[ destination, result \]
+     */
+    get isV9370(): boolean {
+        return this._chain.getEventHash('XcmPallet.VersionChangeNotified') === 'a03fd5bf20a50aaaf59ab7760b98733a03d897f929733dd0cc98b0a5d9bb0924'
+    }
+
+    /**
+     * An XCM version change notification message has been attempted to be sent.
+     * 
+     * \[ destination, result \]
+     */
+    get asV9370(): [v9370.V1MultiLocation, number] {
+        assert(this.isV9370)
         return this._chain.decodeEvent(this.event)
     }
 }

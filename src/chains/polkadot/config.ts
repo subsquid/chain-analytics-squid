@@ -4,7 +4,10 @@ import * as dotenv from 'dotenv';
 dotenv.config({ path: `${__dirname}/../../../.env.local` });
 
 export const config: ProcessorConfig = {
-  blockRange: {from: 7658910},
+  // 1st auctions 
+  // blockRange: {from: 7658910},
+  // 1st Jan 2023 
+  blockRange: {from: 13603566},
   chainName: 'polkadot',
   prefix: 'polkadot',
   dataSource: {
