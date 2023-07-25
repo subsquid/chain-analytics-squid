@@ -1,17 +1,905 @@
-type Account @entity {
-  "Account address"
+
+type BackupCounter @entity {
   id: ID!
-  transfersTo: [Transfer!] @derivedFrom(field: "to")
-  transfersFrom: [Transfer!] @derivedFrom(field: "from")
+  balancesTransfersVolume: BigInt!
+  balancesTransfersAmount: BigInt!
+  chainSignedExtrinsics: BigInt!
 }
 
-type Transfer @entity {
+type Account @entity {
+  "Public key"
   id: ID!
-  blockNumber: Int! @index
+  free: BigInt!
+  reserved: BigInt!
+  total: BigInt!
+  updatedAtBlock: Int!
+}
+
+type ChainState @entity {
+  id: ID!
+  tokenBalance: BigInt!
+  # tokenHolders: Int! // TODO
   timestamp: DateTime! @index
-  extrinsicHash: String @index
-  from: Account!
-  to: Account!
-  amount: BigInt! @index
-  fee: BigInt! # fee is calculated at the best effort and may be zero for some old extrinsics
+  blockNumber: Int! @index
+}
+
+interface IStats {
+  #---CHAIN---#
+  chainFinalizedBlocks: BigInt!
+  chainSignedExtrinsics: BigInt!
+
+  #---BALANCES---#
+  balancesTotalIssuance: BigInt!
+  balancesTransfersVolume: BigInt!
+  balancesTransfersAmount: BigInt!
+  # balancesHolders: Int!
+  # balancesCirculatingAssetsTotal: BigInt!
+
+  #---PARACHAIN STAKING---#
+  parachainStakingCollatorsAmount: Int!
+  parachainStakingCurrentRound: Int!
+  parachainStakingTotalStakeCollators: BigInt!
+  parachainStakingTotalStakeDelegators: BigInt!
+
+  #---STAKING---#
+  stakingValidatorsIdealAmount: Int!
+  stakingActiveValidatorsAmount: Int!
+  stakingValidatorsAmount: Int!
+  stakingNominatorsActiveAmount: Int!
+  stakingNominatorsInactiveAmount: Int!
+  stakingCurrentEra: Int!
+  stakingTotalStake: BigInt!
+  stakingTotalStakeValidators: BigInt!
+  stakingTotalStakeNominatorsActive: BigInt!
+  stakingTotalStakeNominatorsInactive: BigInt!
+  stakingTotalStakeValidatorsSingleAccount: BigInt!
+  stakingTotalStakeValidatorsMultiAccount: BigInt!
+  stakingMinActiveNominatorStake: BigInt!
+  stakingInflationRatio: Float!
+  stakingRewardsRatio: Float!
+
+  #---NOMINATION POOLS---#
+  nominationPoolsMembersAmount: Int!
+  nominationPoolsPoolsActiveAmount: Int!
+  nominationPoolsPoolsInactiveAmount: Int!
+  nominationPoolsPoolsActiveTotalStake: BigInt!
+  nominationPoolsPoolsInactiveTotalStake: BigInt!
+
+  #---SLOTS---#
+  slotsTokensLockedInParachains: BigInt!
+}
+
+type Current implements IStats @entity {
+  id: ID!
+  lastUpdate: DateTime!
+
+  #---CHAIN---#
+  chainFinalizedBlocks: BigInt!
+  chainSignedExtrinsics: BigInt!
+
+  #---BALANCES---#
+  balancesTotalIssuance: BigInt!
+  balancesTransfersVolume: BigInt!
+  balancesTransfersAmount: BigInt!
+  # balancesHolders: Int!
+  # balancesCirculatingAssetsTotal: BigInt!
+
+  #---PARACHAIN STAKING---#
+  parachainStakingCollatorsAmount: Int!
+  parachainStakingCurrentRound: Int!
+  parachainStakingTotalStakeCollators: BigInt!
+  parachainStakingTotalStakeDelegators: BigInt!
+
+  #---STAKING---#
+  stakingValidatorsIdealAmount: Int!
+  stakingActiveValidatorsAmount: Int!
+  stakingValidatorsAmount: Int!
+  stakingNominatorsActiveAmount: Int!
+  stakingNominatorsInactiveAmount: Int!
+  stakingCurrentEra: Int!
+  stakingTotalStake: BigInt!
+  stakingTotalStakeValidators: BigInt!
+  stakingTotalStakeNominatorsActive: BigInt!
+  stakingTotalStakeNominatorsInactive: BigInt!
+  stakingTotalStakeValidatorsSingleAccount: BigInt!
+  stakingTotalStakeValidatorsMultiAccount: BigInt!
+  stakingMinActiveNominatorStake: BigInt!
+  stakingInflationRatio: Float!
+  stakingRewardsRatio: Float!
+
+  #---NOMINATION POOLS---#
+  nominationPoolsMembersAmount: Int!
+  nominationPoolsPoolsActiveAmount: Int!
+  nominationPoolsPoolsInactiveAmount: Int!
+  nominationPoolsPoolsActiveTotalStake: BigInt!
+  nominationPoolsPoolsInactiveTotalStake: BigInt!
+
+  #---SLOTS---#
+  slotsTokensLockedInParachains: BigInt!
+}
+
+interface IChart {
+  id: ID!
+  timestamp: DateTime!
+
+  #---CHAIN---#
+  chainFinalizedBlocks: BigInt!
+  chainFinalizedBlocksChange: BigInt!
+  chainFinalizedBlocksChangeRatio: Float!
+
+  chainSignedExtrinsics: BigInt!
+  chainSignedExtrinsicsChange: BigInt!
+  chainSignedExtrinsicsChangeRatio: Float!
+
+  #---BALANCES---#
+  balancesTotalIssuance: BigInt!
+  balancesTotalIssuanceChange: BigInt!
+  balancesTotalIssuanceChangeRatio: Float!
+
+  balancesTransfersVolume: BigInt!
+  balancesTransfersVolumeChange: BigInt!
+  balancesTransfersVolumeChangeRatio: Float!
+
+  balancesTransfersAmount: BigInt!
+  balancesTransfersAmountChange: BigInt!
+  balancesTransfersAmountChangeRatio: Float!
+
+  #---PARACHAIN STAKING---#
+  parachainStakingCollatorsAmount: Int!
+  parachainStakingCollatorsAmountChange: Int!
+  parachainStakingCollatorsAmountChangeRatio: Float!
+
+  parachainStakingCurrentRound: Int!
+  parachainStakingCurrentRoundChange: Int!
+  parachainStakingCurrentRoundChangeRatio: Float!
+
+  parachainStakingTotalStakeCollators: BigInt!
+  parachainStakingTotalStakeCollatorsChange: BigInt!
+  parachainStakingTotalStakeCollatorsChangeRatio: Float!
+
+  parachainStakingTotalStakeDelegators: BigInt!
+  parachainStakingTotalStakeDelegatorsChange: BigInt!
+  parachainStakingTotalStakeDelegatorsChangeRatio: Float!
+
+  #---STAKING---#
+  stakingValidatorsIdealAmount: Int!
+  stakingValidatorsIdealAmountChange: Int!
+  stakingValidatorsIdealAmountChangeRatio: Float!
+
+  stakingActiveValidatorsAmount: Int!
+  stakingActiveValidatorsAmountChange: Int!
+  stakingActiveValidatorsAmountChangeRatio: Float!
+
+  stakingValidatorsAmount: Int!
+  stakingValidatorsAmountChange: Int!
+  stakingValidatorsAmountChangeRatio: Float!
+
+  stakingNominatorsActiveAmount: Int!
+  stakingNominatorsActiveAmountChange: Int!
+  stakingNominatorsActiveAmountChangeRatio: Float!
+
+  stakingNominatorsInactiveAmount: Int!
+  stakingNominatorsInactiveAmountChange: Int!
+  stakingNominatorsInactiveAmountChangeRatio: Float!
+
+  stakingCurrentEra: Int!
+  stakingCurrentEraChange: Int!
+  stakingCurrentEraChangeRatio: Float!
+
+  stakingTotalStake: BigInt!
+  stakingTotalStakeChange: BigInt!
+  stakingTotalStakeChangeRatio: Float!
+
+  stakingTotalStakeValidators: BigInt!
+  stakingTotalStakeValidatorsChange: BigInt!
+  stakingTotalStakeValidatorsChangeRatio: Float!
+
+  stakingTotalStakeNominatorsActive: BigInt!
+  stakingTotalStakeNominatorsActiveChange: BigInt!
+  stakingTotalStakeNominatorsActiveChangeRatio: Float!
+
+  stakingTotalStakeNominatorsInactive: BigInt!
+  stakingTotalStakeNominatorsInactiveChange: BigInt!
+  stakingTotalStakeNominatorsInactiveChangeRatio: Float!
+
+  stakingTotalStakeValidatorsSingleAccount: BigInt!
+  stakingTotalStakeValidatorsSingleAccountChange: BigInt!
+  stakingTotalStakeValidatorsSingleAccountChangeRatio: Float!
+
+  stakingTotalStakeValidatorsMultiAccount: BigInt!
+  stakingTotalStakeValidatorsMultiAccountChange: BigInt!
+  stakingTotalStakeValidatorsMultiAccountChangeRatio: Float!
+
+  stakingMinActiveNominatorStake: BigInt!
+  stakingMinActiveNominatorStakeChange: BigInt!
+  stakingMinActiveNominatorStakeChangeRatio: Float!
+
+  stakingInflationRatio: Float!
+  stakingInflationRatioChange: Float!
+  stakingInflationRatioChangeRatio: Float!
+
+  stakingRewardsRatio: Float!
+  stakingRewardsRatioChange: Float!
+  stakingRewardsRatioChangeRatio: Float!
+
+  #---NOMINATION POOLS---#
+  nominationPoolsMembersAmount: Int!
+  nominationPoolsMembersAmountChange: Int!
+  nominationPoolsMembersAmountChangeRatio: Float!
+
+  nominationPoolsPoolsActiveAmount: Int!
+  nominationPoolsPoolsActiveAmountChange: Int!
+  nominationPoolsPoolsActiveAmountChangeRatio: Float!
+
+  nominationPoolsPoolsInactiveAmount: Int!
+  nominationPoolsPoolsInactiveAmountChange: Int!
+  nominationPoolsPoolsInactiveAmountChangeRatio: Float!
+
+  nominationPoolsPoolsActiveTotalStake: BigInt!
+  nominationPoolsPoolsActiveTotalStakeChange: BigInt!
+  nominationPoolsPoolsActiveTotalStakeChangeRatio: Float!
+
+  nominationPoolsPoolsInactiveTotalStake: BigInt!
+  nominationPoolsPoolsInactiveTotalStakeChange: BigInt!
+  nominationPoolsPoolsInactiveTotalStakeChangeRatio: Float!
+
+  #---SLOTS---#
+  slotsTokensLockedInParachains: BigInt!
+  slotsTokensLockedInParachainsChange: BigInt!
+  slotsTokensLockedInParachainsChangeRatio: Float!
+}
+
+type HourlyChart implements IChart & IStats @entity {
+  id: ID!
+  timestamp: DateTime! @index
+
+  #---CHAIN---#
+  chainFinalizedBlocks: BigInt!
+  chainFinalizedBlocksChange: BigInt!
+  chainFinalizedBlocksChangeRatio: Float!
+
+  chainSignedExtrinsics: BigInt!
+  chainSignedExtrinsicsChange: BigInt!
+  chainSignedExtrinsicsChangeRatio: Float!
+
+  #---BALANCES---#
+  balancesTotalIssuance: BigInt!
+  balancesTotalIssuanceChange: BigInt!
+  balancesTotalIssuanceChangeRatio: Float!
+
+  balancesTransfersVolume: BigInt!
+  balancesTransfersVolumeChange: BigInt!
+  balancesTransfersVolumeChangeRatio: Float!
+
+  balancesTransfersAmount: BigInt!
+  balancesTransfersAmountChange: BigInt!
+  balancesTransfersAmountChangeRatio: Float!
+
+  #---PARACHAIN STAKING---#
+  parachainStakingCollatorsAmount: Int!
+  parachainStakingCollatorsAmountChange: Int!
+  parachainStakingCollatorsAmountChangeRatio: Float!
+
+  parachainStakingCurrentRound: Int!
+  parachainStakingCurrentRoundChange: Int!
+  parachainStakingCurrentRoundChangeRatio: Float!
+
+  parachainStakingTotalStakeCollators: BigInt!
+  parachainStakingTotalStakeCollatorsChange: BigInt!
+  parachainStakingTotalStakeCollatorsChangeRatio: Float!
+
+  parachainStakingTotalStakeDelegators: BigInt!
+  parachainStakingTotalStakeDelegatorsChange: BigInt!
+  parachainStakingTotalStakeDelegatorsChangeRatio: Float!
+
+  #---STAKING---#
+  stakingValidatorsIdealAmount: Int!
+  stakingValidatorsIdealAmountChange: Int!
+  stakingValidatorsIdealAmountChangeRatio: Float!
+
+  stakingActiveValidatorsAmount: Int!
+  stakingActiveValidatorsAmountChange: Int!
+  stakingActiveValidatorsAmountChangeRatio: Float!
+
+  stakingValidatorsAmount: Int!
+  stakingValidatorsAmountChange: Int!
+  stakingValidatorsAmountChangeRatio: Float!
+
+  stakingNominatorsActiveAmount: Int!
+  stakingNominatorsActiveAmountChange: Int!
+  stakingNominatorsActiveAmountChangeRatio: Float!
+
+  stakingNominatorsInactiveAmount: Int!
+  stakingNominatorsInactiveAmountChange: Int!
+  stakingNominatorsInactiveAmountChangeRatio: Float!
+
+  stakingCurrentEra: Int!
+  stakingCurrentEraChange: Int!
+  stakingCurrentEraChangeRatio: Float!
+
+  stakingTotalStake: BigInt!
+  stakingTotalStakeChange: BigInt!
+  stakingTotalStakeChangeRatio: Float!
+
+  stakingTotalStakeValidators: BigInt!
+  stakingTotalStakeValidatorsChange: BigInt!
+  stakingTotalStakeValidatorsChangeRatio: Float!
+
+  stakingTotalStakeNominatorsActive: BigInt!
+  stakingTotalStakeNominatorsActiveChange: BigInt!
+  stakingTotalStakeNominatorsActiveChangeRatio: Float!
+
+  stakingTotalStakeNominatorsInactive: BigInt!
+  stakingTotalStakeNominatorsInactiveChange: BigInt!
+  stakingTotalStakeNominatorsInactiveChangeRatio: Float!
+
+  stakingTotalStakeValidatorsSingleAccount: BigInt!
+  stakingTotalStakeValidatorsSingleAccountChange: BigInt!
+  stakingTotalStakeValidatorsSingleAccountChangeRatio: Float!
+
+  stakingTotalStakeValidatorsMultiAccount: BigInt!
+  stakingTotalStakeValidatorsMultiAccountChange: BigInt!
+  stakingTotalStakeValidatorsMultiAccountChangeRatio: Float!
+
+  stakingMinActiveNominatorStake: BigInt!
+  stakingMinActiveNominatorStakeChange: BigInt!
+  stakingMinActiveNominatorStakeChangeRatio: Float!
+
+  stakingInflationRatio: Float!
+  stakingInflationRatioChange: Float!
+  stakingInflationRatioChangeRatio: Float!
+
+  stakingRewardsRatio: Float!
+  stakingRewardsRatioChange: Float!
+  stakingRewardsRatioChangeRatio: Float!
+
+  #---NOMINATION POOLS---#
+  nominationPoolsMembersAmount: Int!
+  nominationPoolsMembersAmountChange: Int!
+  nominationPoolsMembersAmountChangeRatio: Float!
+
+  nominationPoolsPoolsActiveAmount: Int!
+  nominationPoolsPoolsActiveAmountChange: Int!
+  nominationPoolsPoolsActiveAmountChangeRatio: Float!
+
+  nominationPoolsPoolsInactiveAmount: Int!
+  nominationPoolsPoolsInactiveAmountChange: Int!
+  nominationPoolsPoolsInactiveAmountChangeRatio: Float!
+
+  nominationPoolsPoolsActiveTotalStake: BigInt!
+  nominationPoolsPoolsActiveTotalStakeChange: BigInt!
+  nominationPoolsPoolsActiveTotalStakeChangeRatio: Float!
+
+  nominationPoolsPoolsInactiveTotalStake: BigInt!
+  nominationPoolsPoolsInactiveTotalStakeChange: BigInt!
+  nominationPoolsPoolsInactiveTotalStakeChangeRatio: Float!
+
+  #---SLOTS---#
+  slotsTokensLockedInParachains: BigInt!
+  slotsTokensLockedInParachainsChange: BigInt!
+  slotsTokensLockedInParachainsChangeRatio: Float!
+}
+
+type FourHourlyChart implements IChart & IStats @entity {
+  id: ID!
+  timestamp: DateTime! @index
+
+  #---CHAIN---#
+  chainFinalizedBlocks: BigInt!
+  chainFinalizedBlocksChange: BigInt!
+  chainFinalizedBlocksChangeRatio: Float!
+
+  chainSignedExtrinsics: BigInt!
+  chainSignedExtrinsicsChange: BigInt!
+  chainSignedExtrinsicsChangeRatio: Float!
+
+  #---BALANCES---#
+  balancesTotalIssuance: BigInt!
+  balancesTotalIssuanceChange: BigInt!
+  balancesTotalIssuanceChangeRatio: Float!
+
+  balancesTransfersVolume: BigInt!
+  balancesTransfersVolumeChange: BigInt!
+  balancesTransfersVolumeChangeRatio: Float!
+
+  balancesTransfersAmount: BigInt!
+  balancesTransfersAmountChange: BigInt!
+  balancesTransfersAmountChangeRatio: Float!
+
+  #---PARACHAIN STAKING---#
+  parachainStakingCollatorsAmount: Int!
+  parachainStakingCollatorsAmountChange: Int!
+  parachainStakingCollatorsAmountChangeRatio: Float!
+
+  parachainStakingCurrentRound: Int!
+  parachainStakingCurrentRoundChange: Int!
+  parachainStakingCurrentRoundChangeRatio: Float!
+
+  parachainStakingTotalStakeCollators: BigInt!
+  parachainStakingTotalStakeCollatorsChange: BigInt!
+  parachainStakingTotalStakeCollatorsChangeRatio: Float!
+
+  parachainStakingTotalStakeDelegators: BigInt!
+  parachainStakingTotalStakeDelegatorsChange: BigInt!
+  parachainStakingTotalStakeDelegatorsChangeRatio: Float!
+
+  #---STAKING---#
+  stakingValidatorsIdealAmount: Int!
+  stakingValidatorsIdealAmountChange: Int!
+  stakingValidatorsIdealAmountChangeRatio: Float!
+
+  stakingActiveValidatorsAmount: Int!
+  stakingActiveValidatorsAmountChange: Int!
+  stakingActiveValidatorsAmountChangeRatio: Float!
+
+  stakingValidatorsAmount: Int!
+  stakingValidatorsAmountChange: Int!
+  stakingValidatorsAmountChangeRatio: Float!
+
+  stakingNominatorsActiveAmount: Int!
+  stakingNominatorsActiveAmountChange: Int!
+  stakingNominatorsActiveAmountChangeRatio: Float!
+
+  stakingNominatorsInactiveAmount: Int!
+  stakingNominatorsInactiveAmountChange: Int!
+  stakingNominatorsInactiveAmountChangeRatio: Float!
+
+  stakingCurrentEra: Int!
+  stakingCurrentEraChange: Int!
+  stakingCurrentEraChangeRatio: Float!
+
+  stakingTotalStake: BigInt!
+  stakingTotalStakeChange: BigInt!
+  stakingTotalStakeChangeRatio: Float!
+
+  stakingTotalStakeValidators: BigInt!
+  stakingTotalStakeValidatorsChange: BigInt!
+  stakingTotalStakeValidatorsChangeRatio: Float!
+
+  stakingTotalStakeNominatorsActive: BigInt!
+  stakingTotalStakeNominatorsActiveChange: BigInt!
+  stakingTotalStakeNominatorsActiveChangeRatio: Float!
+
+  stakingTotalStakeNominatorsInactive: BigInt!
+  stakingTotalStakeNominatorsInactiveChange: BigInt!
+  stakingTotalStakeNominatorsInactiveChangeRatio: Float!
+
+  stakingTotalStakeValidatorsSingleAccount: BigInt!
+  stakingTotalStakeValidatorsSingleAccountChange: BigInt!
+  stakingTotalStakeValidatorsSingleAccountChangeRatio: Float!
+
+  stakingTotalStakeValidatorsMultiAccount: BigInt!
+  stakingTotalStakeValidatorsMultiAccountChange: BigInt!
+  stakingTotalStakeValidatorsMultiAccountChangeRatio: Float!
+
+  stakingMinActiveNominatorStake: BigInt!
+  stakingMinActiveNominatorStakeChange: BigInt!
+  stakingMinActiveNominatorStakeChangeRatio: Float!
+
+  stakingInflationRatio: Float!
+  stakingInflationRatioChange: Float!
+  stakingInflationRatioChangeRatio: Float!
+
+  stakingRewardsRatio: Float!
+  stakingRewardsRatioChange: Float!
+  stakingRewardsRatioChangeRatio: Float!
+
+  #---NOMINATION POOLS---#
+  nominationPoolsMembersAmount: Int!
+  nominationPoolsMembersAmountChange: Int!
+  nominationPoolsMembersAmountChangeRatio: Float!
+
+  nominationPoolsPoolsActiveAmount: Int!
+  nominationPoolsPoolsActiveAmountChange: Int!
+  nominationPoolsPoolsActiveAmountChangeRatio: Float!
+
+  nominationPoolsPoolsInactiveAmount: Int!
+  nominationPoolsPoolsInactiveAmountChange: Int!
+  nominationPoolsPoolsInactiveAmountChangeRatio: Float!
+
+  nominationPoolsPoolsActiveTotalStake: BigInt!
+  nominationPoolsPoolsActiveTotalStakeChange: BigInt!
+  nominationPoolsPoolsActiveTotalStakeChangeRatio: Float!
+
+  nominationPoolsPoolsInactiveTotalStake: BigInt!
+  nominationPoolsPoolsInactiveTotalStakeChange: BigInt!
+  nominationPoolsPoolsInactiveTotalStakeChangeRatio: Float!
+
+  #---SLOTS---#
+  slotsTokensLockedInParachains: BigInt!
+  slotsTokensLockedInParachainsChange: BigInt!
+  slotsTokensLockedInParachainsChangeRatio: Float!
+}
+
+type DailyChart implements IChart & IStats @entity {
+  id: ID!
+  timestamp: DateTime! @index
+
+  #---CHAIN---#
+  chainFinalizedBlocks: BigInt!
+  chainFinalizedBlocksChange: BigInt!
+  chainFinalizedBlocksChangeRatio: Float!
+
+  chainSignedExtrinsics: BigInt!
+  chainSignedExtrinsicsChange: BigInt!
+  chainSignedExtrinsicsChangeRatio: Float!
+
+  #---BALANCES---#
+  balancesTotalIssuance: BigInt!
+  balancesTotalIssuanceChange: BigInt!
+  balancesTotalIssuanceChangeRatio: Float!
+
+  balancesTransfersVolume: BigInt!
+  balancesTransfersVolumeChange: BigInt!
+  balancesTransfersVolumeChangeRatio: Float!
+
+  balancesTransfersAmount: BigInt!
+  balancesTransfersAmountChange: BigInt!
+  balancesTransfersAmountChangeRatio: Float!
+
+  #---PARACHAIN STAKING---#
+  parachainStakingCollatorsAmount: Int!
+  parachainStakingCollatorsAmountChange: Int!
+  parachainStakingCollatorsAmountChangeRatio: Float!
+
+  parachainStakingCurrentRound: Int!
+  parachainStakingCurrentRoundChange: Int!
+  parachainStakingCurrentRoundChangeRatio: Float!
+
+  parachainStakingTotalStakeCollators: BigInt!
+  parachainStakingTotalStakeCollatorsChange: BigInt!
+  parachainStakingTotalStakeCollatorsChangeRatio: Float!
+
+  parachainStakingTotalStakeDelegators: BigInt!
+  parachainStakingTotalStakeDelegatorsChange: BigInt!
+  parachainStakingTotalStakeDelegatorsChangeRatio: Float!
+
+  #---STAKING---#
+  stakingValidatorsIdealAmount: Int!
+  stakingValidatorsIdealAmountChange: Int!
+  stakingValidatorsIdealAmountChangeRatio: Float!
+
+  stakingActiveValidatorsAmount: Int!
+  stakingActiveValidatorsAmountChange: Int!
+  stakingActiveValidatorsAmountChangeRatio: Float!
+
+  stakingValidatorsAmount: Int!
+  stakingValidatorsAmountChange: Int!
+  stakingValidatorsAmountChangeRatio: Float!
+
+  stakingNominatorsActiveAmount: Int!
+  stakingNominatorsActiveAmountChange: Int!
+  stakingNominatorsActiveAmountChangeRatio: Float!
+
+  stakingNominatorsInactiveAmount: Int!
+  stakingNominatorsInactiveAmountChange: Int!
+  stakingNominatorsInactiveAmountChangeRatio: Float!
+
+  stakingCurrentEra: Int!
+  stakingCurrentEraChange: Int!
+  stakingCurrentEraChangeRatio: Float!
+
+  stakingTotalStake: BigInt!
+  stakingTotalStakeChange: BigInt!
+  stakingTotalStakeChangeRatio: Float!
+
+  stakingTotalStakeValidators: BigInt!
+  stakingTotalStakeValidatorsChange: BigInt!
+  stakingTotalStakeValidatorsChangeRatio: Float!
+
+  stakingTotalStakeNominatorsActive: BigInt!
+  stakingTotalStakeNominatorsActiveChange: BigInt!
+  stakingTotalStakeNominatorsActiveChangeRatio: Float!
+
+  stakingTotalStakeNominatorsInactive: BigInt!
+  stakingTotalStakeNominatorsInactiveChange: BigInt!
+  stakingTotalStakeNominatorsInactiveChangeRatio: Float!
+
+  stakingTotalStakeValidatorsSingleAccount: BigInt!
+  stakingTotalStakeValidatorsSingleAccountChange: BigInt!
+  stakingTotalStakeValidatorsSingleAccountChangeRatio: Float!
+
+  stakingTotalStakeValidatorsMultiAccount: BigInt!
+  stakingTotalStakeValidatorsMultiAccountChange: BigInt!
+  stakingTotalStakeValidatorsMultiAccountChangeRatio: Float!
+
+  stakingMinActiveNominatorStake: BigInt!
+  stakingMinActiveNominatorStakeChange: BigInt!
+  stakingMinActiveNominatorStakeChangeRatio: Float!
+
+  stakingInflationRatio: Float!
+  stakingInflationRatioChange: Float!
+  stakingInflationRatioChangeRatio: Float!
+
+  stakingRewardsRatio: Float!
+  stakingRewardsRatioChange: Float!
+  stakingRewardsRatioChangeRatio: Float!
+
+  #---NOMINATION POOLS---#
+  nominationPoolsMembersAmount: Int!
+  nominationPoolsMembersAmountChange: Int!
+  nominationPoolsMembersAmountChangeRatio: Float!
+
+  nominationPoolsPoolsActiveAmount: Int!
+  nominationPoolsPoolsActiveAmountChange: Int!
+  nominationPoolsPoolsActiveAmountChangeRatio: Float!
+
+  nominationPoolsPoolsInactiveAmount: Int!
+  nominationPoolsPoolsInactiveAmountChange: Int!
+  nominationPoolsPoolsInactiveAmountChangeRatio: Float!
+
+  nominationPoolsPoolsActiveTotalStake: BigInt!
+  nominationPoolsPoolsActiveTotalStakeChange: BigInt!
+  nominationPoolsPoolsActiveTotalStakeChangeRatio: Float!
+
+  nominationPoolsPoolsInactiveTotalStake: BigInt!
+  nominationPoolsPoolsInactiveTotalStakeChange: BigInt!
+  nominationPoolsPoolsInactiveTotalStakeChangeRatio: Float!
+
+  #---SLOTS---#
+  slotsTokensLockedInParachains: BigInt!
+  slotsTokensLockedInParachainsChange: BigInt!
+  slotsTokensLockedInParachainsChangeRatio: Float!
+}
+
+type WeeklyChart implements IChart & IStats @entity {
+  id: ID!
+  timestamp: DateTime! @index
+
+  #---CHAIN---#
+  chainFinalizedBlocks: BigInt!
+  chainFinalizedBlocksChange: BigInt!
+  chainFinalizedBlocksChangeRatio: Float!
+
+  chainSignedExtrinsics: BigInt!
+  chainSignedExtrinsicsChange: BigInt!
+  chainSignedExtrinsicsChangeRatio: Float!
+
+  #---BALANCES---#
+  balancesTotalIssuance: BigInt!
+  balancesTotalIssuanceChange: BigInt!
+  balancesTotalIssuanceChangeRatio: Float!
+
+  balancesTransfersVolume: BigInt!
+  balancesTransfersVolumeChange: BigInt!
+  balancesTransfersVolumeChangeRatio: Float!
+
+  balancesTransfersAmount: BigInt!
+  balancesTransfersAmountChange: BigInt!
+  balancesTransfersAmountChangeRatio: Float!
+
+  #---PARACHAIN STAKING---#
+  parachainStakingCollatorsAmount: Int!
+  parachainStakingCollatorsAmountChange: Int!
+  parachainStakingCollatorsAmountChangeRatio: Float!
+
+  parachainStakingCurrentRound: Int!
+  parachainStakingCurrentRoundChange: Int!
+  parachainStakingCurrentRoundChangeRatio: Float!
+
+  parachainStakingTotalStakeCollators: BigInt!
+  parachainStakingTotalStakeCollatorsChange: BigInt!
+  parachainStakingTotalStakeCollatorsChangeRatio: Float!
+
+  parachainStakingTotalStakeDelegators: BigInt!
+  parachainStakingTotalStakeDelegatorsChange: BigInt!
+  parachainStakingTotalStakeDelegatorsChangeRatio: Float!
+
+  #---STAKING---#
+  stakingValidatorsIdealAmount: Int!
+  stakingValidatorsIdealAmountChange: Int!
+  stakingValidatorsIdealAmountChangeRatio: Float!
+
+  stakingActiveValidatorsAmount: Int!
+  stakingActiveValidatorsAmountChange: Int!
+  stakingActiveValidatorsAmountChangeRatio: Float!
+
+  stakingValidatorsAmount: Int!
+  stakingValidatorsAmountChange: Int!
+  stakingValidatorsAmountChangeRatio: Float!
+
+  stakingNominatorsActiveAmount: Int!
+  stakingNominatorsActiveAmountChange: Int!
+  stakingNominatorsActiveAmountChangeRatio: Float!
+
+  stakingNominatorsInactiveAmount: Int!
+  stakingNominatorsInactiveAmountChange: Int!
+  stakingNominatorsInactiveAmountChangeRatio: Float!
+
+  stakingCurrentEra: Int!
+  stakingCurrentEraChange: Int!
+  stakingCurrentEraChangeRatio: Float!
+
+  stakingTotalStake: BigInt!
+  stakingTotalStakeChange: BigInt!
+  stakingTotalStakeChangeRatio: Float!
+
+  stakingTotalStakeValidators: BigInt!
+  stakingTotalStakeValidatorsChange: BigInt!
+  stakingTotalStakeValidatorsChangeRatio: Float!
+
+  stakingTotalStakeNominatorsActive: BigInt!
+  stakingTotalStakeNominatorsActiveChange: BigInt!
+  stakingTotalStakeNominatorsActiveChangeRatio: Float!
+
+  stakingTotalStakeNominatorsInactive: BigInt!
+  stakingTotalStakeNominatorsInactiveChange: BigInt!
+  stakingTotalStakeNominatorsInactiveChangeRatio: Float!
+
+  stakingTotalStakeValidatorsSingleAccount: BigInt!
+  stakingTotalStakeValidatorsSingleAccountChange: BigInt!
+  stakingTotalStakeValidatorsSingleAccountChangeRatio: Float!
+
+  stakingTotalStakeValidatorsMultiAccount: BigInt!
+  stakingTotalStakeValidatorsMultiAccountChange: BigInt!
+  stakingTotalStakeValidatorsMultiAccountChangeRatio: Float!
+
+  stakingMinActiveNominatorStake: BigInt!
+  stakingMinActiveNominatorStakeChange: BigInt!
+  stakingMinActiveNominatorStakeChangeRatio: Float!
+
+  stakingInflationRatio: Float!
+  stakingInflationRatioChange: Float!
+  stakingInflationRatioChangeRatio: Float!
+
+  stakingRewardsRatio: Float!
+  stakingRewardsRatioChange: Float!
+  stakingRewardsRatioChangeRatio: Float!
+
+  #---NOMINATION POOLS---#
+  nominationPoolsMembersAmount: Int!
+  nominationPoolsMembersAmountChange: Int!
+  nominationPoolsMembersAmountChangeRatio: Float!
+
+  nominationPoolsPoolsActiveAmount: Int!
+  nominationPoolsPoolsActiveAmountChange: Int!
+  nominationPoolsPoolsActiveAmountChangeRatio: Float!
+
+  nominationPoolsPoolsInactiveAmount: Int!
+  nominationPoolsPoolsInactiveAmountChange: Int!
+  nominationPoolsPoolsInactiveAmountChangeRatio: Float!
+
+  nominationPoolsPoolsActiveTotalStake: BigInt!
+  nominationPoolsPoolsActiveTotalStakeChange: BigInt!
+  nominationPoolsPoolsActiveTotalStakeChangeRatio: Float!
+
+  nominationPoolsPoolsInactiveTotalStake: BigInt!
+  nominationPoolsPoolsInactiveTotalStakeChange: BigInt!
+  nominationPoolsPoolsInactiveTotalStakeChangeRatio: Float!
+
+  #---SLOTS---#
+  slotsTokensLockedInParachains: BigInt!
+  slotsTokensLockedInParachainsChange: BigInt!
+  slotsTokensLockedInParachainsChangeRatio: Float!
+}
+
+type MonthlyChart implements IChart & IStats @entity {
+  id: ID!
+  timestamp: DateTime! @index
+
+  #---CHAIN---#
+  chainFinalizedBlocks: BigInt!
+  chainFinalizedBlocksChange: BigInt!
+  chainFinalizedBlocksChangeRatio: Float!
+
+  chainSignedExtrinsics: BigInt!
+  chainSignedExtrinsicsChange: BigInt!
+  chainSignedExtrinsicsChangeRatio: Float!
+
+  #---BALANCES---#
+  balancesTotalIssuance: BigInt!
+  balancesTotalIssuanceChange: BigInt!
+  balancesTotalIssuanceChangeRatio: Float!
+
+  balancesTransfersVolume: BigInt!
+  balancesTransfersVolumeChange: BigInt!
+  balancesTransfersVolumeChangeRatio: Float!
+
+  balancesTransfersAmount: BigInt!
+  balancesTransfersAmountChange: BigInt!
+  balancesTransfersAmountChangeRatio: Float!
+
+  #---PARACHAIN STAKING---#
+  parachainStakingCollatorsAmount: Int!
+  parachainStakingCollatorsAmountChange: Int!
+  parachainStakingCollatorsAmountChangeRatio: Float!
+
+  parachainStakingCurrentRound: Int!
+  parachainStakingCurrentRoundChange: Int!
+  parachainStakingCurrentRoundChangeRatio: Float!
+
+  parachainStakingTotalStakeCollators: BigInt!
+  parachainStakingTotalStakeCollatorsChange: BigInt!
+  parachainStakingTotalStakeCollatorsChangeRatio: Float!
+
+  parachainStakingTotalStakeDelegators: BigInt!
+  parachainStakingTotalStakeDelegatorsChange: BigInt!
+  parachainStakingTotalStakeDelegatorsChangeRatio: Float!
+
+  #---STAKING---#
+  stakingValidatorsIdealAmount: Int!
+  stakingValidatorsIdealAmountChange: Int!
+  stakingValidatorsIdealAmountChangeRatio: Float!
+
+  stakingActiveValidatorsAmount: Int!
+  stakingActiveValidatorsAmountChange: Int!
+  stakingActiveValidatorsAmountChangeRatio: Float!
+
+  stakingValidatorsAmount: Int!
+  stakingValidatorsAmountChange: Int!
+  stakingValidatorsAmountChangeRatio: Float!
+
+  stakingNominatorsActiveAmount: Int!
+  stakingNominatorsActiveAmountChange: Int!
+  stakingNominatorsActiveAmountChangeRatio: Float!
+
+  stakingNominatorsInactiveAmount: Int!
+  stakingNominatorsInactiveAmountChange: Int!
+  stakingNominatorsInactiveAmountChangeRatio: Float!
+
+  stakingCurrentEra: Int!
+  stakingCurrentEraChange: Int!
+  stakingCurrentEraChangeRatio: Float!
+
+  stakingTotalStake: BigInt!
+  stakingTotalStakeChange: BigInt!
+  stakingTotalStakeChangeRatio: Float!
+
+  stakingTotalStakeValidators: BigInt!
+  stakingTotalStakeValidatorsChange: BigInt!
+  stakingTotalStakeValidatorsChangeRatio: Float!
+
+  stakingTotalStakeNominatorsActive: BigInt!
+  stakingTotalStakeNominatorsActiveChange: BigInt!
+  stakingTotalStakeNominatorsActiveChangeRatio: Float!
+
+  stakingTotalStakeNominatorsInactive: BigInt!
+  stakingTotalStakeNominatorsInactiveChange: BigInt!
+  stakingTotalStakeNominatorsInactiveChangeRatio: Float!
+
+  stakingTotalStakeValidatorsSingleAccount: BigInt!
+  stakingTotalStakeValidatorsSingleAccountChange: BigInt!
+  stakingTotalStakeValidatorsSingleAccountChangeRatio: Float!
+
+  stakingTotalStakeValidatorsMultiAccount: BigInt!
+  stakingTotalStakeValidatorsMultiAccountChange: BigInt!
+  stakingTotalStakeValidatorsMultiAccountChangeRatio: Float!
+
+  stakingMinActiveNominatorStake: BigInt!
+  stakingMinActiveNominatorStakeChange: BigInt!
+  stakingMinActiveNominatorStakeChangeRatio: Float!
+
+  stakingInflationRatio: Float!
+  stakingInflationRatioChange: Float!
+  stakingInflationRatioChangeRatio: Float!
+
+  stakingRewardsRatio: Float!
+  stakingRewardsRatioChange: Float!
+  stakingRewardsRatioChangeRatio: Float!
+
+  #---NOMINATION POOLS---#
+  nominationPoolsMembersAmount: Int!
+  nominationPoolsMembersAmountChange: Int!
+  nominationPoolsMembersAmountChangeRatio: Float!
+
+  nominationPoolsPoolsActiveAmount: Int!
+  nominationPoolsPoolsActiveAmountChange: Int!
+  nominationPoolsPoolsActiveAmountChangeRatio: Float!
+
+  nominationPoolsPoolsInactiveAmount: Int!
+  nominationPoolsPoolsInactiveAmountChange: Int!
+  nominationPoolsPoolsInactiveAmountChangeRatio: Float!
+
+  nominationPoolsPoolsActiveTotalStake: BigInt!
+  nominationPoolsPoolsActiveTotalStakeChange: BigInt!
+  nominationPoolsPoolsActiveTotalStakeChangeRatio: Float!
+
+  nominationPoolsPoolsInactiveTotalStake: BigInt!
+  nominationPoolsPoolsInactiveTotalStakeChange: BigInt!
+  nominationPoolsPoolsInactiveTotalStakeChangeRatio: Float!
+
+  #---SLOTS---#
+  slotsTokensLockedInParachains: BigInt!
+  slotsTokensLockedInParachainsChange: BigInt!
+  slotsTokensLockedInParachainsChangeRatio: Float!
 }

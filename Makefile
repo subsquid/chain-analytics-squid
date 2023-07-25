@@ -26,7 +26,7 @@ codegen:
 
 
 typegen:
-	@npx squid-substrate-typegen typegen.json
+	@sh ./scripts/typegen.sh
 
 
 up:
@@ -37,4 +37,4 @@ down:
 	@docker-compose down
 
 
-.PHONY: build serve process migrate codegen typegen up down
+.PHONY: build serve process migrate codegen typegen typegen-bifrost typegen-kusama up down
