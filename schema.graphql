@@ -15,14 +15,6 @@ type Account @entity {
   updatedAtBlock: Int!
 }
 
-type ChainState @entity {
-  id: ID!
-  tokenBalance: BigInt!
-  # tokenHolders: Int! // TODO
-  timestamp: DateTime! @index
-  blockNumber: Int! @index
-}
-
 interface IStats {
   #---CHAIN---#
   chainFinalizedBlocks: BigInt!
@@ -32,7 +24,6 @@ interface IStats {
   balancesTotalIssuance: BigInt!
   balancesTransfersVolume: BigInt!
   balancesTransfersAmount: BigInt!
-  # balancesHolders: Int!
   # balancesCirculatingAssetsTotal: BigInt!
 
   #---PARACHAIN STAKING---#

@@ -1,11 +1,12 @@
-import { Ctx } from '../processor'
+import { ProcessorContext } from '../processor'
 import { getChain } from '../chains'
 import { assertNotNull, toHex } from '@subsquid/substrate-processor'
 import { Current } from '../model'
+import {StoreWithCache} from '@belopash/squid-tools'
 const { config: chainConfig, api: apiDecorated } = getChain()
 
 // TODO: Add total issuance here as well
-// export async function handleStakeAmount(ctx: Ctx, block: Block) {
+// export async function handleStakeAmount(ctx: ProcessorContext, block: Block) {
 //   const histDataMeta = await getOrCreateHistoricalDataMeta(ctx)
 
 // switch (chainConfig.chainName) {
@@ -22,7 +23,7 @@ const { config: chainConfig, api: apiDecorated } = getChain()
 // }
 
 export async function handleStakeAmount(
-  ctx: Ctx,
+  ctx: ProcessorContext<StoreWithCache>,
   block: { hash: string },
   current: Current
 ) {
@@ -55,18 +56,15 @@ export async function handleStakeAmount(
   /**
    * Preferred to use ActiveEra because CurrentEra can return next planed era
    */
-
-  if (currentEraData == null) {
-    return ctx.log.warn(`Unknown era`)
-  }
-  if (activeEraData == null) {
+  const eraData = activeEraData?.index ?? currentEraData
+  if (eraData == null) {
     return ctx.log.warn(`Unknown era`)
   }
 
   const validatorsData = await apiDecorated.storage.getEraStakersData(
     ctx,
     block,
-    currentEraData
+    eraData
   )
   if (!validatorsData) {
     return ctx.log.warn(`Missing info for validators in era ${currentEraData}`)
@@ -133,7 +131,7 @@ export async function handleStakeAmount(
   current.stakingValidatorsAmount = totalValidators ?? 0
   current.stakingNominatorsActiveAmount = nominatorsStake.size
   current.stakingNominatorsInactiveAmount = totalNominators ? totalNominators - nominatorsStake.size : 0
-  current.stakingCurrentEra = activeEraData.index
+  current.stakingCurrentEra = eraData
   current.stakingTotalStake = totalStaked
   current.stakingTotalStakeValidators = totalValidatorsStake
   current.stakingTotalStakeNominatorsActive = totalNominatorsStake
@@ -149,10 +147,10 @@ function findMinimalStake(stakes: bigint[]) {
   for (const stake of stakes) {
     if (minStake == null || stake < minStake) minStake = stake
   }
-  return minStake as bigint
+  return minStake ?? 0n
 }
 // async function handleParachainStakingPallet(
-//   ctx: Ctx,
+//   ctx: ProcessorContext,
 //   block: Block,
 //   saveCheckMarker: () => void
 // ) {
@@ -214,7 +212,7 @@ function findMinimalStake(stakes: bigint[]) {
 //     collatorsCount: collatorIds.length
 //   });
 
-//   ctx.store.deferredUpsert(newStakedValueStat);
+//   ctx.store.upsert(newStakedValueStat);
 
 //   saveCheckMarker();
 
@@ -225,7 +223,7 @@ function findMinimalStake(stakes: bigint[]) {
 //   totals.stakedValueCollator = newStakedValueStat.collatorStake;
 //   totals.stakedValueNominator = newStakedValueStat.nominatorStake;
 
-//   ctx.store.deferredUpsert(totals);
+//   ctx.store.upsert(totals);
 // }
 
 /**
@@ -263,12 +261,12 @@ function findMinimalStake(stakes: bigint[]) {
     }
     default:
   }
-  ctx.store.deferredUpsert(totals);
-  ctx.store.deferredUpsert(newValidatorStat);
+  ctx.store.upsert(totals);
+  ctx.store.upsert(newValidatorStat);
 
   histDataMeta.validatorsLatestBlockNumber = BigInt(block.header.height);
   histDataMeta.validatorsLatestTime = new Date(block.header.timestamp);
 
-  ctx.store.deferredUpsert(histDataMeta);
+  ctx.store.upsert(histDataMeta);
 }
  */

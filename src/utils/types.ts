@@ -1,12 +1,10 @@
 import {
-  Current,
   DailyChart,
   FourHourlyChart,
   HourlyChart,
   MonthlyChart,
   WeeklyChart
 } from '../model'
-import { Entity, EntityClass } from '@subsquid/typeorm-store'
 
 export enum SubProcessorTask {
   // GET_HOLDERS_KEYS_COUNT = 'getTotalHoldersCount'

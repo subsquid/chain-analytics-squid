@@ -14,7 +14,9 @@ import {
   StakingCounterForNominatorsStorage,
   AuctionsAuctionCounterStorage,
   SlotsLeasesStorage,
-  IdentitySuperOfStorage
+  IdentitySuperOfStorage,
+  BalancesFreeBalanceStorage,
+  BalancesReservedBalanceStorage
 } from '../types/storage'
 import { FunctionNotExist, UnknownVersionError } from '../../../utils/errors'
 import { decodeAccount, encodeAccount } from '../../../utils/common'
@@ -176,6 +178,7 @@ export async function getAuctionCounterNumber(ctx: ChainContext, block: Block) {
     throw new UnknownVersionError(storage.constructor.name)
   }
 }
+
 //
 // export async function getTotalHoldersCount(ctx: ChainContext, block: Block) {
 //   const storage = new SystemAccountStorage(ctx, block);
@@ -295,7 +298,6 @@ export async function getSystemAccountBalancesByKeys(
   block: Block,
   keys: Uint8Array[]
 ): Promise<AccountBalanceShort[] | undefined> {
-  if (keys.length === 0) return undefined
   const storageSysAccount = new SystemAccountStorage(ctx, block)
 
   if (!storageSysAccount.isExists) return undefined
@@ -304,7 +306,7 @@ export async function getSystemAccountBalancesByKeys(
     block.hash,
     'System',
     'Account',
-    keys.map((a) => [a])
+    keys
   )
 
   return data.map((d) => ({ free: d.free, reserved: d.reserved }))
@@ -314,7 +316,6 @@ export async function getBalancesAccountBalancesByKeys(
   block: Block,
   keys: Uint8Array[]
 ): Promise<AccountBalanceShort[] | undefined> {
-  if (keys.length === 0) return undefined
   const storageBalAccount = new BalancesAccountStorage(ctx, block)
 
   if (!storageBalAccount.isExists) return undefined
@@ -323,10 +324,26 @@ export async function getBalancesAccountBalancesByKeys(
     block.hash,
     'Balances',
     'Account',
-    keys.map((a) => [a])
+    keys
   )
 
   return data.map((d) => ({ free: d.free, reserved: d.reserved }))
+}
+
+export async function getSystemAccountBalancesOldByKeys(ctx: ChainContext, block: Block, keys: Uint8Array[]) {
+  const storageFree = new BalancesFreeBalanceStorage(ctx, block)
+
+  const dataFree = storageFree.isExists
+      ? await storageFree.asV1020.getMany(keys)
+      : new Array(keys.length).fill(0n)
+
+  const storageReserved = new BalancesReservedBalanceStorage(ctx, block)
+
+  const dataReserved = storageReserved.isExists
+      ? await storageReserved.asV1020.getMany(keys)
+      : new Array(keys.length).fill(0n)
+
+  return dataFree.map((f, i) => ({free: f, reserved: dataReserved[i]}))
 }
 
 // NOT EXISTING STORAGE FUNCTIONS FROM OTHER CHAINS

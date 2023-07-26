@@ -1,9 +1,10 @@
+import {StoreWithCache} from '@belopash/squid-tools'
 import { BackupCounter } from '../model'
-import { Ctx } from '../processor'
+import { ProcessorContext } from '../processor'
 import { CallSignedExtrinsicData } from '../utils/types'
 
 export async function handleExtrinsics(
-  ctx: Ctx,
+  ctx: ProcessorContext<StoreWithCache>,
   extrinsicsData: Map<string, CallSignedExtrinsicData> | undefined,
   backupCounter: BackupCounter
 ) {

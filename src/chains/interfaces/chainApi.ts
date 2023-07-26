@@ -38,6 +38,10 @@ export type ChainApi = {
       [Uint8Array[]],
       AccountBalanceShort[] | undefined
     >;
+    getSystemAccountBalancesOldByKeys: StorageGetter<
+    [Uint8Array[]],
+    AccountBalanceShort[] | undefined
+  >;
 
     getEraStakersData: StorageGetter<
       [number],

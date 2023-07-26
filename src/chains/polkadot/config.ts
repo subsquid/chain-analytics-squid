@@ -5,7 +5,7 @@ dotenv.config({ path: `${__dirname}/../../../.env.local` });
 
 export const config: ProcessorConfig = {
   // 1st auctions 
-  blockRange: {from: 7658910},
+  blockRange: {from: 1},
   // 1st Jan 2023 
   // blockRange: {from: 12726940},
   chainName: 'polkadot',

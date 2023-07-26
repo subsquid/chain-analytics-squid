@@ -3802,7 +3802,7 @@ export interface MultisigCall_as_multi_threshold_1 {
  *  -------------------------------
  *  - Base Weight:
  *      - Create:          41.89 + 0.118 * S + .002 * Z µs
- *      - Create w/ Store: 53.57 + 0.119 * S + .003 * Z µs
+ *      - Create w/ StoreWithCache: 53.57 + 0.119 * S + .003 * Z µs
  *      - Approve:         31.39 + 0.136 * S + .002 * Z µs
  *      - Complete:        39.94 + 0.26  * S + .002 * Z µs
  *  - DB Weight:

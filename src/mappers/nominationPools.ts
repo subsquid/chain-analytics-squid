@@ -1,11 +1,12 @@
-import { Ctx } from '../processor'
+import { ProcessorContext } from '../processor'
 import { Current } from '../model'
 import { getChain } from '../chains'
+import {StoreWithCache} from '@belopash/squid-tools'
 
 const { api } = getChain()
 
 export async function handleNominationPools(
-  ctx: Ctx,
+  ctx: ProcessorContext<StoreWithCache>,
   block: { hash: string },
   current: Current
 ) {

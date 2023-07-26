@@ -1,26 +1,22 @@
-import { Ctx, CallItem, EventItem, Block } from '../processor';
-import {
-  BlockEventName,
-  BalancesTransferEventData,
-  CallSignedExtrinsicData
-} from '../utils/types';
-import { decodeHex } from '@subsquid/util-internal-hex';
-
-import { getOriginAccountId, ParsedEventsDataScope } from '../utils/common';
-import { getChain } from '../chains';
+import {StoreWithCache} from '@belopash/squid-tools'
+import {decodeHex} from '@subsquid/substrate-processor'
+import {getChain} from '../chains'
+import {Block, CallItem, EventItem, ProcessorContext} from '../processor'
+import {getOriginAccountId, ParsedEventsDataScope} from '../utils/common'
+import {BlockEventName, CallSignedExtrinsicData} from '../utils/types'
 
 const api = getChain().api
 
 function getEventMeta(event: EventItem, block: Block) {
   return {
     id: event.event.id,
-    blockNumber: block.header.height,
-    blockHash: block.header.hash,
-    timestamp: new Date(block.header.timestamp)
+    blockNumber: block.height,
+    blockHash: block.hash,
+    timestamp: new Date(block.timestamp)
   };
 }
 
-export function getParsedEventsData(ctx: Ctx): ParsedEventsDataScope {
+export function getParsedEventsData(ctx: ProcessorContext<StoreWithCache>): ParsedEventsDataScope {
   const parsedData = new ParsedEventsDataScope();
 
   for (let block of ctx.blocks) {
@@ -30,7 +26,7 @@ export function getParsedEventsData(ctx: Ctx): ParsedEventsDataScope {
           switch (item.name) {
             case 'Balances.Transfer':
               parsedData.set(BlockEventName.BALANCES_TRANSFER, {
-                ...getEventMeta(item, block),
+                ...getEventMeta(item, block.header),
                 volume: api.events.getBalancesTransferValue(ctx, item.event)
               });
               parsedData.set(BlockEventName.INVOLVED_ACCOUNTS_SYNTHETIC, {

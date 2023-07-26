@@ -5043,14 +5043,14 @@ export class MoonbeamOrbitersOrbiterPerRoundStorage extends StorageBase {
     }
 
     /**
-     *  Store active orbiter per round and per parent collator
+     *  StoreWithCache active orbiter per round and per parent collator
      */
     get isV1502(): boolean {
         return this.getTypeHash() === '83547351f3717990191d95c0afad1bb692bc9b0bf0f90145092e5295494619f3'
     }
 
     /**
-     *  Store active orbiter per round and per parent collator
+     *  StoreWithCache active orbiter per round and per parent collator
      */
     get asV1502(): MoonbeamOrbitersOrbiterPerRoundStorageV1502 {
         assert(this.isV1502)
@@ -5059,7 +5059,7 @@ export class MoonbeamOrbitersOrbiterPerRoundStorage extends StorageBase {
 }
 
 /**
- *  Store active orbiter per round and per parent collator
+ *  StoreWithCache active orbiter per round and per parent collator
  */
 export interface MoonbeamOrbitersOrbiterPerRoundStorageV1502 {
     get(key1: number, key2: Uint8Array): Promise<(Uint8Array | undefined)>

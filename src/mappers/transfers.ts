@@ -1,9 +1,10 @@
-import { Ctx } from '../processor'
-import { BalancesTransferEventData } from '../utils/types'
-import { BackupCounter } from '../model'
+import {StoreWithCache} from '@belopash/squid-tools'
+import {BackupCounter} from '../model'
+import {ProcessorContext} from '../processor'
+import {BalancesTransferEventData} from '../utils/types'
 
 export async function handleTransfers(
-  ctx: Ctx,
+  ctx: ProcessorContext<StoreWithCache>,
   transferEventsData: Map<string, BalancesTransferEventData> | undefined,
   backupCounter: BackupCounter
 ) {
@@ -12,5 +13,5 @@ export async function handleTransfers(
     backupCounter.balancesTransfersVolume += e.volume
     backupCounter.balancesTransfersAmount += 1n
   }
-  ctx.store.deferredUpsert(backupCounter)
+  await ctx.store.upsert(backupCounter)
 }

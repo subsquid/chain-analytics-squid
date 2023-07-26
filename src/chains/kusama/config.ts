@@ -11,7 +11,7 @@ export const config: ProcessorConfig = {
     chain: process.env.KUSAMA_NODE || 'wss://kusama-rpc.polkadot.io'
   },
   blockRange: {
-    from: 15992891
+    from: 1
   },
   intervals: new Map([
     ['holders', 1000 * 60 * 60 * 24],

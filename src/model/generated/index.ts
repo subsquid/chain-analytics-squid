@@ -1,6 +1,5 @@
 export * from "./backupCounter.model"
 export * from "./account.model"
-export * from "./chainState.model"
 export * from "./current.model"
 export * from "./hourlyChart.model"
 export * from "./fourHourlyChart.model"

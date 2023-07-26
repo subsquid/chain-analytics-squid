@@ -290,7 +290,6 @@ export async function getSystemAccountBalancesByKeys(
   block: Block,
   keys: Uint8Array[]
 ): Promise<AccountBalanceShort[] | undefined> {
-  if (keys.length === 0) return undefined
   const storageSysAccount = new SystemAccountStorage(ctx, block)
 
   if (!storageSysAccount.isExists) return undefined
@@ -308,7 +307,6 @@ export async function getBalancesAccountBalancesByKeys(
   block: Block,
   keys: Uint8Array[]
 ): Promise<AccountBalanceShort[] | undefined> {
-  if (keys.length === 0) return undefined
   const storageBalAccount = new BalancesAccountStorage(ctx, block)
 
   if (!storageBalAccount.isExists) return undefined
@@ -317,10 +315,17 @@ export async function getBalancesAccountBalancesByKeys(
     block.hash,
     'Balances',
     'Account',
-    keys.map((a) => a)
+    keys
   )
 
   return data.map((d) => ({ free: d.free, reserved: d.reserved }))
+}
+export async function getSystemAccountBalancesOldByKeys(
+  ctx: ChainContext,
+  block: Block,
+  keys: Uint8Array[]
+): Promise<AccountBalanceShort[] | undefined> {
+  return undefined
 }
 
 // NOT EXISTING STORAGE FUNCTIONS FROM OTHER CHAINS
