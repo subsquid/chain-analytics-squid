@@ -309,7 +309,7 @@ export async function getSystemAccountBalancesByKeys(
     keys
   )
 
-  return data.map((d) => ({ free: d.free, reserved: d.reserved }))
+  return data.map((d) => ({ free: d.data.free, reserved: d.data.reserved }))
 }
 export async function getBalancesAccountBalancesByKeys(
   ctx: ChainContext,

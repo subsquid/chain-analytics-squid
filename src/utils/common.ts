@@ -194,13 +194,13 @@ export function* splitIntoBatches<T>(list: T[], maxBatchSize: number): Generator
     }
 }
 
-export function getOriginAccountId(origin: any) {
-    if (origin && origin.__kind === 'system' && origin.value.__kind === 'Signed') {
-        return origin.value.value
-    } else {
-        return undefined
-    }
-}
+// export function getOriginAccountId(origin: any) {
+//     if (origin && origin.__kind === 'system' && origin.value.__kind === 'Signed') {
+//         return origin.value.value
+//     } else {
+//         return undefined
+//     }
+// }
 export async function getOrCreateBackupCounter(ctx: ProcessorContext<StoreWithCache>) {
     const counterCahced = await ctx.store.get(BackupCounter, '1')
     if (counterCahced) {

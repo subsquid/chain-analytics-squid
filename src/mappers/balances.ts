@@ -8,7 +8,10 @@ import {InvolvedAccountsData} from '../utils/types'
 
 const {api, config} = getChain()
 
-export async function handleBalances(ctx: ProcessorContext<StoreWithCache>, involvedAccountsData: Map<string, InvolvedAccountsData> | undefined): Promise<void> {
+export async function handleBalances(
+    ctx: ProcessorContext<StoreWithCache>,
+    involvedAccountsData: Map<string, InvolvedAccountsData> | undefined
+): Promise<void> {
     const accountIds = new Set<string>()
 
     if (!involvedAccountsData) return
@@ -31,28 +34,24 @@ async function saveAccounts(ctx: ProcessorContext<StoreWithCache>, block: Block,
     }
 
     const accounts = new Map<string, Account>()
-    const deletions = new Map<string, Account>()
 
     for (let i = 0; i < accountIds.length; i++) {
         const id = accountIds[i]
         const balance = balances[i]
 
-        if (!balance) continue
-        const total = balance.free + balance.reserved
-        if (total > 0n) {
-            accounts.set(
+        const free = balance.free
+        const reserved = balance.reserved
+        const total = free + reserved
+        accounts.set(
+            id,
+            new Account({
                 id,
-                new Account({
-                    id,
-                    free: balance.free,
-                    reserved: balance.reserved,
-                    total,
-                    updatedAtBlock: block.height,
-                })
-            )
-        } else {
-            deletions.set(id, new Account({id}))
-        }
+                free,
+                reserved,
+                total,
+                updatedAtBlock: block.height,
+            })
+        )
     }
 
     await ctx.store.upsert([...accounts.values()])
@@ -67,7 +66,7 @@ async function getBalances(
     ctx: DataHandlerContext<unknown, unknown>,
     block: Block,
     accountIds: string[]
-): Promise<(Balance | undefined)[] | undefined> {
+): Promise<Balance[] | undefined> {
     const accountIdsU8 = [...accountIds].map((id) => decodeAccount(id, config.prefix))
     return (
         (await api.storage.getSystemAccountBalancesByKeys(ctx, block, accountIdsU8)) ||

@@ -31,7 +31,7 @@ export const processor = new SubstrateBatchProcessor<
       >
 >()
     .setDataSource({
-        archive: lookupArchive(chainConfig.config.chainName as KnownArchives, {
+        archive: lookupArchive(chainConfig.config.chainName, {
             release: 'FireSquid',
         }),
         chain: chainConfig.config.dataSource.chain,
@@ -39,31 +39,31 @@ export const processor = new SubstrateBatchProcessor<
     .setBlockRange(chainConfig.config.blockRange || {from: 0})
     .includeAllBlocks()
     .addEvent('Balances.Endowed', {
-        data: {event: {extrinsic: true, args: true}},
+        data: {event: {extrinsic: {hash: true, signature: true}, args: true}},
     } as const)
     .addEvent('Balances.Transfer', {
-        data: {event: {extrinsic: true, args: true}},
+        data: {event: {extrinsic: {hash: true, signature: true}, args: true}},
     } as const)
     .addEvent('Balances.BalanceSet', {
-        data: {event: {extrinsic: true, args: true}},
+        data: {event: {extrinsic: {hash: true, signature: true}, args: true}},
     } as const)
     .addEvent('Balances.Reserved', {
-        data: {event: {extrinsic: true, args: true}},
+        data: {event: {extrinsic: {hash: true, signature: true}, args: true}},
     } as const)
     .addEvent('Balances.Unreserved', {
-        data: {event: {extrinsic: true, args: true}},
+        data: {event: {extrinsic: {hash: true, signature: true}, args: true}},
     } as const)
     .addEvent('Balances.ReserveRepatriated', {
-        data: {event: {extrinsic: true, args: true}},
+        data: {event: {extrinsic: {hash: true, signature: true}, args: true}},
     } as const)
     .addEvent('Balances.Deposit', {
-        data: {event: {extrinsic: true, args: true}},
+        data: {event: {extrinsic: {hash: true, signature: true}, args: true}},
     } as const)
     .addEvent('Balances.Withdraw', {
-        data: {event: {extrinsic: true, args: true}},
+        data: {event: {extrinsic: {hash: true, signature: true}, args: true}},
     } as const)
     .addEvent('Balances.Slashed', {
-        data: {event: {extrinsic: true, args: true}},
+        data: {event: {extrinsic: {hash: true, signature: true}, args: true}},
     } as const)
     .addCall('*', {
         data: {
