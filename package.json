@@ -26,7 +26,7 @@
     "dotenv": "^16.0.0",
     "extra-bigint": "^1.1.16",
     "pg": "8.10.0",
-    "typeorm": "0.3.16"
+    "typeorm": "0.3.20"
   },
   "devDependencies": {
     "@subsquid/substrate-metadata-explorer": "2.2.0",
